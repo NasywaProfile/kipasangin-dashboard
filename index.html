@@ -11,13 +11,13 @@
     <div id="welcomeScreen" class="welcome-screen">
         <div class="welcome-icon">🌀</div>
         <h1>Smart<span>Fan</span></h1>
-        <p>Your digital atmosphere controller. Experience the perfect breeze with just one touch.</p>
+        <p>Control your environment with elegance. Experience the perfect breeze.</p>
         <button id="startBtn" class="start-btn">Get Started</button>
     </div>
 
     <!-- Main Dashboard -->
     <div id="appContainer" class="app-container hidden">
-        <!-- Part 1: Visuals Control -->
+        <!-- Left Panel: Integrated Fan & Controls -->
         <section class="dashboard-visuals">
             <header class="visual-header">
                 <h1>Smart<span>Fan</span></h1>
@@ -36,53 +36,40 @@
                 </div>
             </div>
 
-            <div class="visual-controls">
+            <!-- Integrated Controls in One Frame -->
+            <div class="integrated-controls">
                 <button id="powerSwitch" class="power-btn off">
                     <div class="icon-circle">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
                     </div>
                     <span id="statusLabel">Standby</span>
                 </button>
+
+                <div class="slider-box">
+                    <label>Intensity</label>
+                    <input type="range" class="slider" id="speedSlider" min="0" max="100" value="0">
+                    <div class="slider-val"><span id="speedValue">0</span>%</div>
+                </div>
             </div>
         </section>
 
-        <!-- Part 2: Data & Detailed Controls -->
+        <!-- Right Panel: Analytics & History -->
         <section class="dashboard-data">
-            <!-- Analytics Section -->
-            <div class="stats-section">
+            <div class="data-group">
                 <h3 class="data-section-title">Current State</h3>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-icon">🌡️</div>
-                        <div class="stat-info">
-                            <h4>Temperature</h4>
-                            <div class="value"><span id="tempValue">24.5</span>°C</div>
-                        </div>
+                <div class="stat-item">
+                    <div class="stat-icon">🌡️</div>
+                    <div class="stat-info">
+                        <h4>Temperature</h4>
+                        <div class="value"><span id="tempValue">24.5</span>°C</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Detailed Controls -->
-            <div class="controls-section">
-                <h3 class="data-section-title">Manual Control</h3>
-                <div class="control-item">
-                    <label>Fan Speed Intensity</label>
-                    <div class="range-wrap">
-                        <input type="range" class="slider" id="speedSlider" min="0" max="100" value="0">
-                        <div class="range-labels">
-                            <span>0%</span>
-                            <span class="active-val" id="speedValue">Standby</span>
-                            <span>100%</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- History Section -->
-            <div class="history-wrap">
+            <div class="data-group history-group">
                 <h3 class="data-section-title">Recent Activity</h3>
                 <div class="history-container" id="historyList">
-                    <!-- History items via JS -->
+                    <!-- History items -->
                 </div>
             </div>
         </section>
