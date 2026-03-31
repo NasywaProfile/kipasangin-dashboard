@@ -7,17 +7,18 @@
     <title>Smart Fan Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
     <!-- Single Card Video Home Screen -->
     <div id="welcomeScreen" class="welcome-container">
-        
-        <!-- Background Video (Sunset / Aesthetic placeholder) -->
+
+        <!-- Background Video -->
         <video autoplay loop muted playsinline class="welcome-video">
-            <source src="https://assets.mixkit.co/videos/preview/mixkit-sunset-seen-from-the-sea-22261-large.mp4" type="video/mp4">
+            <source src="vidsunset.mp4" type="video/mp4">
         </video>
         
         <!-- Overlay Gradient for Readability -->
@@ -25,13 +26,15 @@
 
         <!-- Typography / Content -->
         <div class="welcome-text">
-            <h1>Control<br>Everything in<br>One Place</h1>
+            <h1>Control<br>Fan in<br>One Place</h1>
         </div>
 
-        <!-- Interactive Swipe Toggle -->
+        <!-- Interactive Swipe Toggle (Centered) -->
         <div class="swipe-wrapper">
-            <button class="icon-btn back-btn-home">←</button>
             <div class="swipe-track" id="swipeTrack">
+                <!-- Animated background glow -->
+                <div class="swipe-glow"></div>
+                
                 <div class="swipe-thumb" id="swipeThumb">
                     <svg width="14" height="16" viewBox="0 0 14 16" fill="black" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.5 7.13397C14.1667 7.51887 14.1667 8.48113 13.5 8.86603L2.25 15.3615C1.58333 15.7464 0.75 15.2653 0.75 14.4955L0.75 1.50449C0.75 0.734689 1.58333 0.253564 2.25 0.638466L13.5 7.13397Z"/>

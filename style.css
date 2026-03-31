@@ -55,39 +55,42 @@ body {
     font-family: 'Plus Jakarta Sans', sans-serif; text-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
 
-/* Swipe Controls */
+/* Swipe Controls Centered */
 .swipe-wrapper {
-    position: absolute; bottom: 8%; left: 8%; right: 8%; z-index: 10;
-    display: flex; gap: 20px; align-items: center; justify-content: space-between;
+    position: absolute; bottom: 8%; left: 0; right: 0; z-index: 10;
+    display: flex; justify-content: center; align-items: center;
 }
-
-.back-btn-home {
-    width: 65px; height: 65px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
-    background: rgba(255,255,255,0.1); color: white; display: flex; justify-content: center; align-items: center;
-    backdrop-filter: blur(15px); flex-shrink: 0; cursor: pointer; font-size: 24px; transition: all 0.3s ease;
-}
-.back-btn-home:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
 
 .swipe-track {
-    flex-grow: 1; height: 65px; background: rgba(255,255,255,0.15);
-    border-radius: 100px; backdrop-filter: blur(20px);
+    width: 100%; max-width: 280px; height: 52px; background: rgba(255,255,255,0.08); /* Transparent */
+    border-radius: 100px; backdrop-filter: blur(16px);
     position: relative; display: flex; align-items: center; justify-content: center;
     border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
-    overflow: hidden; box-shadow: inset 0 2px 20px rgba(0,0,0,0.1);
+    overflow: hidden; box-shadow: inset 0 2px 20px rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.15);
+}
+
+.swipe-glow {
+    position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+    animation: sweep 3.5s infinite linear; pointer-events: none;
+}
+@keyframes sweep {
+    0% { left: -100%; }
+    100% { left: 200%; }
 }
 
 .swipe-text {
-    color: white; font-weight: 600; font-size: 18px; letter-spacing: 0.5px;
+    color: rgba(255,255,255,0.9); font-weight: 600; font-size: 16px; letter-spacing: 0.5px;
     position: relative; z-index: 1; pointer-events: none; transition: opacity 0.3s;
 }
 
 .swipe-arrows {
-    position: absolute; right: 25px; color: rgba(255,255,255,0.5);
-    letter-spacing: 2px; font-weight: 600; font-size: 16px; pointer-events: none; transition: opacity 0.3s;
+    position: absolute; right: 20px; color: rgba(255,255,255,0.5);
+    letter-spacing: 2px; font-weight: 600; font-size: 15px; pointer-events: none; transition: opacity 0.3s;
 }
 
 .swipe-thumb {
-    width: 55px; height: 55px; background: white; border-radius: 50%;
+    width: 42px; height: 42px; background: white; border-radius: 50%;
     position: absolute; left: 5px; z-index: 2;
     display: flex; justify-content: center; align-items: center;
     box-shadow: 0 4px 15px rgba(0,0,0,0.15); cursor: grab;
@@ -95,7 +98,7 @@ body {
     touch-action: none; /* Prevent scroll on mobile drag */
 }
 .swipe-thumb:active { cursor: grabbing; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
-.swipe-thumb svg { width: 16px; height: 16px; fill: #0F172A; }
+.swipe-thumb svg { width: 14px; height: 14px; fill: #0F172A; }
 
 .swiping .swipe-text, .swiping .swipe-arrows { opacity: 0; }
 
