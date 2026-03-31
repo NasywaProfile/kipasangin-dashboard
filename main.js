@@ -5,7 +5,6 @@ const appContainer = document.getElementById('appContainer');
 const massiveText = document.getElementById('massiveText');
 const mainToggle = document.getElementById('mainToggle');
 const toggleKnob = document.getElementById('toggleKnob');
-const subtextContainer = document.getElementById('subtextContainer');
 const backBtn = document.getElementById('backBtn');
 
 const powerSwitch = document.getElementById('powerSwitch');
@@ -62,16 +61,13 @@ mainToggle.addEventListener('click', () => {
     
     // Change text content via fade
     massiveText.style.opacity = '0';
-    subtextContainer.style.opacity = '0';
     
     // Change knob emoji
     toggleKnob.textContent = '❄️';
     
     setTimeout(() => {
         massiveText.innerHTML = '<span class="m-text-line">COOLING OFF</span><span class="m-text-line">SYSTEM ACTIVE</span>';
-        subtextContainer.textContent = 'Atmospheric conditions optimizing. Redirecting to control dashboard...';
         massiveText.style.opacity = '1';
-        subtextContainer.style.opacity = '1';
     }, 400);
     
     // Wait 2 seconds before entering dashboard
@@ -121,7 +117,6 @@ backBtn.addEventListener('click', () => {
         
         toggleKnob.textContent = '🔥';
         massiveText.innerHTML = '<span class="m-text-line">FEEL THE HEAT</span><span class="m-text-line">COOL IT DOWN</span>';
-        subtextContainer.innerHTML = 'Well, not just because GSAP, let\'s dive into why, how and when<br>to incorporate motion design into your websites, with some<br>cloneable templates along the way to get you started';
         
         // Let welcome screen fade back in
         welcomeScreen.style.animation = 'fadeIn 0.8s ease backwards';

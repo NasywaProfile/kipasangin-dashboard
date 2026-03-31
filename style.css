@@ -64,6 +64,7 @@ body {
     display: block;
     will-change: transform, opacity;
     animation: textSlideUp 1.2s cubic-bezier(0.19, 1, 0.22, 1) backwards;
+    white-space: nowrap; /* Prevent wrapping so it fills screen nicely horizontally */
 }
 .m-text-line:nth-child(1) { animation-delay: 0.1s; }
 .m-text-line:nth-child(2) { animation-delay: 0.3s; }
@@ -90,10 +91,13 @@ body {
     position: relative;
     cursor: pointer;
     transition: background 0.8s ease, box-shadow 0.8s ease;
-    display: flex; align-items: center; padding: 10px; box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .toggle-knob {
+    position: absolute;
+    top: 10px;
+    left: 10px;
     width: 120px;
     height: 120px;
     border-radius: 50%;
@@ -101,33 +105,41 @@ body {
     justify-content: center;
     align-items: center;
     font-size: 55px;
-    transition: transform 0.8s cubic-bezier(0.8, -0.4, 0.2, 1.4), background 0.8s ease, box-shadow 0.8s ease;
+    /* We animate left property for perfect boundary hitting */
+    transition: left 0.8s cubic-bezier(0.8, -0.4, 0.2, 1.4), background 0.8s ease, box-shadow 0.8s ease;
     user-select: none;
     pointer-events: none; /* Let track handle clicks */
 }
 
 /* Base Hot State for Knob */
 .theme-hot-home .toggle-knob {
-    transform: translateX(0);
-    background: linear-gradient(135deg, #FF6A00, #FF3D47);
+    background: #FF3D47;
     box-shadow: inset 2px 2px 5px rgba(255,255,255,0.4), inset -3px -3px 8px rgba(0,0,0,0.1), 0 10px 20px rgba(255, 61, 71, 0.4);
 }
 
-.subtext-container {
-    position: absolute;
-    bottom: 5vh;
-    width: 90%;
-    max-width: 600px;
-    text-align: center;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1.6;
-    color: #4A3322;
-    transition: color 0.8s ease, opacity 0.4s ease;
-    z-index: 2;
-    animation: textSlideUp 1.2s cubic-bezier(0.19, 1, 0.22, 1) backwards;
-    animation-delay: 0.7s;
+/* Cold Theme Adjustments */
+.theme-cold-home {
+    background-color: #E2F1F8;
+}
+
+/* Make text tilt and grow exactly like Webflow right image */
+.theme-cold-home .massive-text-container {
+    color: #0C334A;
+    transform: translate(-50%, -50%) rotate(-12deg) scale(1.3);
+    transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.8s ease;
+}
+
+.theme-cold-home .giant-toggle {
+    background: #E2F1F8;
+    box-shadow: -15px -15px 30px rgba(255,255,255,0.8), 
+                15px 15px 30px rgba(160, 180, 200, 0.2);
+}
+
+.theme-cold-home .toggle-knob {
+    /* 100% (280px) - 120px (knob) - 10px (right padding gap) = calc(100% - 130px) */
+    left: calc(100% - 130px);
+    background: #00A3E0;
+    box-shadow: inset 2px 2px 5px rgba(255,255,255,0.4), inset -3px -3px 8px rgba(0,0,0,0.1), 0 10px 20px rgba(0, 163, 224, 0.4);
 }
 
 /* Animations */
@@ -152,20 +164,6 @@ body {
     100% { opacity: 1; }
 }
 
-/* Cold Theme Adjustments */
-.theme-cold-home .massive-text-container { color: #0C334A; }
-.theme-cold-home .giant-toggle {
-    background: #E2F1F8;
-    box-shadow: -15px -15px 30px rgba(255,255,255,0.8), 
-                15px 15px 30px rgba(160, 180, 200, 0.2);
-}
-.theme-cold-home .toggle-knob {
-    transform: translateX(140px); /* 280 - 20(padding) - 120(knob) = 140 */
-    background: linear-gradient(135deg, #00C6FF, #0072FF);
-    box-shadow: inset 2px 2px 5px rgba(255,255,255,0.4), inset -3px -3px 8px rgba(0,0,0,0.1), 0 10px 20px rgba(0, 114, 255, 0.4);
-}
-.theme-cold-home .subtext-container { color: #0C334A; }
-
 /* Responsive adjustments */
 @media screen and (max-width: 1100px) {
     .massive-text-container { font-size: 16vw; }
@@ -173,11 +171,11 @@ body {
 @media screen and (max-width: 768px) {
     .welcome-screen { max-width: none; height: 100vh; border-radius: 0; box-shadow: none; }
     .massive-text-container { font-size: 20vw; transform: translate(-50%, -50%); }
+    .theme-cold-home .massive-text-container { transform: translate(-50%, -50%) rotate(-12deg) scale(1.1); }
     .giant-toggle { width: 180px; height: 90px; }
     .toggle-knob { width: 70px; height: 70px; font-size: 32px; }
-    .theme-cold-home .toggle-knob { transform: translateX(90px); }
+    .theme-cold-home .toggle-knob { left: calc(100% - 80px); }
     .giant-toggle-wrapper { transform: translate(-50%, 20%); }
-    .subtext-container { font-size: 14px; bottom: 3vh; max-width: 320px;}
 }
 
 
