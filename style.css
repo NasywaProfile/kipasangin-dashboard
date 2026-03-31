@@ -296,7 +296,11 @@ body {
 
 @media screen and (max-width: 768px) {
     body { padding: 0; display: block; overflow-y: auto; background: white; }
-    .welcome-screen { height: 100vh; border-radius: 0; }
+    .welcome-screen { height: 100vh; border-radius: 0; background-image: none; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .welcome-content { padding: 40px 24px; width: 100%; max-width: 400px; border-radius: 30px; box-sizing: border-box; }
+    .welcome-content h1 { font-size: 36px; }
+    .welcome-content p { font-size: 14px; margin-bottom: 30px; }
+    .start-btn { width: 100%; justify-content: center; padding: 16px 30px; }
     
     .app-container { 
         grid-template-columns: 1fr; 
