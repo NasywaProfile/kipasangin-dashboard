@@ -24,6 +24,8 @@ body {
     background-image: radial-gradient(at 0% 0%, hsla(217,100%,97%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(216,100%,96%,1) 0, transparent 50%);
 }
 
+.hidden { display: none !important; }
+
 /* --- Premium Presentation Slider Onboarding --- */
 .welcome-screen {
     width: 100vw; height: 100vh;
