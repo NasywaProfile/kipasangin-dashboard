@@ -68,7 +68,7 @@ mainToggle.addEventListener('click', () => {
     toggleKnob.textContent = '❄️';
     
     setTimeout(() => {
-        massiveText.innerHTML = 'COOLING<br>ENGAGED';
+        massiveText.innerHTML = '<span class="m-text-line">COOLING OFF</span><span class="m-text-line">SYSTEM ACTIVE</span>';
         subtextContainer.textContent = 'Atmospheric conditions optimizing. Redirecting to control dashboard...';
         massiveText.style.opacity = '1';
         subtextContainer.style.opacity = '1';
@@ -105,8 +105,8 @@ backBtn.addEventListener('click', () => {
     welcomeScreen.classList.add('theme-hot-home');
     
     toggleKnob.textContent = '🔥';
-    massiveText.innerHTML = 'FEELING<br>THE HEAT?';
-    subtextContainer.textContent = "It's getting warm in here. Tap the switch to instantly activate the advanced cooling sequence and bring the temperature down.";
+    massiveText.innerHTML = '<span class="m-text-line">FEEL THE HEAT</span><span class="m-text-line">COOL IT DOWN</span>';
+    subtextContainer.innerHTML = 'Well, not just because GSAP, let\'s dive into why, how and when<br>to incorporate motion design into your websites, with some<br>cloneable templates along the way to get you started';
 });
 
 // --- Fan Controls ---

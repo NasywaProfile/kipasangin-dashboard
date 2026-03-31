@@ -26,83 +26,97 @@ body {
 
 .hidden { display: none !important; }
 
-/* --- Welcome Homepage New Design --- */
+/* --- Welcome Homepage New Design (Webflow Exact Clone) --- */
 .welcome-screen {
-    background-color: #EFE4D7;
+    background-color: #F8ECE0; /* Match beige image background exactly */
     transition: background-color 0.8s ease;
     width: 100vw; height: 100vh;
     position: relative; overflow: hidden;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
 .theme-hot-home {
-    background-color: #EFE4D7;
+    background-color: #F8ECE0;
 }
 .theme-cold-home {
     background-color: #E2F1F8;
 }
 
 .massive-text-container {
-    font-family: 'Anton', sans-serif;
-    font-size: 15vw;
-    line-height: 0.85;
-    text-align: center;
-    color: #381A0B;
-    text-transform: uppercase;
-    transition: color 0.8s ease, opacity 0.4s ease;
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -65%);
-    white-space: nowrap;
+    transform: translate(-50%, -50%);
+    font-family: 'Anton', sans-serif;
+    font-size: 14vw;
+    line-height: 0.88;
+    letter-spacing: -0.01em;
+    text-align: center;
+    color: #2F1B0D; /* dark brown */
+    text-transform: uppercase;
+    transition: color 0.8s ease, opacity 0.4s ease;
+    display: flex;
+    flex-direction: column;
     z-index: 1;
+    width: 100vw;
 }
 
 .giant-toggle-wrapper {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, 40%);
+    /* Position toggle so it overlaps bottom text exact like the photo */
+    transform: translate(-50%, 15%);
     z-index: 10;
 }
 
 .giant-toggle {
-    width: 250px;
-    height: 120px;
-    background: #EFE4D7;
-    border-radius: 80px;
-    box-shadow: 12px 12px 24px rgba(180, 160, 140, 0.4), -12px -12px 24px rgba(255, 255, 255, 0.8);
+    width: 280px;
+    height: 140px;
+    background: #F8ECE0;
+    border-radius: 100px;
+    /* Soft neumorphic raised platform */
+    box-shadow: -15px -15px 30px rgba(255,255,255,0.7), 
+                15px 15px 30px rgba(180, 160, 140, 0.2);
     position: relative;
     cursor: pointer;
     transition: background 0.8s ease, box-shadow 0.8s ease;
+    display: flex; align-items: center; padding: 10px; box-sizing: border-box;
 }
 
 .toggle-knob {
-    width: 100px;
-    height: 100px;
-    background: #FF3D47;
+    width: 120px;
+    height: 120px;
+    background: #3B82F6; /* Standard color, overridden by JS/CSS but default red/blue are below */
     border-radius: 50%;
-    position: absolute;
-    top: 10px;
-    left: 10px;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 45px;
-    box-shadow: 0 10px 20px rgba(255, 61, 71, 0.4);
+    font-size: 55px;
+    /* Clean slight inset and shadow */
+    box-shadow: -5px -5px 15px rgba(255,255,255,0.4) inset,
+                0 10px 20px rgba(0, 0, 0, 0.1);
     transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55), background 0.6s ease, box-shadow 0.6s ease;
     user-select: none;
+    pointer-events: none; /* Let track handle clicks */
+}
+
+/* Base Hot State for Knob */
+.theme-hot-home .toggle-knob {
+    background: #FF3D47;
+    box-shadow: -5px -5px 15px rgba(255,100,100,0.5) inset, 0 10px 20px rgba(255, 61, 71, 0.3);
 }
 
 .subtext-container {
     position: absolute;
-    bottom: 8%;
+    bottom: 5vh;
     width: 90%;
-    max-width: 500px;
+    max-width: 600px;
     text-align: center;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 16px;
-    line-height: 1.5;
-    color: #381A0B;
     font-weight: 500;
+    line-height: 1.6;
+    color: #4A3322;
     transition: color 0.8s ease, opacity 0.4s ease;
     z-index: 2;
 }
@@ -111,27 +125,28 @@ body {
 .theme-cold-home .massive-text-container { color: #0C334A; }
 .theme-cold-home .giant-toggle {
     background: #E2F1F8;
-    box-shadow: 12px 12px 24px rgba(160, 180, 200, 0.3), -12px -12px 24px rgba(255, 255, 255, 0.9);
+    box-shadow: -15px -15px 30px rgba(255,255,255,0.8), 
+                15px 15px 30px rgba(160, 180, 200, 0.2);
 }
 .theme-cold-home .toggle-knob {
-    transform: translateX(130px);
-    background: #00A3E0;
-    box-shadow: 0 10px 20px rgba(0, 163, 224, 0.4);
+    transform: translateX(140px); /* 280 - 20(padding) - 120(knob) = 140 */
+    background: #3B82F6;
+    box-shadow: -5px -5px 15px rgba(100,180,255,0.5) inset, 0 10px 20px rgba(59, 130, 246, 0.3);
 }
 .theme-cold-home .subtext-container { color: #0C334A; }
 
 /* Responsive adjustments */
 @media screen and (max-width: 1100px) {
-    .massive-text-container { font-size: 18vw; }
+    .massive-text-container { font-size: 16vw; }
 }
 @media screen and (max-width: 768px) {
     .welcome-screen { max-width: none; height: 100vh; border-radius: 0; box-shadow: none; }
-    .massive-text-container { font-size: 22vw; transform: translate(-50%, -75%); }
+    .massive-text-container { font-size: 20vw; transform: translate(-50%, -50%); }
     .giant-toggle { width: 180px; height: 90px; }
-    .toggle-knob { width: 70px; height: 70px; top: 10px; left: 10px; font-size: 30px; }
+    .toggle-knob { width: 70px; height: 70px; font-size: 32px; }
     .theme-cold-home .toggle-knob { transform: translateX(90px); }
-    .giant-toggle-wrapper { transform: translate(-50%, 30%); }
-    .subtext-container { font-size: 14px; bottom: 5%; }
+    .giant-toggle-wrapper { transform: translate(-50%, 20%); }
+    .subtext-container { font-size: 14px; bottom: 3vh; max-width: 320px;}
 }
 
 
