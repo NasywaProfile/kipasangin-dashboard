@@ -3,15 +3,8 @@ const welcomeScreen = document.getElementById('welcomeScreen');
 const appContainer = document.getElementById('appContainer');
 // --- Onboarding Elements ---
 const heroFan = document.getElementById('heroFan');
-const slide1 = document.getElementById('slide1');
-const slide2 = document.getElementById('slide2');
-const slide3 = document.getElementById('slide3');
-const slides = [slide1, slide2, slide3];
-
-const btnPrev = document.getElementById('btnPrev');
-const btnNext = document.getElementById('btnNext');
-const slideNum = document.getElementById('slideNum');
-const btnEnter = document.getElementById('btnEnter');
+const swipeThumb = document.getElementById('swipeThumb');
+const swipeTrack = document.getElementById('swipeTrack');
 const backBtn = document.getElementById('backBtn');
 
 const powerSwitch = document.getElementById('powerSwitch');
@@ -54,69 +47,75 @@ function init() {
     }, 2000);
 }
 
-// --- Premium Slider Navigation Flow ---
-let currentStep = 1;
-const totalSteps = 3;
+// --- Swipe to Start Navigation Flow ---
+let isDragging = false;
+let startX = 0;
+let thumbLeft = 0;
+let maxSwipe = 0;
 
-function updateSlider() {
-    // 1. Update text indicator
-    slideNum.textContent = `0${currentStep}`;
-    
-    // Update theme body wrapper for dynamic indicator color
-    welcomeScreen.className = 'welcome-screen';
-    if(currentStep === 2) welcomeScreen.classList.add('temp-hot');
-    if(currentStep === 3) welcomeScreen.classList.add('temp-cold');
-    
-    // 2. Button states
-    if(currentStep === 1) {
-        btnPrev.classList.add('disabled');
-    } else {
-        btnPrev.classList.remove('disabled');
-    }
-    
-    if(currentStep === totalSteps) {
-        btnNext.classList.add('disabled');
-    } else {
-        btnNext.classList.remove('disabled');
-    }
-    
-    // 3. Central Fan Modes
-    if(currentStep === 1) heroFan.className = 'hero-fan mode-regular';
-    if(currentStep === 2) heroFan.className = 'hero-fan mode-hot';
-    if(currentStep === 3) heroFan.className = 'hero-fan mode-cold';
-    
-    // 4. Update the actual slides spatial position
-    slides.forEach((slide, index) => {
-        const slideIndex = index + 1;
-        
-        // Reset classes
-        slide.classList.remove('active', 'past', 'next');
-        
-        if (slideIndex < currentStep) {
-            slide.classList.add('past');
-        } else if (slideIndex === currentStep) {
-            slide.classList.add('active');
-        } else {
-            slide.classList.add('next');
-        }
-    });
+function initSwipe() {
+    if(!swipeTrack || !swipeThumb) return;
+    // Calculate max swipe distance (track width - thumb width - padding)
+    maxSwipe = swipeTrack.clientWidth - swipeThumb.clientWidth - 12;
 }
 
-btnNext.addEventListener('click', () => {
-    if(currentStep < totalSteps) {
-        currentStep++;
-        updateSlider();
-    }
+window.addEventListener('resize', initSwipe);
+
+if(swipeThumb) {
+    swipeThumb.addEventListener('mousedown', (e) => {
+        isDragging = true; startX = e.clientX;
+        swipeThumb.classList.add('grabbing');
+        initSwipe();
+    });
+
+    swipeThumb.addEventListener('touchstart', (e) => {
+        isDragging = true; startX = e.touches[0].clientX;
+        swipeThumb.classList.add('grabbing');
+        initSwipe();
+    }, {passive: true});
+}
+
+document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    moveThumb(e.clientX);
 });
 
-btnPrev.addEventListener('click', () => {
-    if(currentStep > 1) {
-        currentStep--;
-        updateSlider();
-    }
-});
+document.addEventListener('touchmove', (e) => {
+    if (!isDragging) return;
+    moveThumb(e.touches[0].clientX);
+}, {passive: true});
 
-btnEnter.addEventListener('click', () => {
+function moveThumb(clientX) {
+    let diff = clientX - startX;
+    if (diff < 0) diff = 0;
+    if (diff > maxSwipe) diff = maxSwipe;
+    
+    thumbLeft = diff;
+    swipeThumb.style.transform = `translateX(${diff}px)`;
+    
+    if (diff >= maxSwipe - 5) {
+        isDragging = false;
+        triggerEnter();
+    }
+}
+
+document.addEventListener('mouseup', endDrag);
+document.addEventListener('touchend', endDrag);
+
+function endDrag() {
+    if (!isDragging) return;
+    isDragging = false;
+    swipeThumb.classList.remove('grabbing');
+    
+    if (thumbLeft < maxSwipe - 5) {
+        swipeThumb.style.transition = 'transform 0.3s ease';
+        swipeThumb.style.transform = `translateX(0px)`;
+        setTimeout(() => { swipeThumb.style.transition = 'transform 0.1s'; }, 300);
+        thumbLeft = 0;
+    }
+}
+
+function triggerEnter() {
     // Smooth transition out of welcome screen
     welcomeScreen.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
     welcomeScreen.style.opacity = '0';
@@ -142,7 +141,7 @@ btnEnter.addEventListener('click', () => {
             addHistory('Fan Speed Optimized', 'on', 24.5);
         }
     }, 800); // Wait for fade out
-});
+}
 
 backBtn.addEventListener('click', () => {
     // Smooth transition out of dashboard
@@ -153,9 +152,12 @@ backBtn.addEventListener('click', () => {
         welcomeScreen.classList.remove('hidden');
         sessionActive = false;
         
-        // Reset to first slide dynamically
-        currentStep = 1;
-        updateSlider();
+        // Reset thumb back to start
+        if(swipeThumb) {
+            swipeThumb.style.transition = 'none';
+            swipeThumb.style.transform = `translateX(0px)`;
+            thumbLeft = 0;
+        }
         
         // Let welcome screen fade back in
         welcomeScreen.style.animation = 'fadeIn 0.8s ease backwards';
