@@ -93,10 +93,11 @@ body {
 
 /* --- Dashboard Container --- */
 .app-container {
-    background: var(--card-bg); width: 100%; max-width: 950px; height: 90vh; max-height: 700px;
-    border-radius: 40px; box-shadow: var(--shadow-lg); display: grid; grid-template-columns: 1fr 1fr;
+    background: var(--card-bg); width: 100%; max-width: 1100px; height: 90vh; max-height: 700px;
+    border-radius: 40px; box-shadow: var(--shadow-lg); 
+    display: grid; grid-template-columns: 1fr 0.8fr 0.8fr;
     overflow: hidden; border: 1px solid white;
-    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); /* Long smooth transition for atmosphere */
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* --- Cool Atmosphere State (When ON) --- */
@@ -155,7 +156,9 @@ body {
 .back-btn:hover { background: var(--text-main); color: white; transform: translateX(-2px); }
 .titles h1 { font-size: 24px; font-weight: 800; }
 .titles h1 span { color: var(--accent-color); }
+.sub-header { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
 .titles p { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.header-temp { font-size: 12px; font-weight: 700; color: var(--accent-color); background: var(--accent-light); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.1); }
 
 /* Fan Display */
 .fan-display { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; min-height: 250px; }
@@ -209,17 +212,18 @@ body {
 .power-toggle.on .toggle-knob { transform: translateX(30px); }
 .power-toggle.on .p-icon { color: var(--accent-color); }
 
-/* Right Panel (Sidebar Approach) */
-.dashboard-data { 
-    padding: 40px; 
-    display: flex; 
-    flex-direction: column; 
-    background: white; 
-    height: 100%; 
-    overflow: hidden; 
+/* Panels Styling */
+.dashboard-stats, .dashboard-history { 
+    padding: 40px; display: flex; flex-direction: column; height: 100%; overflow: hidden; background: white; 
+    min-height: 0; /* Important for flex/grid scrolling */
 }
+.dashboard-stats { border-right: 1px solid var(--border-soft); background: #FCFDFF; }
+.dashboard-history { background: #FFFFFF; position: relative; }
 
-.data-group { flex-shrink: 0; margin-bottom: 30px; }
+.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
+.history-count { background: var(--accent-light); color: var(--accent-color); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; }
+
+.data-group { flex-shrink: 0; margin-bottom: 30px; width: 100%; }
 .data-section-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 .data-section-title::before { content: ''; width: 6px; height: 6px; background: var(--accent-color); border-radius: 50%; }
 
@@ -237,7 +241,7 @@ body {
 .sparkline { width: 100%; height: 100%; overflow: visible; }
 
 /* History Section (Scrollable Sidebar) */
-.history-group { 
+.dashboard-history { 
     flex-grow: 1; 
     display: flex; 
     flex-direction: column; 
@@ -251,13 +255,15 @@ body {
     flex-direction: column; 
     gap: 12px; 
     padding-right: 12px;
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: var(--accent-color) transparent; /* Firefox */
 }
 
-/* Scrollbar Style */
-.history-container::-webkit-scrollbar { width: 6px; }
-.history-container::-webkit-scrollbar-track { background: transparent; }
-.history-container::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
-.history-container::-webkit-scrollbar-thumb:hover { background: #CBD5E1; }
+/* Scrollbar Style for Chrome/Safari/Edge */
+.history-container::-webkit-scrollbar { width: 5px; }
+.history-container::-webkit-scrollbar-track { background: #F8FAFC; border-radius: 10px; }
+.history-container::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; border: 2px solid #F8FAFC; }
+.history-container::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
 
 .history-item {
     padding: 16px; background: white; border-radius: 18px; display: flex; justify-content: space-between; align-items: center;
@@ -270,16 +276,43 @@ body {
 .type-off { background: #FEF2F2; color: #F43F5E; }
 .history-text h5 { font-size: 14px; font-weight: 700; color: var(--text-main); }
 .history-text p { font-size: 12px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+.history-text span { color: var(--accent-color); font-weight: 700; background: var(--accent-light); padding: 2px 6px; border-radius: 6px; margin-left: 4px; font-size: 11px; }
 .history-time { font-size: 12px; color: var(--text-muted); font-weight: 700; background: #F8FAFC; padding: 6px 10px; border-radius: 8px; }
 
 /* Responsive */
-@media screen and (max-width: 850px) {
+@media screen and (max-width: 1100px) {
+    .app-container { max-width: 95%; height: 95vh; }
+}
+
+@media screen and (max-width: 1000px) {
+    .app-container { 
+        grid-template-columns: 1fr 1fr; 
+        height: 90vh; /* Keep fixed height on tablet to allow internal scrolling */
+    }
+    .dashboard-history { 
+        grid-column: span 2; 
+        border-top: 1px solid var(--border-soft);
+        min-height: 0; /* Clear previous min-height if any */
+        height: 350px; /* Specific height for split view */
+    }
+}
+
+@media screen and (max-width: 768px) {
     body { padding: 0; align-items: stretch; background: white; }
     .welcome-screen { border-radius: 0; height: 100vh; max-height: none; max-width: none; }
     .welcome-content { padding: 40px 20px; width: 90%; border-radius: 30px; }
-    .app-container { grid-template-columns: 1fr; height: 100vh; max-height: none; max-width: none; border-radius: 0; border: none; box-shadow: none; overflow-y: auto; }
-    .dashboard-visuals { padding: 30px; border-right: none; border-bottom: 1px solid var(--border-soft); min-height: 50vh; }
-    .dashboard-data { padding: 30px; }
-    .history-group { overflow: visible; }
+    
+    .app-container { 
+        grid-template-columns: 1fr; 
+        height: 100vh; 
+        max-height: none; 
+        border-radius: 0; 
+        border: none; 
+        box-shadow: none; 
+    }
+    
+    .dashboard-visuals { padding: 30px; border-right: none; border-bottom: 1px solid var(--border-soft); min-height: 450px; }
+    .dashboard-stats { padding: 30px; border-right: none; border-bottom: 1px solid var(--border-soft); }
+    .dashboard-history { grid-column: span 1; padding: 30px; height: auto; min-height: 400px; }
     .history-container { overflow-y: visible; max-height: none; padding-right: 0; }
 }

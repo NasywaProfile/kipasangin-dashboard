@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Fan Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <!-- Welcome Homepage -->
     <div id="welcomeScreen" class="welcome-screen">
@@ -21,7 +23,11 @@
             <p class="fade-up-2">Next-generation atmospheric control.<br>Minimalist, elegant, and intelligent.</p>
             <button id="startBtn" class="start-btn fade-up-3">
                 Access Dashboard
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                </svg>
             </button>
         </div>
     </div>
@@ -40,11 +46,17 @@
         <section class="dashboard-visuals">
             <header class="visual-header">
                 <button id="backBtn" class="back-btn" aria-label="Go Back">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
                 </button>
                 <div class="titles">
                     <h1>Smart<span>Fan</span></h1>
-                    <p>Living Room Device</p>
+                    <div class="sub-header">
+                        <p>Living Room Device</p>
+                        <div class="header-temp"><span id="headerTempValue">24.5</span>°C</div>
+                    </div>
                 </div>
             </header>
 
@@ -69,15 +81,19 @@
                     </div>
                     <button id="powerSwitch" class="power-toggle off">
                         <div class="toggle-knob">
-                            <svg class="p-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+                            <svg class="p-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                                <line x1="12" y1="2" x2="12" y2="12" />
+                            </svg>
                         </div>
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- Right Panel: Analytics & History -->
-        <section class="dashboard-data">
+        <!-- Middle Panel: Environment Stats -->
+        <section class="dashboard-stats">
             <div class="data-group">
                 <h3 class="data-section-title">Environment</h3>
                 <div class="stat-item temp-card">
@@ -93,16 +109,34 @@
                     </div>
                 </div>
             </div>
-
-            <div class="data-group history-group">
-                <h3 class="data-section-title">Recent Activity</h3>
-                <div class="history-container" id="historyList">
-                    <!-- History items via JS -->
+            
+            <!-- Additional Stat Card for better looks -->
+            <div class="data-group">
+                <div class="stat-item humidity-card">
+                    <div class="stat-icon hum-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5s-3 3.5-3 5.5a7 7 0 0 0 7 7z"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <h4>Humidity</h4>
+                        <div class="value">42<span class="unit">%</span></div>
+                    </div>
                 </div>
+            </div>
+        </section>
+
+        <!-- Right Panel: History Sidebar -->
+        <section class="dashboard-history">
+            <div class="history-header">
+                <h3 class="data-section-title">Recent Activity</h3>
+                <span class="history-count" id="historyCount">0</span>
+            </div>
+            <div class="history-container" id="historyList">
+                <!-- History items via JS -->
             </div>
         </section>
     </div>
 
     <script type="module" src="main.js"></script>
 </body>
+
 </html>

@@ -9,6 +9,7 @@ const statusLabel = document.getElementById('statusLabel');
 const fanBlades = document.getElementById('fanBlades');
 const tempValueLabel = document.getElementById('tempValue');
 const historyList = document.getElementById('historyList');
+const historyCountLabel = document.getElementById('historyCount');
 const tempSparkline = document.getElementById('tempSparkline');
 
 // --- Application State ---
@@ -49,8 +50,16 @@ startBtn.addEventListener('click', () => {
     appContainer.classList.remove('hidden');
     appContainer.style.animation = 'fadeUp 0.6s ease forwards';
     sessionActive = true;
+    
     if (historyList.children.length === 0) {
-        addHistory('System Initialized', 'on');
+        // Initial set of events to fill the "sidebar"
+        addHistory('System Initialized', 'on', 24.5);
+        addHistory('Automatic Cooling Engaged', 'on', 26.2);
+        addHistory('Energy Saving Mode', 'off', 24.8);
+        addHistory('Night Mode Active', 'on', 23.5);
+        addHistory('Manual Override', 'off', 24.1);
+        addHistory('Temperature Calibration', 'on', 24.4);
+        addHistory('Fan Speed Optimized', 'on', 24.5);
     }
 });
 
@@ -81,9 +90,10 @@ powerSwitch.addEventListener('click', () => {
     }
 });
 
-function addHistory(title, type) {
+function addHistory(title, type, temp = null) {
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const tempToShow = temp !== null ? temp : currentTemp;
     
     const iconSvg = type === 'on' 
         ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`
@@ -98,7 +108,7 @@ function addHistory(title, type) {
             </div>
             <div class="history-text">
                 <h5>${title}</h5>
-                <p>State: ${type.toUpperCase()}</p>
+                <p>State: ${type.toUpperCase()} • <span>${tempToShow.toFixed(1)}°C</span></p>
             </div>
         </div>
         <div class="history-time">${timeStr}</div>
@@ -108,7 +118,14 @@ function addHistory(title, type) {
     item.style.animation = 'fadeUp 0.4s ease backwards';
     
     historyList.prepend(item);
-    if (historyList.children.length > 6) {
+    
+    // Update count
+    if (historyCountLabel) {
+        historyCountLabel.textContent = historyList.children.length;
+    }
+    
+    // Maintain a reasonable limit
+    if (historyList.children.length > 50) {
         historyList.removeChild(historyList.lastChild);
     }
 }
@@ -130,7 +147,10 @@ function updateSparkline() {
 }
 
 function updateUI() {
-    tempValueLabel.textContent = currentTemp.toFixed(1);
+    const val = currentTemp.toFixed(1);
+    tempValueLabel.textContent = val;
+    const headerVal = document.getElementById('headerTempValue');
+    if (headerVal) headerVal.textContent = val;
     updateSparkline();
 }
 
