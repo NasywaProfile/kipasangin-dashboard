@@ -13,25 +13,7 @@
 
 <body>
     <!-- Onboarding / Premium Slider Screen -->
-    <div id="welcomeScreen" class="welcome-screen step-1">
-        
-        <!-- Fun Minimalist Technical Frame -->
-        <div class="minimal-frame">
-            <div class="f-line f-top"></div>
-            <div class="f-line f-bottom"></div>
-            <div class="f-line f-left"></div>
-            <div class="f-line f-right"></div>
-            <div class="f-dot tl"></div>
-            <div class="f-dot tr"></div>
-            <div class="f-dot bl"></div>
-            <div class="f-dot br"></div>
-        </div>
-
-        <!-- Trajectory connecting lines (Animated) -->
-        <svg class="connection-paths" width="100%" height="100%">
-            <line id="line1" x1="25%" y1="50%" x2="75%" y2="50%" stroke-width="3" stroke-dasharray="10 10" stroke-linecap="round"/>
-            <line id="line2" x1="75%" y1="50%" x2="25%" y2="50%" stroke-width="3" stroke-dasharray="10 10" stroke-linecap="round"/>
-        </svg>
+    <div id="welcomeScreen" class="welcome-screen">
         
         <!-- Persistent Central Graphic -->
         <div class="hero-graphic-wrapper">
@@ -51,8 +33,7 @@
             
             <!-- Slide 1 -->
             <div id="slide1" class="slide-card bg-1 active">
-                <div class="giant-bg-text">01.</div>
-                <div class="slide-content content-right">
+                <div class="slide-content">
                     <h2 class="stagger-up">SMART CLIMATE</h2>
                     <p class="stagger-up delay-1">Intelligent atmosphere control designed for modern living. Quiet, powerful, and beautifully seamless.</p>
                 </div>
@@ -60,8 +41,7 @@
 
             <!-- Slide 2 -->
             <div id="slide2" class="slide-card bg-hot next">
-                <div class="giant-bg-text hot-outline">HOT.</div>
-                <div class="slide-content content-left">
+                <div class="slide-content">
                     <h2 class="stagger-up">FEEL THE HEAT?</h2>
                     <p class="stagger-up delay-1">When the temperature rises and the air gets stuffy, ordinary fans just push the warm air around mercilessly.</p>
                 </div>
@@ -69,8 +49,7 @@
 
             <!-- Slide 3 -->
             <div id="slide3" class="slide-card bg-cold next">
-                <div class="giant-bg-text cold-outline">COOL.</div>
-                <div class="slide-content content-right">
+                <div class="slide-content">
                     <h2 class="stagger-up">ARCTIC BREEZE</h2>
                     <p class="stagger-up delay-1">Experience rapid, bone-chilling cooling technology instantly. Take complete control of your environment.</p>
                     <button class="action-btn btn-enter stagger-up delay-2" id="btnEnter">ENTER DASHBOARD</button>

@@ -53,13 +53,16 @@ body {
 .bg-hot { background: linear-gradient(135deg, #FFF1F2 0%, #FFE4E6 100%); color: #881337; }
 .bg-cold { background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%); color: #0C4A6E; }
 
-/* Presentation Text Layouts */
+/* Slide Text Stagger Animations */
 .slide-content { 
-    position: absolute; top: 50%; transform: translateY(-50%);
-    max-width: 480px; padding: 0 40px; text-align: left;
+    position: absolute;
+    left: 10%;
+    top: 50%;
+    transform: translateY(-50%);
+    text-align: left;
+    max-width: 500px;
+    padding: 0; 
 }
-.content-left { left: 8%; right: auto; }
-.content-right { right: 8%; left: auto; }
 .slide-content h2 {
     font-size: 56px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 20px;
     line-height: 1.1;
@@ -71,54 +74,6 @@ body {
 .bg-1 p { color: #475569; }
 .bg-hot p { color: #BE123C; }
 .bg-cold p { color: #0369A1; }
-
-/* Giant Minimalist Outline Background Typography */
-.giant-bg-text {
-    position: absolute; top: 12%; left: 4%; 
-    font-size: 26vw; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif;
-    color: transparent; -webkit-text-stroke: 2px rgba(15,23,42,0.03);
-    z-index: 0; pointer-events: none; white-space: nowrap; user-select: none;
-    line-height: 1; letter-spacing: -2vw;
-}
-.hot-outline { -webkit-text-stroke: 2px rgba(225, 29, 72, 0.04); top: 18%; font-size: 22vw; }
-.cold-outline { -webkit-text-stroke: 2px rgba(2, 132, 199, 0.04); top: 18%; font-size: 20vw; }
-
-/* Dotted Connection Trajectories */
-.connection-paths {
-    position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 15; pointer-events: none;
-}
-.connection-paths line { transition: stroke 1.2s ease; }
-
-.step-1 #line1 { stroke: #94A3B8; }
-.step-1 #line2 { stroke: transparent; }
-
-.step-2 #line1 { stroke: #E11D48; }  /* Hot trail */
-.step-2 #line2 { stroke: rgba(225, 29, 72, 0.2); }
-
-.step-3 #line1 { stroke: transparent; } /* fade out line 1 */
-.step-3 #line2 { stroke: #0284C7; }  /* Cold trail */
-
-/* Fun UI Minimal Frame */
-.minimal-frame {
-    position: absolute; top: 25px; left: 25px; right: 25px; bottom: 25px; z-index: 40; pointer-events: none;
-}
-.f-line { position: absolute; background: rgba(15,23,42,0.1); transition: background 1.2s; }
-.step-2 .f-line { background: rgba(225, 29, 72, 0.2); }
-.step-3 .f-line { background: rgba(2, 132, 199, 0.2); }
-
-.f-top { top: 0; left: 0; right: 0; height: 1px; }
-.f-bottom { bottom: 0; left: 0; right: 0; height: 1px; }
-.f-left { left: 0; top: 0; bottom: 0; width: 1px; }
-.f-right { right: 0; top: 0; bottom: 0; width: 1px; }
-
-.f-dot { position: absolute; width: 5px; height: 5px; background: #0F172A; transition: background 1.2s; }
-.step-2 .f-dot { background: #E11D48; }
-.step-3 .f-dot { background: #0284C7; }
-
-.tl { top: -2px; left: -2px; }
-.tr { top: -2px; right: -2px; }
-.bl { bottom: -2px; left: -2px; }
-.br { bottom: -2px; right: -2px; }
 
 .stagger-up {
     opacity: 0; transform: translateY(40px);
@@ -160,19 +115,16 @@ body {
 .arrow-btn:hover:not(.disabled) { transform: scale(1.1); background: #3B82F6; }
 .arrow-btn.disabled { opacity: 0.3; cursor: not-allowed; }
 
-/* Fan Placements & Interactive Animation */
+/* Hero Graphic (The persistent fan) */
 .hero-graphic-wrapper {
     position: absolute; 
     top: 50%; 
-    left: 25%; /* default for step 1 */
-    transform: translate(-50%, -50%);
+    right: 15%; 
+    left: auto;
+    transform: translate(0, -50%);
     z-index: 20; pointer-events: none;
-    transition: left 1.2s cubic-bezier(0.8, 0, 0.2, 1);
+    transition: all 1s ease;
 }
-
-.step-1 .hero-graphic-wrapper { left: 25%; }
-.step-2 .hero-graphic-wrapper { left: 75%; }
-.step-3 .hero-graphic-wrapper { left: 25%; }
 .hero-fan {
     width: 280px; height: 280px; position: relative;
     display: flex; justify-content: center; align-items: center;
@@ -227,10 +179,7 @@ body {
 }
 
 @media screen and (max-width: 768px) {
-    .connection-paths { display: none; }
-    .giant-bg-text { top: 35%; left: 50%; transform: translateX(-50%); font-size: 38vw; }
-    
-    .slide-content, .content-left, .content-right {
+    .slide-content {
         left: 5%; right: 5%; bottom: 15%; top: auto;
         transform: translateY(0);
         text-align: center; max-width: none;
@@ -238,8 +187,7 @@ body {
     .slide-content h2 { font-size: 38px; margin-bottom: 12px; }
     .slide-content p { font-size: 16px; margin-bottom: 20px; }
     
-    .hero-graphic-wrapper, 
-    .step-1 .hero-graphic-wrapper, .step-2 .hero-graphic-wrapper, .step-3 .hero-graphic-wrapper {
+    .hero-graphic-wrapper {
         top: 25%; right: auto; left: 50%;
         transform: translate(-50%, -50%);
     }
