@@ -320,7 +320,7 @@ body {
 
 /* Responsive Update */
 @media screen and (max-width: 900px) {
-    .app-container { 
+    .app-container, .welcome-container { 
         height: 95vh; max-width: 95%; max-height: none; 
     }
 }
@@ -328,6 +328,12 @@ body {
 @media screen and (max-width: 768px) {
     body { padding: 0; display: block; overflow-y: auto; background: white; }
     
+    .welcome-container {
+        height: 100vh; min-height: 100vh; max-height: 100vh;
+        border-radius: 0; width: 100%; max-width: 100%;
+        box-shadow: none;
+    }
+
     .app-container { 
         grid-template-columns: 1fr; 
         height: auto; 
