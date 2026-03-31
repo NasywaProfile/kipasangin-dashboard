@@ -26,131 +26,127 @@ body {
 
 .hidden { display: none !important; }
 
-/* --- Welcome Homepage New Design (Webflow Exact Clone) --- */
+/* --- Interactive Multi-Slide Onboarding --- */
 .welcome-screen {
-    background-color: #F8ECE0; /* Match beige image background exactly */
-    transition: background-color 0.8s ease;
     width: 100vw; height: 100vh;
     position: relative; overflow: hidden;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-}
-.theme-hot-home {
-    background-color: #F8ECE0;
-}
-.theme-cold-home {
-    background-color: #E2F1F8;
+    background-color: #F8FAFC;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #0F172A;
 }
 
-.massive-text-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: 'Anton', sans-serif;
-    font-size: 14vw;
-    line-height: 0.88;
-    letter-spacing: -0.01em;
-    text-align: center;
-    color: #2F1B0D; /* dark brown */
-    text-transform: uppercase;
-    transition: color 0.8s ease, opacity 0.4s ease;
-    display: flex;
-    flex-direction: column;
-    z-index: 1;
-    width: 100vw;
+/* Background Flows */
+.flow-bg {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 1; transition: background 1.5s ease;
 }
+.flow-bg.step-1 { background: radial-gradient(circle at 50% 50%, #F1F5F9 0%, #E2E8F0 100%); }
+.flow-bg.step-2 { background: radial-gradient(circle at 50% 50%, #FFF5F5 0%, #FED7D7 100%); }
+.flow-bg.step-3 { background: radial-gradient(circle at 50% 50%, #EFF6FF 0%, #BFDBFE 100%); }
 
-.m-text-line {
-    display: block;
-    will-change: transform, opacity;
-    animation: textSlideUp 1.2s cubic-bezier(0.19, 1, 0.22, 1) backwards;
-    white-space: nowrap; /* Prevent wrapping so it fills screen nicely horizontally */
-}
-.m-text-line:nth-child(1) { animation-delay: 0.1s; }
-.m-text-line:nth-child(2) { animation-delay: 0.3s; }
-
-.giant-toggle-wrapper {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    /* Position toggle so it overlaps bottom text exact like the photo */
-    transform: translate(-50%, 15%);
+/* Hero Graphic */
+.hero-graphic-wrapper {
+    position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
     z-index: 10;
-    animation: popIn 1s cubic-bezier(0.19, 1, 0.22, 1) backwards;
-    animation-delay: 0.5s;
 }
-
-.giant-toggle {
-    width: 280px;
-    height: 140px;
-    background: #F8ECE0;
-    border-radius: 100px;
-    /* Soft neumorphic raised platform */
-    box-shadow: -15px -15px 30px rgba(255,255,255,0.7), 
-                15px 15px 30px rgba(180, 160, 140, 0.2);
+.hero-fan {
+    width: 250px; height: 250px;
     position: relative;
-    cursor: pointer;
-    transition: background 0.8s ease, box-shadow 0.8s ease;
-    box-sizing: border-box;
+    display: flex; justify-content: center; align-items: center;
+    transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
+.h-ring {
+    position: absolute; width: 100%; height: 100%;
+    border-radius: 50%; border: 4px solid rgba(0,0,0,0.05);
+    transition: border-color 1.5s ease;
+}
+.h-blades {
+    width: 100%; height: 100%;
+    position: absolute; top: 0; left: 0;
+    animation: fanSpin 4s linear infinite;
+    transition: filter 1.5s ease;
+}
+.h-b {
+    position: absolute; top: 50%; left: 50%; width: 110px; height: 35px; margin-top: -17.5px;
+    background: #CBD5E1; border-radius: 20px 40px 40px 20px;
+    transform-origin: 0% 50%;
+    transition: background 1.5s ease;
+}
+.h-b.b1 { transform: rotate(0deg); }
+.h-b.b2 { transform: rotate(120deg); }
+.h-b.b3 { transform: rotate(240deg); }
 
-.toggle-knob {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    width: 120px;
-    height: 120px;
+.h-cap {
+    width: 60px; height: 60px;
+    background: #94A3B8;
     border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 55px;
-    /* We animate left property for perfect boundary hitting */
-    transition: left 0.8s cubic-bezier(0.8, -0.4, 0.2, 1.4), background 0.8s ease, box-shadow 0.8s ease;
-    user-select: none;
-    pointer-events: none; /* Let track handle clicks */
+    position: relative;
+    z-index: 5;
+    transition: background 1.5s ease;
 }
 
-/* Base Hot State for Knob */
-.theme-hot-home .toggle-knob {
-    background: #FF3D47;
-    box-shadow: inset 2px 2px 5px rgba(255,255,255,0.4), inset -3px -3px 8px rgba(0,0,0,0.1), 0 10px 20px rgba(255, 61, 71, 0.4);
+@keyframes fanSpin { 100% { transform: rotate(360deg); } }
+
+/* Graphic Modes */
+.hero-fan.mode-regular .h-ring { border-color: rgba(0,0,0,0.08); }
+
+.hero-fan.mode-hot .h-ring { border-color: rgba(220, 38, 38, 0.3); box-shadow: inset 0 0 40px rgba(220, 38, 38, 0.1); }
+.hero-fan.mode-hot .h-b { background: #FCA5A5; }
+.hero-fan.mode-hot .h-cap { background: #EF4444; }
+.hero-fan.mode-hot .h-blades { animation-duration: 6s; filter: drop-shadow(0 0 15px rgba(239, 68, 68, 0.5)); }
+
+.hero-fan.mode-cold .h-ring { border-color: rgba(37, 99, 235, 0.4); box-shadow: inset 0 0 40px rgba(37, 99, 235, 0.15); }
+.hero-fan.mode-cold .h-b { background: #93C5FD; }
+.hero-fan.mode-cold .h-cap { background: #3B82F6; }
+.hero-fan.mode-cold .h-blades { animation-duration: 0.5s; filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.8)); }
+
+/* Slides Text */
+.slides-wrapper {
+    position: absolute; bottom: 10%; left: 0; width: 100%;
+    height: 40%;
+    z-index: 20;
+    display: flex; justify-content: center; align-items: flex-start;
+}
+.slide-item {
+    position: absolute; width: 90%; max-width: 600px;
+    text-align: center;
+    opacity: 0; pointer-events: none;
+    transform: translateY(30px) scale(0.98);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.slide-item.active {
+    opacity: 1; pointer-events: auto; transform: translateY(0) scale(1);
+    transition-delay: 0.2s; /* Give base elements time to animate out */
 }
 
-/* Cold Theme Adjustments */
-.theme-cold-home {
-    background-color: #E2F1F8;
+.slide-item h2 {
+    font-size: 42px; font-weight: 800; margin-bottom: 20px;
+    letter-spacing: -1px;
+}
+.slide-item p {
+    font-size: 18px; line-height: 1.6; color: #475569; margin-bottom: 40px;
 }
 
-/* Make text tilt and grow exactly like Webflow right image */
-.theme-cold-home .massive-text-container {
-    color: #0C334A;
-    transform: translate(-50%, -50%) rotate(-12deg) scale(1.3);
-    transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.8s ease;
-}
+/* Specific text colors */
+#slide2 h2 { color: #B91C1C; }
+#slide2 p { color: #991B1B; }
+#slide3 h2 { color: #1D4ED8; }
+#slide3 p { color: #1E40AF; }
 
-.theme-cold-home .giant-toggle {
-    background: #E2F1F8;
-    box-shadow: -15px -15px 30px rgba(255,255,255,0.8), 
-                15px 15px 30px rgba(160, 180, 200, 0.2);
+.action-btn {
+    padding: 16px 40px; border-radius: 100px; border: none; font-size: 16px; font-weight: 600;
+    cursor: pointer; cursor: pointer; transition: all 0.3s ease;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
+.action-btn:hover { transform: translateY(-4px); box-shadow: 0 15px 35px rgba(0,0,0,0.15); }
 
-.theme-cold-home .toggle-knob {
-    /* 100% (280px) - 120px (knob) - 10px (right padding gap) = calc(100% - 130px) */
-    left: calc(100% - 130px);
-    background: #00A3E0;
-    box-shadow: inset 2px 2px 5px rgba(255,255,255,0.4), inset -3px -3px 8px rgba(0,0,0,0.1), 0 10px 20px rgba(0, 163, 224, 0.4);
-}
+.btn-neutral { background: #0F172A; color: white; }
+.btn-hot { background: #DC2626; color: white; box-shadow: 0 10px 25px rgba(220, 38, 38, 0.3); }
+.btn-hot:hover { background: #B91C1C; }
+.btn-cold { background: #2563EB; color: white; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3); }
+.btn-cold:hover { background: #1D4ED8; }
 
-/* Animations */
-@keyframes textSlideUp {
-    0% { opacity: 0; transform: translateY(40px); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-@keyframes popIn {
-    0% { opacity: 0; transform: translate(-50%, 40%) scale(0.8); }
-    100% { opacity: 1; transform: translate(-50%, 15%) scale(1); }
-}
+/* Dashboard transitions */
 @keyframes dashboardEnter {
     0% { opacity: 0; transform: translateY(40px) scale(0.98); }
     100% { opacity: 1; transform: translateY(0) scale(1); }
@@ -159,23 +155,15 @@ body {
     0% { opacity: 1; transform: translateY(0) scale(1); }
     100% { opacity: 0; transform: translateY(-40px) scale(0.98); }
 }
-@keyframes fadeIn {
-    0% { opacity: 0; }
-    100% { opacity: 1; }
-}
 
-/* Responsive adjustments */
-@media screen and (max-width: 1100px) {
-    .massive-text-container { font-size: 16vw; }
-}
 @media screen and (max-width: 768px) {
-    .welcome-screen { max-width: none; height: 100vh; border-radius: 0; box-shadow: none; }
-    .massive-text-container { font-size: 20vw; transform: translate(-50%, -50%); }
-    .theme-cold-home .massive-text-container { transform: translate(-50%, -50%) rotate(-12deg) scale(1.1); }
-    .giant-toggle { width: 180px; height: 90px; }
-    .toggle-knob { width: 70px; height: 70px; font-size: 32px; }
-    .theme-cold-home .toggle-knob { left: calc(100% - 80px); }
-    .giant-toggle-wrapper { transform: translate(-50%, 20%); }
+    .hero-graphic-wrapper { top: 15%; }
+    .hero-fan { width: 180px; height: 180px; }
+    .h-b { width: 80px; height: 26px; margin-top: -13px; }
+    .h-cap { width: 45px; height: 45px; }
+    .slides-wrapper { bottom: 5%; height: 50%; }
+    .slide-item h2 { font-size: 32px; margin-bottom: 15px; }
+    .slide-item p { font-size: 16px; margin-bottom: 30px; }
 }
 
 

@@ -13,16 +13,48 @@
 
 <body>
     <!-- Onboarding / Welcome Screen -->
-    <div id="welcomeScreen" class="welcome-screen theme-hot-home">
+    <div id="welcomeScreen" class="welcome-screen">
         
-        <div class="massive-text-container" id="massiveText">
-            <span class="m-text-line">FEEL THE HEAT</span>
-            <span class="m-text-line">COOL IT DOWN</span>
+        <!-- Dynamic Background Layer -->
+        <div id="flowBg" class="flow-bg step-1"></div>
+        
+        <!-- Particle Overlays -->
+        <div id="particlesOverlay" class="particles-overlay"></div>
+
+        <!-- Central Interactive Graphic -->
+        <div class="hero-graphic-wrapper">
+            <div id="heroFan" class="hero-fan mode-regular">
+                <div class="h-ring"></div>
+                <div class="h-blades">
+                    <div class="h-b b1"></div>
+                    <div class="h-b b2"></div>
+                    <div class="h-b b3"></div>
+                </div>
+                <div class="h-cap"></div>
+            </div>
         </div>
-        
-        <div class="giant-toggle-wrapper">
-            <div class="giant-toggle" id="mainToggle" aria-label="Cooling Toggle">
-                <div class="toggle-knob" id="toggleKnob">🔥</div>
+
+        <!-- Text Slides -->
+        <div class="slides-wrapper">
+            <!-- Slide 1: Intro -->
+            <div id="slide1" class="slide-item active">
+                <h2>SMART CLIMATE</h2>
+                <p>Intelligent atmosphere control designed for modern living. Quiet, powerful, and beautifully seamless.</p>
+                <button class="action-btn btn-neutral" id="btnNext1">Explore Features</button>
+            </div>
+
+            <!-- Slide 2: Hot -->
+            <div id="slide2" class="slide-item">
+                <h2>FEEL THE HEAT?</h2>
+                <p>When the temperature rises and the air gets stuffy, ordinary fans just push the warm air around.</p>
+                <button class="action-btn btn-hot" id="btnNext2">Activate Cooling</button>
+            </div>
+
+            <!-- Slide 3: Cold -->
+            <div id="slide3" class="slide-item">
+                <h2>ARCTIC BREEZE</h2>
+                <p>Experience rapid, bone-chilling cooling technology instantly. Take complete control of your environment.</p>
+                <button class="action-btn btn-cold" id="btnEnter">Enter Dashboard</button>
             </div>
         </div>
 

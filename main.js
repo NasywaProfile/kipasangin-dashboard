@@ -2,9 +2,14 @@
 const welcomeScreen = document.getElementById('welcomeScreen');
 const appContainer = document.getElementById('appContainer');
 // --- Onboarding Elements ---
-const massiveText = document.getElementById('massiveText');
-const mainToggle = document.getElementById('mainToggle');
-const toggleKnob = document.getElementById('toggleKnob');
+const flowBg = document.getElementById('flowBg');
+const heroFan = document.getElementById('heroFan');
+const slide1 = document.getElementById('slide1');
+const slide2 = document.getElementById('slide2');
+const slide3 = document.getElementById('slide3');
+const btnNext1 = document.getElementById('btnNext1');
+const btnNext2 = document.getElementById('btnNext2');
+const btnEnter = document.getElementById('btnEnter');
 const backBtn = document.getElementById('backBtn');
 
 const powerSwitch = document.getElementById('powerSwitch');
@@ -47,58 +52,56 @@ function init() {
     }, 2000);
 }
 
-// --- Navigation & Onboarding Flow ---
-// --- Navigation & Onboarding Flow ---
-let onboardingToggled = false;
+// --- Navigation & Onboarding Flow (3 Slides) ---
+function setSlide(step) {
+    // Hide all slides
+    slide1.classList.remove('active');
+    slide2.classList.remove('active');
+    slide3.classList.remove('active');
+    
+    // Update background color wrapper
+    flowBg.className = `flow-bg step-${step}`;
+    
+    // Update central hero fan mode
+    if(step === 1) heroFan.className = 'hero-fan mode-regular';
+    if(step === 2) heroFan.className = 'hero-fan mode-hot';
+    if(step === 3) heroFan.className = 'hero-fan mode-cold';
+    
+    // Show active slide
+    if(step === 1) slide1.classList.add('active');
+    if(step === 2) slide2.classList.add('active');
+    if(step === 3) slide3.classList.add('active');
+}
 
-mainToggle.addEventListener('click', () => {
-    if (onboardingToggled) return; // prevent multiple clicks
-    onboardingToggled = true;
-    
-    // Switch to cold theme
-    welcomeScreen.classList.remove('theme-hot-home');
-    welcomeScreen.classList.add('theme-cold-home');
-    
-    // Change text content via fade
-    massiveText.style.opacity = '0';
-    
-    // Change knob emoji
-    toggleKnob.textContent = '❄️';
+btnNext1.addEventListener('click', () => setSlide(2));
+btnNext2.addEventListener('click', () => setSlide(3));
+
+btnEnter.addEventListener('click', () => {
+    // Smooth transition out of welcome screen
+    welcomeScreen.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+    welcomeScreen.style.opacity = '0';
+    welcomeScreen.style.transform = 'scale(1.05)';
     
     setTimeout(() => {
-        massiveText.innerHTML = '<span class="m-text-line">COOLING OFF</span><span class="m-text-line">SYSTEM ACTIVE</span>';
-        massiveText.style.opacity = '1';
-    }, 400);
-    
-    // Wait 2 seconds before entering dashboard
-    setTimeout(() => {
-        // Smooth transition out of welcome screen
-        welcomeScreen.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-        welcomeScreen.style.opacity = '0';
-        welcomeScreen.style.transform = 'scale(1.05)';
+        welcomeScreen.classList.add('hidden');
+        welcomeScreen.style.opacity = '';
+        welcomeScreen.style.transform = '';
         
-        setTimeout(() => {
-            welcomeScreen.classList.add('hidden');
-            // reset styles for next time
-            welcomeScreen.style.opacity = '';
-            welcomeScreen.style.transform = '';
-            
-            appContainer.classList.remove('hidden');
-            appContainer.style.animation = 'dashboardEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
-            sessionActive = true;
-            
-            if (historyList.children.length === 0) {
-                // Initial set of events
-                addHistory('System Initialized', 'on', 24.5);
-                addHistory('Automatic Cooling Engaged', 'on', 26.2);
-                addHistory('Energy Saving Mode', 'off', 24.8);
-                addHistory('Night Mode Active', 'on', 23.5);
-                addHistory('Manual Override', 'off', 24.1);
-                addHistory('Temperature Calibration', 'on', 24.4);
-                addHistory('Fan Speed Optimized', 'on', 24.5);
-            }
-        }, 800); // Wait for fade out
-    }, 2000);
+        appContainer.classList.remove('hidden');
+        appContainer.style.animation = 'dashboardEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+        sessionActive = true;
+        
+        if (historyList.children.length === 0) {
+            // Initial set of events
+            addHistory('System Initialized', 'on', 24.5);
+            addHistory('Automatic Cooling Engaged', 'on', 26.2);
+            addHistory('Energy Saving Mode', 'off', 24.8);
+            addHistory('Night Mode Active', 'on', 23.5);
+            addHistory('Manual Override', 'off', 24.1);
+            addHistory('Temperature Calibration', 'on', 24.4);
+            addHistory('Fan Speed Optimized', 'on', 24.5);
+        }
+    }, 800); // Wait for fade out
 });
 
 backBtn.addEventListener('click', () => {
@@ -110,13 +113,8 @@ backBtn.addEventListener('click', () => {
         welcomeScreen.classList.remove('hidden');
         sessionActive = false;
         
-        // Reset welcome screen state
-        onboardingToggled = false;
-        welcomeScreen.classList.remove('theme-cold-home');
-        welcomeScreen.classList.add('theme-hot-home');
-        
-        toggleKnob.textContent = '🔥';
-        massiveText.innerHTML = '<span class="m-text-line">FEEL THE HEAT</span><span class="m-text-line">COOL IT DOWN</span>';
+        // Reset to first slide
+        setSlide(1);
         
         // Let welcome screen fade back in
         welcomeScreen.style.animation = 'fadeIn 0.8s ease backwards';
