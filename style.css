@@ -310,8 +310,8 @@ body {
     
     .dashboard-content { display: block; border-left: none; }
     .dashboard-visuals { padding: 30px; border-right: none; border-bottom: 1px solid var(--border-soft); min-height: 450px; }
-    .dashboard-stats { padding: 30px; border-bottom: 1px solid var(--border-soft); }
-    .dashboard-history { padding: 30px; height: 450px; overflow: hidden; }
-    .history-header { margin-bottom: 15px; }
+    .dashboard-stats { padding: 15px 30px; border-bottom: 1px solid var(--border-soft); }
+    .dashboard-history { padding: 15px 30px; height: 450px; overflow: hidden; }
+    .history-header { margin-bottom: 10px; }
     .history-container { padding-right: 8px; }
 }
