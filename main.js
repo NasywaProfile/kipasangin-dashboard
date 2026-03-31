@@ -1,18 +1,12 @@
 // --- DOM Elements ---
 const welcomeScreen = document.getElementById('welcomeScreen');
 const appContainer = document.getElementById('appContainer');
-const startBtn = document.getElementById('startBtn');
-const backBtn = document.getElementById('backBtn');
-
 // --- Onboarding Elements ---
-const welcomeText = document.getElementById('welcomeText');
-const onboarding1 = document.getElementById('onboarding1');
-const onboarding2 = document.getElementById('onboarding2');
-const nextBtn1 = document.getElementById('nextBtn1');
-const nextBtn2 = document.getElementById('nextBtn2');
-const welcomeContent = document.getElementById('welcomeContent');
-const fanWrapper = document.getElementById('fanWrapper');
-const heroFan = document.getElementById('heroFan');
+const massiveText = document.getElementById('massiveText');
+const mainToggle = document.getElementById('mainToggle');
+const toggleKnob = document.getElementById('toggleKnob');
+const subtextContainer = document.getElementById('subtextContainer');
+const backBtn = document.getElementById('backBtn');
 
 const powerSwitch = document.getElementById('powerSwitch');
 const statusLabel = document.getElementById('statusLabel');
@@ -55,73 +49,40 @@ function init() {
 }
 
 // --- Navigation & Onboarding Flow ---
-startBtn.addEventListener('click', () => {
-    welcomeText.classList.add('hidden-fade');
-    setTimeout(() => {
-        welcomeText.style.display = 'none';
-        
-        // Pause spin at whatever angle it is
-        heroFan.style.animationPlayState = 'paused';
-        
-        // Expand fan (remains grey initially)
-        welcomeContent.classList.add('onboarding-mode');
-        welcomeScreen.style.overflow = 'hidden'; // lock scroll
-        fanWrapper.classList.add('expanded-1');
-        
-        // Wait for fan to almost finish scaling before showing theme & text
-        setTimeout(() => {
-            // Add hot theme to screen
-            welcomeScreen.classList.add('theme-hot');
-            document.getElementById('hotParticles').classList.remove('hidden-fade');
-            
-            // Show onboarding 1
-            onboarding1.style.display = 'flex';
-            // force reflow
-            void onboarding1.offsetWidth;
-            onboarding1.classList.remove('hidden-fade');
-        }, 1200);
-    }, 400); 
-});
+// --- Navigation & Onboarding Flow ---
+let onboardingToggled = false;
 
-nextBtn1.addEventListener('click', () => {
-    onboarding1.classList.add('hidden-fade');
-    document.getElementById('hotParticles').classList.add('hidden-fade');
+mainToggle.addEventListener('click', () => {
+    if (onboardingToggled) return; // prevent multiple clicks
+    onboardingToggled = true;
+    
+    // Switch to cold theme
+    welcomeScreen.classList.remove('theme-hot-home');
+    welcomeScreen.classList.add('theme-cold-home');
+    
+    // Change text content via fade
+    massiveText.style.opacity = '0';
+    subtextContainer.style.opacity = '0';
+    
+    // Change knob emoji
+    toggleKnob.textContent = '❄️';
+    
     setTimeout(() => {
-        onboarding1.style.display = 'none';
-        
-        // Switch back to grey temporarily
-        welcomeScreen.classList.remove('theme-hot');
-        
-        // Start rotating fan
-        fanWrapper.classList.remove('expanded-1');
-        fanWrapper.classList.add('expanded-2');
-        
-        // Wait for spin to finish before showing cold theme
-        setTimeout(() => {
-            welcomeScreen.classList.add('theme-cold');
-            document.getElementById('coldParticles').classList.remove('hidden-fade');
-            
-            onboarding2.style.display = 'flex';
-            void onboarding2.offsetWidth;
-            onboarding2.classList.remove('hidden-fade');
-        }, 1200);
+        massiveText.innerHTML = 'COOLING<br>ENGAGED';
+        subtextContainer.textContent = 'Atmospheric conditions optimizing. Redirecting to control dashboard...';
+        massiveText.style.opacity = '1';
+        subtextContainer.style.opacity = '1';
     }, 400);
-});
-
-nextBtn2.addEventListener('click', () => {
-    onboarding2.classList.add('hidden-fade');
-    document.getElementById('coldParticles').classList.add('hidden-fade');
+    
+    // Wait 2 seconds before entering dashboard
     setTimeout(() => {
-        onboarding2.style.display = 'none';
-        
-        // Enter Dashboard
         welcomeScreen.classList.add('hidden');
         appContainer.classList.remove('hidden');
         appContainer.style.animation = 'fadeUp 0.6s ease forwards';
         sessionActive = true;
         
         if (historyList.children.length === 0) {
-            // Initial set of events to fill the "sidebar"
+            // Initial set of events
             addHistory('System Initialized', 'on', 24.5);
             addHistory('Automatic Cooling Engaged', 'on', 26.2);
             addHistory('Energy Saving Mode', 'off', 24.8);
@@ -130,7 +91,7 @@ nextBtn2.addEventListener('click', () => {
             addHistory('Temperature Calibration', 'on', 24.4);
             addHistory('Fan Speed Optimized', 'on', 24.5);
         }
-    }, 400);
+    }, 2000);
 });
 
 backBtn.addEventListener('click', () => {
@@ -139,20 +100,13 @@ backBtn.addEventListener('click', () => {
     sessionActive = false;
     
     // Reset welcome screen state
-    welcomeContent.classList.remove('onboarding-mode');
-    welcomeScreen.style.overflow = ''; 
-    welcomeScreen.classList.remove('theme-hot', 'theme-cold');
-    document.getElementById('hotParticles').classList.add('hidden-fade');
-    document.getElementById('coldParticles').classList.add('hidden-fade');
+    onboardingToggled = false;
+    welcomeScreen.classList.remove('theme-cold-home');
+    welcomeScreen.classList.add('theme-hot-home');
     
-    fanWrapper.classList.remove('expanded-1', 'expanded-2');
-    heroFan.style.animationPlayState = 'running';
-    
-    welcomeText.style.display = 'flex';
-    // reset hidden-fade slightly after display flex
-    setTimeout(() => {
-        welcomeText.classList.remove('hidden-fade');
-    }, 50);
+    toggleKnob.textContent = '🔥';
+    massiveText.innerHTML = 'FEELING<br>THE HEAT?';
+    subtextContainer.textContent = "It's getting warm in here. Tap the switch to instantly activate the advanced cooling sequence and bring the temperature down.";
 });
 
 // --- Fan Controls ---
