@@ -93,9 +93,9 @@ body {
 
 /* --- Dashboard Container --- */
 .app-container {
-    background: var(--card-bg); width: 100%; max-width: 1100px; height: 90vh; max-height: 700px;
+    background: var(--card-bg); width: 100%; max-width: 1000px; height: 90vh; max-height: 700px;
     border-radius: 40px; box-shadow: var(--shadow-lg); 
-    display: grid; grid-template-columns: 1fr 0.8fr 0.8fr;
+    display: grid; grid-template-columns: 1.1fr 1fr;
     overflow: hidden; border: 1px solid white;
     transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -214,11 +214,15 @@ body {
 
 /* Panels Styling */
 .dashboard-stats, .dashboard-history { 
-    padding: 40px; display: flex; flex-direction: column; height: 100%; overflow: hidden; background: white; 
-    min-height: 0; /* Important for flex/grid scrolling */
+    padding: 30px 40px; display: flex; flex-direction: column; background: white; 
+    min-height: 0;
 }
-.dashboard-stats { border-right: 1px solid var(--border-soft); background: #FCFDFF; }
-.dashboard-history { background: #FFFFFF; position: relative; }
+.dashboard-stats { 
+    height: auto; flex-shrink: 0; border-bottom: 2px solid var(--border-soft); background: #FCFDFF; padding-bottom: 20px; 
+}
+.dashboard-history { 
+    height: 100%; flex-grow: 1; background: #FFFFFF; overflow: hidden; 
+}
 
 .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-shrink: 0; }
 .history-count { background: var(--accent-light); color: var(--accent-color); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; }
@@ -279,40 +283,30 @@ body {
 .history-text span { color: var(--accent-color); font-weight: 700; background: var(--accent-light); padding: 2px 6px; border-radius: 6px; margin-left: 4px; font-size: 11px; }
 .history-time { font-size: 12px; color: var(--text-muted); font-weight: 700; background: #F8FAFC; padding: 6px 10px; border-radius: 8px; }
 
-/* Responsive */
-@media screen and (max-width: 1100px) {
-    .app-container { max-width: 95%; height: 95vh; }
-}
-
-@media screen and (max-width: 1000px) {
+/* Responsive Update */
+@media screen and (max-width: 900px) {
     .app-container { 
-        grid-template-columns: 1fr 1fr; 
-        height: 90vh; /* Keep fixed height on tablet to allow internal scrolling */
-    }
-    .dashboard-history { 
-        grid-column: span 2; 
-        border-top: 1px solid var(--border-soft);
-        min-height: 0; /* Clear previous min-height if any */
-        height: 350px; /* Specific height for split view */
+        height: 95vh; max-width: 95%; max-height: none; 
     }
 }
 
 @media screen and (max-width: 768px) {
-    body { padding: 0; align-items: stretch; background: white; }
-    .welcome-screen { border-radius: 0; height: 100vh; max-height: none; max-width: none; }
-    .welcome-content { padding: 40px 20px; width: 90%; border-radius: 30px; }
+    body { padding: 0; display: block; overflow-y: auto; background: white; }
+    .welcome-screen { height: 100vh; border-radius: 0; }
     
     .app-container { 
         grid-template-columns: 1fr; 
-        height: 100vh; 
-        max-height: none; 
+        height: auto; 
+        min-height: 100vh;
         border-radius: 0; 
         border: none; 
         box-shadow: none; 
+        display: block; /* Stack naturally */
     }
     
     .dashboard-visuals { padding: 30px; border-right: none; border-bottom: 1px solid var(--border-soft); min-height: 450px; }
-    .dashboard-stats { padding: 30px; border-right: none; border-bottom: 1px solid var(--border-soft); }
-    .dashboard-history { grid-column: span 1; padding: 30px; height: auto; min-height: 400px; }
-    .history-container { overflow-y: visible; max-height: none; padding-right: 0; }
+    .dashboard-stats { padding: 30px; border-bottom: 1px solid var(--border-soft); }
+    .dashboard-history { padding: 30px; height: 450px; overflow: hidden; /* Fix height and force internal scroll */ }
+    .history-header { margin-bottom: 15px; }
+    .history-container { padding-right: 8px; /* Internal scroll remains active */ }
 }
