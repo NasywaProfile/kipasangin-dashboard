@@ -63,51 +63,48 @@ startBtn.addEventListener('click', () => {
         // Pause spin at whatever angle it is
         heroFan.style.animationPlayState = 'paused';
         
-        // Trigger onboarding mode (Fan starts zooming, remains GREY)
+        // Expand fan (remains grey initially)
         welcomeContent.classList.add('onboarding-mode');
         welcomeScreen.style.overflow = 'hidden'; // lock scroll
         fanWrapper.classList.add('expanded-1');
         
-        // Wait until zoom is almost done to trigger Hot Theme
+        // Wait for fan to almost finish scaling before showing theme & text
         setTimeout(() => {
+            // Add hot theme to screen
             welcomeScreen.classList.add('theme-hot');
             document.getElementById('hotParticles').classList.remove('hidden-fade');
             
             // Show onboarding 1
             onboarding1.style.display = 'flex';
-            void onboarding1.offsetWidth; // force reflow
+            // force reflow
+            void onboarding1.offsetWidth;
             onboarding1.classList.remove('hidden-fade');
         }, 1200);
-        
     }, 400); 
 });
 
 nextBtn1.addEventListener('click', () => {
-    // Fade out text and particles immediately
     onboarding1.classList.add('hidden-fade');
     document.getElementById('hotParticles').classList.add('hidden-fade');
-    
-    // Remove hot theme so blade starts returning to GREY
-    welcomeScreen.classList.remove('theme-hot');
-    
     setTimeout(() => {
         onboarding1.style.display = 'none';
         
-        // Rotate fan (while turning grey)
+        // Switch back to grey temporarily
+        welcomeScreen.classList.remove('theme-hot');
+        
+        // Start rotating fan
         fanWrapper.classList.remove('expanded-1');
         fanWrapper.classList.add('expanded-2');
         
-        // Wait until rotation is almost done to trigger Cold Theme
+        // Wait for spin to finish before showing cold theme
         setTimeout(() => {
             welcomeScreen.classList.add('theme-cold');
             document.getElementById('coldParticles').classList.remove('hidden-fade');
             
-            // Show onboarding 2
             onboarding2.style.display = 'flex';
             void onboarding2.offsetWidth;
             onboarding2.classList.remove('hidden-fade');
         }, 1200);
-        
     }, 400);
 });
 
