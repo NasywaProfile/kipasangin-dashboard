@@ -96,6 +96,17 @@ body {
     background: var(--card-bg); width: 100%; max-width: 950px; height: 90vh; max-height: 700px;
     border-radius: 40px; box-shadow: var(--shadow-lg); display: grid; grid-template-columns: 1fr 1fr;
     overflow: hidden; border: 1px solid white;
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1); /* Long smooth transition for atmosphere */
+}
+
+/* --- Cool Atmosphere State (When ON) --- */
+.app-container.active-cool {
+    background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #DBEAFE 100%);
+    box-shadow: 0 40px 100px -20px rgba(59, 130, 246, 0.15);
+}
+
+.app-container.active-cool .dashboard-visuals {
+    background: transparent; /* Show container background */
 }
 
 /* Left Panel */

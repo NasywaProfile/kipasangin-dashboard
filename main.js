@@ -66,12 +66,14 @@ powerSwitch.addEventListener('click', () => {
     
     if (isPowerOn) {
         powerSwitch.classList.add('on');
+        appContainer.classList.add('active-cool'); // Add Cool Atmosphere
         statusLabel.textContent = 'Active Cooling';
         statusLabel.style.color = '#3B82F6';
         fanBlades.classList.add('spinning');
         addHistory('Fan Turned On', 'on');
     } else {
         powerSwitch.classList.remove('on');
+        appContainer.classList.remove('active-cool'); // Remove Cool Atmosphere
         statusLabel.textContent = 'Standby';
         statusLabel.style.color = '#64748B';
         fanBlades.classList.remove('spinning');
