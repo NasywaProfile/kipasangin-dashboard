@@ -9,19 +9,35 @@
 <body>
     <!-- Welcome Homepage -->
     <div id="welcomeScreen" class="welcome-screen">
-        <div class="welcome-icon">🌀</div>
-        <h1>Smart<span>Fan</span></h1>
-        <p>Control your environment with elegance. Experience the perfect breeze.</p>
-        <button id="startBtn" class="start-btn">Get Started</button>
+        <div class="bg-gradient-anim"></div>
+        <div class="welcome-content">
+            <div class="hero-fan-icon">
+                <div class="hf-hub"></div>
+                <div class="hf-blade hfb1"></div>
+                <div class="hf-blade hfb2"></div>
+                <div class="hf-blade hfb3"></div>
+            </div>
+            <h1 class="fade-up-1">Smart<span>Fan</span></h1>
+            <p class="fade-up-2">Next-generation atmospheric control.<br>Minimalist, elegant, and intelligent.</p>
+            <button id="startBtn" class="start-btn fade-up-3">
+                Access Dashboard
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+        </div>
     </div>
 
     <!-- Main Dashboard -->
     <div id="appContainer" class="app-container hidden">
-        <!-- Left Panel: Integrated Fan & Controls -->
+        <!-- Left Panel: Integrated Fan & Power -->
         <section class="dashboard-visuals">
             <header class="visual-header">
-                <h1>Smart<span>Fan</span></h1>
-                <p>Living Room Device</p>
+                <button id="backBtn" class="back-btn" aria-label="Go Back">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <div class="titles">
+                    <h1>Smart<span>Fan</span></h1>
+                    <p>Living Room Device</p>
+                </div>
             </header>
 
             <div class="fan-display">
@@ -36,19 +52,18 @@
                 </div>
             </div>
 
-            <!-- Integrated Controls in One Frame -->
-            <div class="integrated-controls">
-                <button id="powerSwitch" class="power-btn off">
-                    <div class="icon-circle">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+            <!-- Modern Power Control -->
+            <div class="power-control-wrapper">
+                <div class="power-card">
+                    <div class="power-info">
+                        <h3>Device Power</h3>
+                        <p id="statusLabel">Standby</p>
                     </div>
-                    <span id="statusLabel">Standby</span>
-                </button>
-
-                <div class="slider-box">
-                    <label>Intensity</label>
-                    <input type="range" class="slider" id="speedSlider" min="0" max="100" value="0">
-                    <div class="slider-val"><span id="speedValue">0</span>%</div>
+                    <button id="powerSwitch" class="power-toggle off">
+                        <div class="toggle-knob">
+                            <svg class="p-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+                        </div>
+                    </button>
                 </div>
             </div>
         </section>
@@ -56,12 +71,17 @@
         <!-- Right Panel: Analytics & History -->
         <section class="dashboard-data">
             <div class="data-group">
-                <h3 class="data-section-title">Current State</h3>
-                <div class="stat-item">
-                    <div class="stat-icon">🌡️</div>
+                <h3 class="data-section-title">Environment</h3>
+                <div class="stat-item temp-card">
+                    <div class="stat-icon temp-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+                    </div>
                     <div class="stat-info">
-                        <h4>Temperature</h4>
-                        <div class="value"><span id="tempValue">24.5</span>°C</div>
+                        <h4>Room Temperature</h4>
+                        <div class="value"><span id="tempValue">24.5</span><span class="unit">°C</span></div>
+                    </div>
+                    <div class="temp-graph">
+                        <svg viewBox="0 0 100 30" class="sparkline"><path d="M0 15 L 25 15 L 50 15 L 75 15 L 100 15" fill="none" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" id="tempSparkline"/></svg>
                     </div>
                 </div>
             </div>
@@ -69,7 +89,7 @@
             <div class="data-group history-group">
                 <h3 class="data-section-title">Recent Activity</h3>
                 <div class="history-container" id="historyList">
-                    <!-- History items -->
+                    <!-- History items via JS -->
                 </div>
             </div>
         </section>
