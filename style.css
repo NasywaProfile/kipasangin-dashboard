@@ -296,11 +296,12 @@ body {
 
 @media screen and (max-width: 768px) {
     body { padding: 0; display: block; overflow-y: auto; background: white; }
-    .welcome-screen { height: 100vh; border-radius: 0; background-image: none; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    .welcome-content { padding: 40px 24px; width: 100%; max-width: 400px; border-radius: 30px; box-sizing: border-box; }
-    .welcome-content h1 { font-size: 36px; }
-    .welcome-content p { font-size: 14px; margin-bottom: 30px; }
-    .start-btn { width: 100%; justify-content: center; padding: 16px 30px; }
+    .welcome-screen { min-height: 100vh; height: auto; border-radius: 0; background-image: none; display: flex; align-items: center; justify-content: center; padding: 40px 20px; overflow-y: auto; }
+    .welcome-content { padding: 30px 20px; width: 100%; max-width: 350px; border-radius: 24px; box-sizing: border-box; flex-shrink: 0; }
+    .hero-fan-icon { width: 60px; height: 60px; margin-bottom: 20px; }
+    .welcome-content h1 { font-size: 32px; margin-bottom: 8px; }
+    .welcome-content p { font-size: 14px; margin-bottom: 24px; line-height: 1.5; }
+    .start-btn { width: 100%; justify-content: center; padding: 15px 25px; font-size: 15px; }
     
     .app-container { 
         grid-template-columns: 1fr; 
