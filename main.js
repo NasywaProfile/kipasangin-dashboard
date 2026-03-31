@@ -10,7 +10,7 @@ const slides = [slide1, slide2, slide3];
 
 const btnPrev = document.getElementById('btnPrev');
 const btnNext = document.getElementById('btnNext');
-const slideNum = document.getElementById('slideNum');
+const dots = document.querySelectorAll('.dot');
 const btnEnter = document.getElementById('btnEnter');
 const backBtn = document.getElementById('backBtn');
 
@@ -59,13 +59,17 @@ let currentStep = 1;
 const totalSteps = 3;
 
 function updateSlider() {
-    // 1. Update text indicator
-    slideNum.textContent = `0${currentStep}`;
+    // 1. Update Theme wrapper to trigger ambient orb animations
+    welcomeScreen.className = `welcome-screen theme-s${currentStep}`;
     
-    // Update theme body wrapper for dynamic indicator color
-    welcomeScreen.className = 'welcome-screen';
-    if(currentStep === 2) welcomeScreen.classList.add('temp-hot');
-    if(currentStep === 3) welcomeScreen.classList.add('temp-cold');
+    // 2. Update Dots Indicator
+    dots.forEach((dot, index) => {
+        if (index === (currentStep - 1)) {
+            dot.classList.add('active');
+        } else {
+            dot.classList.remove('active');
+        }
+    });
     
     // 2. Button states
     if(currentStep === 1) {
