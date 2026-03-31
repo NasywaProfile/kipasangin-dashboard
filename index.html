@@ -12,42 +12,36 @@
 </head>
 
 <body>
-    <!-- Onboarding / Welcome Screen -->
-    <div id="welcomeScreen" class="welcome-screen">
-        <div class="welcome-container">
-            <!-- Header Text -->
-            <div class="w-header">
-                <h1 class="w-title">Control<br>Everything in<br>One Place</h1>
-            </div>
+    <!-- Single Card Video Home Screen -->
+    <div id="welcomeScreen" class="welcome-container">
+        
+        <!-- Background Video (Sunset / Aesthetic placeholder) -->
+        <video autoplay loop muted playsinline class="welcome-video">
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-sunset-seen-from-the-sea-22261-large.mp4" type="video/mp4">
+        </video>
+        
+        <!-- Overlay Gradient for Readability -->
+        <div class="video-overlay"></div>
 
-            <!-- Central Image/Graphic -->
-            <div class="w-image-wrapper">
-                <!-- Using the interactive CSS Fan adapted to dark theme, which resembles a smart device -->
-                <div id="heroFan" class="hero-fan mode-dark">
-                    <div class="h-ring"></div>
-                    <div class="h-blades">
-                        <div class="h-b b1"></div>
-                        <div class="h-b b2"></div>
-                        <div class="h-b b3"></div>
-                    </div>
-                    <div class="h-cap"></div>
-                </div>
-            </div>
+        <!-- Typography / Content -->
+        <div class="welcome-text">
+            <h1>Control<br>Everything in<br>One Place</h1>
+        </div>
 
-            <!-- Swipe to Start Control -->
-            <div class="w-bottom-action">
-                <div class="swipe-track" id="swipeTrack">
-                    <!-- The draggable thumb -->
-                    <div class="swipe-thumb" id="swipeThumb">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M8 5v14l11-7z" />
-                        </svg>
-                    </div>
-                    <!-- The text in the track -->
-                    <span class="swipe-text">Start &nbsp; >>></span>
+        <!-- Interactive Swipe Toggle -->
+        <div class="swipe-wrapper">
+            <button class="icon-btn back-btn-home">←</button>
+            <div class="swipe-track" id="swipeTrack">
+                <div class="swipe-thumb" id="swipeThumb">
+                    <svg width="14" height="16" viewBox="0 0 14 16" fill="black" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M13.5 7.13397C14.1667 7.51887 14.1667 8.48113 13.5 8.86603L2.25 15.3615C1.58333 15.7464 0.75 15.2653 0.75 14.4955L0.75 1.50449C0.75 0.734689 1.58333 0.253564 2.25 0.638466L13.5 7.13397Z"/>
+                    </svg>
                 </div>
+                <span class="swipe-text" id="swipeText">Start</span>
+                <span class="swipe-arrows">›››</span>
             </div>
         </div>
+
     </div>
 
     <!-- Main Dashboard -->

@@ -2,16 +2,16 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-    --bg-color: #2F3542; /* Soft dark slate background */
-    --card-bg: #3E4756;  /* Slightly lighter cards */
-    --accent-color: #F8FAFC; 
-    --accent-light: #4F5A6D; 
-    --text-main: #FFFFFF;
-    --text-muted: #A0AAB5;
-    --border-soft: #4F5A6D;
-    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.15);
-    --shadow-md: 0 10px 30px -5px rgba(0, 0, 0, 0.25);
-    --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+    --bg-color: #F8FAFC;
+    --card-bg: #FFFFFF;
+    --accent-color: #3B82F6;
+    --accent-light: #EFF6FF;
+    --text-main: #0F172A;
+    --text-muted: #64748B;
+    --border-soft: #F1F5F9;
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
@@ -21,106 +21,102 @@ body {
     color: var(--text-main);
     display: flex; justify-content: center; align-items: center;
     min-height: 100vh; padding: 20px; overflow: hidden;
+    background-image: radial-gradient(at 0% 0%, hsla(217,100%,97%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(216,100%,96%,1) 0, transparent 50%);
 }
 
 .hidden { display: none !important; }
 
-/* /* --- Single Page Dark Welcome Screen --- */
-.welcome-screen {
-    width: 100vw; height: 100vh;
-    position: relative; overflow: hidden;
-    background: var(--bg-color);
-    display: flex; justify-content: center; align-items: center;
-}
-
+/* --- Single Card Video Swipe Layout --- */
 .welcome-container {
-    width: 100%; max-width: 450px; 
-    height: 100%; max-height: 850px;
-    padding: 60px 30px 40px;
-    display: flex; flex-direction: column; justify-content: space-between;
-    position: relative;
-    box-sizing: border-box;
+    width: 100%; max-width: 1000px; height: 90vh; max-height: 700px;
+    border-radius: 40px; box-shadow: var(--shadow-lg); 
+    position: relative; overflow: hidden;
+    background: #18181B; /* Fallback */
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.w-header { margin-bottom: 20px; z-index: 10; }
-.w-title {
-    font-size: 44px; font-weight: 500; line-height: 1.25;
-    color: var(--text-main); font-family: 'Plus Jakarta Sans', sans-serif;
-    letter-spacing: -0.5px;
+.welcome-video {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    object-fit: cover; z-index: 1; pointer-events: none;
 }
 
-.w-image-wrapper {
-    flex-grow: 1; display: flex; justify-content: center; align-items: center;
-    position: relative; z-index: 5;
+.video-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 2;
+    background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(30,41,59,0.7) 100%);
+    pointer-events: none;
 }
 
-/* Redesigning hero-fan for Dark Slate theme */
-.hero-fan {
-    width: 280px; height: 280px; position: relative;
-    display: flex; justify-content: center; align-items: center;
+.welcome-text {
+    position: absolute; top: 12%; left: 8%; z-index: 10;
+    max-width: 400px; color: white; text-align: left;
 }
-.h-ring {
-    position: absolute; width: 100%; height: 100%; border-radius: 50%; 
-    border: 3px solid rgba(255,255,255,0.03); 
-    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+.welcome-text h1 {
+    font-size: 56px; font-weight: 700; line-height: 1.15; letter-spacing: -1px;
+    font-family: 'Plus Jakarta Sans', sans-serif; text-shadow: 0 4px 20px rgba(0,0,0,0.5);
 }
-.h-blades {
-    width: 100%; height: 100%; position: absolute; top: 0; left: 0;
-    animation: fanSpin 6s linear infinite; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
-}
-.h-b {
-    position: absolute; top: 50%; left: 50%; width: 110px; height: 35px; margin-top: -17.5px;
-    background: var(--card-bg); border-radius: 17.5px 35px 35px 17.5px; transform-origin: 0% 50%;
-}
-.h-b.b1 { transform: rotate(0deg); }
-.h-b.b2 { transform: rotate(120deg); }
-.h-b.b3 { transform: rotate(240deg); }
-.h-cap {
-    width: 64px; height: 64px; background: var(--bg-color); border-radius: 50%; position: relative; z-index: 5;
-    box-shadow: inset 0 2px 5px rgba(255,255,255,0.05), inset 0 -2px 5px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.6);
-    border: 1px solid rgba(255,255,255,0.05);
-}
-@keyframes fanSpin { 100% { transform: rotate(360deg); } }
 
-/* Swipe Button (Bottom Action) */
-.w-bottom-action { 
-    margin-top: auto; padding-bottom: 20px; z-index: 10;
+/* Swipe Controls */
+.swipe-wrapper {
+    position: absolute; bottom: 8%; left: 8%; right: 8%; z-index: 10;
+    display: flex; gap: 20px; align-items: center; justify-content: space-between;
 }
+
+.back-btn-home {
+    width: 65px; height: 65px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1); color: white; display: flex; justify-content: center; align-items: center;
+    backdrop-filter: blur(15px); flex-shrink: 0; cursor: pointer; font-size: 24px; transition: all 0.3s ease;
+}
+.back-btn-home:hover { background: rgba(255,255,255,0.2); transform: scale(1.05); }
+
 .swipe-track {
-    width: 100%; height: 64px; background: var(--card-bg); border-radius: 32px;
-    display: flex; align-items: center; padding: 6px; position: relative;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-}
-.swipe-thumb {
-    width: 52px; height: 52px; background: #FFFFFF; border-radius: 50%;
-    display: flex; justify-content: center; align-items: center;
-    color: var(--bg-color); position: absolute; left: 6px; z-index: 10; cursor: grab;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: transform 0.1s;
-}
-.swipe-thumb.grabbing { cursor: grabbing; transition: none; }
-.swipe-text {
-    width: 100%; text-align: center; color: var(--text-muted); font-weight: 600; font-size: 15px;
-    letter-spacing: 0.5px; position: relative; z-index: 5; pointer-events: none;
+    flex-grow: 1; height: 65px; background: rgba(255,255,255,0.15);
+    border-radius: 100px; backdrop-filter: blur(20px);
+    position: relative; display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
+    overflow: hidden; box-shadow: inset 0 2px 20px rgba(0,0,0,0.1);
 }
 
-@media screen and (min-width: 768px) {
-    .welcome-container { max-width: 900px; flex-direction: row; align-items: center; padding: 60px; }
-    .w-header { flex: 1; margin-bottom: 0; }
-    .w-title { font-size: 56px; }
-    .w-image-wrapper { flex: 1; }
-    /* Desktop swipe button positioned bottom left */
-    .w-bottom-action { position: absolute; bottom: 60px; left: 60px; width: 300px; }
+.swipe-text {
+    color: white; font-weight: 600; font-size: 18px; letter-spacing: 0.5px;
+    position: relative; z-index: 1; pointer-events: none; transition: opacity 0.3s;
 }
+
+.swipe-arrows {
+    position: absolute; right: 25px; color: rgba(255,255,255,0.5);
+    letter-spacing: 2px; font-weight: 600; font-size: 16px; pointer-events: none; transition: opacity 0.3s;
+}
+
+.swipe-thumb {
+    width: 55px; height: 55px; background: white; border-radius: 50%;
+    position: absolute; left: 5px; z-index: 2;
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15); cursor: grab;
+    transition: transform 0.1s ease-out; /* smooth follow */
+    touch-action: none; /* Prevent scroll on mobile drag */
+}
+.swipe-thumb:active { cursor: grabbing; box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+.swipe-thumb svg { width: 16px; height: 16px; fill: #0F172A; }
+
+.swiping .swipe-text, .swiping .swipe-arrows { opacity: 0; }
+
+.welcome-container.hidden { opacity: 0; transform: scale(0.98); pointer-events: none; }
 
 /* Dashboard transitions */
 @keyframes dashboardEnter {
-    0% { opacity: 0; transform: translateY(40px) scale(0.98); }
-    100% { opacity: 1; transform: translateY(0) scale(1); }
+    0% { opacity: 0; transform: scale(1.02); }
+    100% { opacity: 1; transform: scale(1); }
 }
 @keyframes dashboardExit {
-    0% { opacity: 1; transform: translateY(0) scale(1); }
-    100% { opacity: 0; transform: translateY(-40px) scale(0.98); }
+    0% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(0.98); }
 }
+
+@media screen and (max-width: 768px) {
+    .welcome-text h1 { font-size: 42px; }
+    .swipe-wrapper { bottom: 6%; left: 6%; right: 6%; gap: 15px; }
+    .welcome-text { left: 6%; top: 10%; }
+}
+
 
 
 /* --- Dashboard Container --- */
