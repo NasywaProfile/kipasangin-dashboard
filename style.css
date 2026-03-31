@@ -60,6 +60,14 @@ body {
     width: 100vw;
 }
 
+.m-text-line {
+    display: block;
+    will-change: transform, opacity;
+    animation: textSlideUp 1.2s cubic-bezier(0.19, 1, 0.22, 1) backwards;
+}
+.m-text-line:nth-child(1) { animation-delay: 0.1s; }
+.m-text-line:nth-child(2) { animation-delay: 0.3s; }
+
 .giant-toggle-wrapper {
     position: absolute;
     top: 50%;
@@ -67,6 +75,8 @@ body {
     /* Position toggle so it overlaps bottom text exact like the photo */
     transform: translate(-50%, 15%);
     z-index: 10;
+    animation: popIn 1s cubic-bezier(0.19, 1, 0.22, 1) backwards;
+    animation-delay: 0.5s;
 }
 
 .giant-toggle {
@@ -86,24 +96,21 @@ body {
 .toggle-knob {
     width: 120px;
     height: 120px;
-    background: #3B82F6; /* Standard color, overridden by JS/CSS but default red/blue are below */
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     font-size: 55px;
-    /* Clean slight inset and shadow */
-    box-shadow: -5px -5px 15px rgba(255,255,255,0.4) inset,
-                0 10px 20px rgba(0, 0, 0, 0.1);
-    transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55), background 0.6s ease, box-shadow 0.6s ease;
+    transition: transform 0.8s cubic-bezier(0.8, -0.4, 0.2, 1.4), background 0.8s ease, box-shadow 0.8s ease;
     user-select: none;
     pointer-events: none; /* Let track handle clicks */
 }
 
 /* Base Hot State for Knob */
 .theme-hot-home .toggle-knob {
-    background: #FF3D47;
-    box-shadow: -5px -5px 15px rgba(255,100,100,0.5) inset, 0 10px 20px rgba(255, 61, 71, 0.3);
+    transform: translateX(0);
+    background: linear-gradient(135deg, #FF6A00, #FF3D47);
+    box-shadow: inset 2px 2px 5px rgba(255,255,255,0.4), inset -3px -3px 8px rgba(0,0,0,0.1), 0 10px 20px rgba(255, 61, 71, 0.4);
 }
 
 .subtext-container {
@@ -119,6 +126,30 @@ body {
     color: #4A3322;
     transition: color 0.8s ease, opacity 0.4s ease;
     z-index: 2;
+    animation: textSlideUp 1.2s cubic-bezier(0.19, 1, 0.22, 1) backwards;
+    animation-delay: 0.7s;
+}
+
+/* Animations */
+@keyframes textSlideUp {
+    0% { opacity: 0; transform: translateY(40px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+    0% { opacity: 0; transform: translate(-50%, 40%) scale(0.8); }
+    100% { opacity: 1; transform: translate(-50%, 15%) scale(1); }
+}
+@keyframes dashboardEnter {
+    0% { opacity: 0; transform: translateY(40px) scale(0.98); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes dashboardExit {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-40px) scale(0.98); }
+}
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
 }
 
 /* Cold Theme Adjustments */
@@ -130,8 +161,8 @@ body {
 }
 .theme-cold-home .toggle-knob {
     transform: translateX(140px); /* 280 - 20(padding) - 120(knob) = 140 */
-    background: #3B82F6;
-    box-shadow: -5px -5px 15px rgba(100,180,255,0.5) inset, 0 10px 20px rgba(59, 130, 246, 0.3);
+    background: linear-gradient(135deg, #00C6FF, #0072FF);
+    box-shadow: inset 2px 2px 5px rgba(255,255,255,0.4), inset -3px -3px 8px rgba(0,0,0,0.1), 0 10px 20px rgba(0, 114, 255, 0.4);
 }
 .theme-cold-home .subtext-container { color: #0C334A; }
 

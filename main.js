@@ -76,37 +76,56 @@ mainToggle.addEventListener('click', () => {
     
     // Wait 2 seconds before entering dashboard
     setTimeout(() => {
-        welcomeScreen.classList.add('hidden');
-        appContainer.classList.remove('hidden');
-        appContainer.style.animation = 'fadeUp 0.6s ease forwards';
-        sessionActive = true;
+        // Smooth transition out of welcome screen
+        welcomeScreen.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        welcomeScreen.style.opacity = '0';
+        welcomeScreen.style.transform = 'scale(1.05)';
         
-        if (historyList.children.length === 0) {
-            // Initial set of events
-            addHistory('System Initialized', 'on', 24.5);
-            addHistory('Automatic Cooling Engaged', 'on', 26.2);
-            addHistory('Energy Saving Mode', 'off', 24.8);
-            addHistory('Night Mode Active', 'on', 23.5);
-            addHistory('Manual Override', 'off', 24.1);
-            addHistory('Temperature Calibration', 'on', 24.4);
-            addHistory('Fan Speed Optimized', 'on', 24.5);
-        }
+        setTimeout(() => {
+            welcomeScreen.classList.add('hidden');
+            // reset styles for next time
+            welcomeScreen.style.opacity = '';
+            welcomeScreen.style.transform = '';
+            
+            appContainer.classList.remove('hidden');
+            appContainer.style.animation = 'dashboardEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+            sessionActive = true;
+            
+            if (historyList.children.length === 0) {
+                // Initial set of events
+                addHistory('System Initialized', 'on', 24.5);
+                addHistory('Automatic Cooling Engaged', 'on', 26.2);
+                addHistory('Energy Saving Mode', 'off', 24.8);
+                addHistory('Night Mode Active', 'on', 23.5);
+                addHistory('Manual Override', 'off', 24.1);
+                addHistory('Temperature Calibration', 'on', 24.4);
+                addHistory('Fan Speed Optimized', 'on', 24.5);
+            }
+        }, 800); // Wait for fade out
     }, 2000);
 });
 
 backBtn.addEventListener('click', () => {
-    appContainer.classList.add('hidden');
-    welcomeScreen.classList.remove('hidden');
-    sessionActive = false;
+    // Smooth transition out of dashboard
+    appContainer.style.animation = 'dashboardExit 0.6s ease forwards';
     
-    // Reset welcome screen state
-    onboardingToggled = false;
-    welcomeScreen.classList.remove('theme-cold-home');
-    welcomeScreen.classList.add('theme-hot-home');
-    
-    toggleKnob.textContent = '🔥';
-    massiveText.innerHTML = '<span class="m-text-line">FEEL THE HEAT</span><span class="m-text-line">COOL IT DOWN</span>';
-    subtextContainer.innerHTML = 'Well, not just because GSAP, let\'s dive into why, how and when<br>to incorporate motion design into your websites, with some<br>cloneable templates along the way to get you started';
+    setTimeout(() => {
+        appContainer.classList.add('hidden');
+        welcomeScreen.classList.remove('hidden');
+        sessionActive = false;
+        
+        // Reset welcome screen state
+        onboardingToggled = false;
+        welcomeScreen.classList.remove('theme-cold-home');
+        welcomeScreen.classList.add('theme-hot-home');
+        
+        toggleKnob.textContent = '🔥';
+        massiveText.innerHTML = '<span class="m-text-line">FEEL THE HEAT</span><span class="m-text-line">COOL IT DOWN</span>';
+        subtextContainer.innerHTML = 'Well, not just because GSAP, let\'s dive into why, how and when<br>to incorporate motion design into your websites, with some<br>cloneable templates along the way to get you started';
+        
+        // Let welcome screen fade back in
+        welcomeScreen.style.animation = 'fadeIn 0.8s ease backwards';
+    }, 600);
 });
 
 // --- Fan Controls ---
