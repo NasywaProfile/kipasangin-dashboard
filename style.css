@@ -213,6 +213,10 @@ body {
 .power-toggle.on .p-icon { color: var(--accent-color); }
 
 /* Panels Styling */
+.dashboard-content {
+    display: flex; flex-direction: column; height: 100%; overflow: hidden;
+    background: white; border-left: 1px solid var(--border-soft);
+}
 .dashboard-stats, .dashboard-history { 
     padding: 30px 40px; display: flex; flex-direction: column; background: white; 
     min-height: 0;
@@ -301,12 +305,13 @@ body {
         border-radius: 0; 
         border: none; 
         box-shadow: none; 
-        display: block; /* Stack naturally */
+        display: block;
     }
     
+    .dashboard-content { display: block; border-left: none; }
     .dashboard-visuals { padding: 30px; border-right: none; border-bottom: 1px solid var(--border-soft); min-height: 450px; }
     .dashboard-stats { padding: 30px; border-bottom: 1px solid var(--border-soft); }
-    .dashboard-history { padding: 30px; height: 450px; overflow: hidden; /* Fix height and force internal scroll */ }
+    .dashboard-history { padding: 30px; height: 450px; overflow: hidden; }
     .history-header { margin-bottom: 15px; }
-    .history-container { padding-right: 8px; /* Internal scroll remains active */ }
+    .history-container { padding-right: 8px; }
 }

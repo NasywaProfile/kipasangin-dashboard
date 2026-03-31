@@ -92,41 +92,43 @@
             </div>
         </section>
 
-        <!-- Middle Panel: Environment Stats -->
-        <section class="dashboard-stats">
-            <div class="data-group">
-                <h3 class="data-section-title">Environment</h3>
-                <div class="stat-item temp-card">
-                    <div class="stat-icon temp-icon">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
-                        </svg>
-                    </div>
-                    <div class="stat-info">
-                        <h4>Room Temperature</h4>
-                        <div class="value"><span id="tempValue">24.5</span><span class="unit">°C</span></div>
-                    </div>
-                    <div class="temp-graph">
-                        <svg viewBox="0 0 100 30" class="sparkline">
-                            <path d="M0 15 L 25 15 L 50 15 L 75 15 L 100 15" fill="none" stroke="#3B82F6"
-                                stroke-width="3" stroke-linecap="round" stroke-linejoin="round" id="tempSparkline" />
-                        </svg>
+        <div class="dashboard-content">
+            <!-- Environment Stats -->
+            <section class="dashboard-stats">
+                <div class="data-group">
+                    <h3 class="data-section-title">Environment</h3>
+                    <div class="stat-item temp-card">
+                        <div class="stat-icon temp-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <h4>Room Temperature</h4>
+                            <div class="value"><span id="tempValue">24.5</span><span class="unit">°C</span></div>
+                        </div>
+                        <div class="temp-graph">
+                            <svg viewBox="0 0 100 30" class="sparkline">
+                                <path d="M0 15 L 25 15 L 50 15 L 75 15 L 100 15" fill="none" stroke="#3B82F6"
+                                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round" id="tempSparkline" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- Right Panel: History Sidebar -->
-        <section class="dashboard-history">
-            <div class="history-header">
-                <h3 class="data-section-title">Recent Activity</h3>
-                <span class="history-count" id="historyCount">0</span>
-            </div>
-            <div class="history-container" id="historyList">
-                <!-- History items via JS -->
-            </div>
-        </section>
+            </section>
+    
+            <!-- History Sidebar -->
+            <section class="dashboard-history">
+                <div class="history-header">
+                    <h3 class="data-section-title">Recent Activity</h3>
+                    <span class="history-count" id="historyCount">0</span>
+                </div>
+                <div class="history-container" id="historyList">
+                    <!-- History items via JS -->
+                </div>
+            </section>
+        </div>
     </div>
 
     <script type="module" src="main.js"></script>
