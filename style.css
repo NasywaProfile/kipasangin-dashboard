@@ -109,7 +109,7 @@ body {
     background: transparent; /* Show container background */
 }
 
-/* --- Wind/Breeze Animation --- */
+/* --- Wind/Cloud Atmosphere Animation --- */
 .wind-lines {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     pointer-events: none; overflow: hidden; opacity: 0; transition: opacity 2s;
@@ -117,26 +117,27 @@ body {
 }
 
 .app-container.active-cool .wind-lines {
-    opacity: 0.6;
+    opacity: 0.8;
 }
 
 .wind-line {
-    position: absolute; width: 200px; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
-    border-radius: 50%; opacity: 0.4;
-    animation: drift 4s linear infinite;
+    position: absolute; height: 60px; /* Thicker for cloud-like feel */
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    border-radius: 100px;
+    filter: blur(25px); /* Soft edges */
+    animation: drift 10s linear infinite;
+    will-change: transform;
 }
 
-.w1 { top: 20%; left: -20%; animation-delay: 0s; width: 300px; }
-.w2 { top: 50%; left: -20%; animation-delay: 1.5s; width: 250px; opacity: 0.2; }
-.w3 { top: 80%; left: -20%; animation-delay: 3s; width: 400px; }
-.w4 { top: 35%; left: -20%; animation-delay: 4.5s; width: 200px; opacity: 0.3; }
+/* Distribute cloud blobs at different heights */
+.w1 { top: 15%; width: 300px; animation-duration: 12s; }
+.w2 { top: 40%; width: 450px; animation-duration: 18s; animation-delay: -2s; opacity: 0.3; }
+.w3 { top: 70%; width: 350px; animation-duration: 15s; animation-delay: -5s; }
+.w4 { top: 85%; width: 250px; animation-duration: 10s; animation-delay: -8s; opacity: 0.2; }
 
 @keyframes drift {
-    0% { transform: translateX(-100px); opacity: 0; }
-    20% { opacity: 0.3; }
-    80% { opacity: 0.3; }
-    100% { transform: translateX(1100px); opacity: 0; }
+    0% { transform: translateX(-500px); }
+    100% { transform: translateX(1000px); }
 }
 
 /* Left Panel */
