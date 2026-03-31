@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Fan Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="back-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            </div>
+            <div class="header-titles">
+                <h1>Smart <span>Fan</span></h1>
+                <p>Living Room</p>
+            </div>
+            <div class="settings-btn">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            </div>
+        </header>
+
+        <!-- Main Visual Section -->
+        <main>
+            <div class="fan-visual-container">
+                <div class="fan-mesh-bg"></div>
+                <div class="fan-wrapper" id="fanWrapper">
+                    <div class="fan-blades" id="fanBlades">
+                        <div class="blade blade-1"></div>
+                        <div class="blade blade-2"></div>
+                        <div class="blade blade-3"></div>
+                        <div class="fan-center"></div>
+                    </div>
+                </div>
+                
+                <!-- Main Control Switch -->
+                <div class="power-toggle-container">
+                    <button id="powerSwitch" class="power-switch off">
+                        <div class="switch-handle">
+                            <span class="power-icon">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+                            </span>
+                        </div>
+                    </button>
+                    <p id="statusLabel">Off</p>
+                </div>
+            </div>
+
+            <!-- Stats & Controls -->
+            <div class="dashboard-controls">
+                <!-- Temperature Card -->
+                <div class="stat-card temp-card">
+                    <div class="stat-header">
+                        <span class="icon">🌡️</span>
+                        <h3>Temperature</h3>
+                    </div>
+                    <div class="stat-value">
+                        <span id="tempValue">24</span>°C
+                    </div>
+                    <p class="stat-meta">Condition: Optimal</p>
+                </div>
+
+                <!-- Mode/Speed Slider (Interactive) -->
+                <div class="stat-card control-card">
+                    <div class="stat-header">
+                        <h3>Fan Speed</h3>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" min="0" max="100" value="0" class="fan-slider" id="speedSlider">
+                        <div class="slider-fill" id="sliderFill"></div>
+                    </div>
+                    <div class="speed-labels">
+                        <span>Min</span>
+                        <span id="speedValue">0%</span>
+                        <span>Max</span>
+                    </div>
+                </div>
+
+                <!-- History Header -->
+                <div class="history-section">
+                    <div class="section-title">
+                        <h3>Device History</h3>
+                        <a href="#" class="view-all">View All</a>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        <div class="history-item">
+                            <div class="history-icon on"></div>
+                            <div class="history-info">
+                                <h4>Turned On</h4>
+                                <p>08:30 AM Today</p>
+                            </div>
+                        </div>
+                        <div class="history-item">
+                            <div class="history-icon off"></div>
+                            <div class="history-info">
+                                <h4>Turned Off</h4>
+                                <p>11:15 PM Yesterday</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
