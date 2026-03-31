@@ -146,7 +146,7 @@ body {
     position: relative; justify-content: space-between; border-right: 1px solid var(--border-soft);
 }
 
-.visual-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+.visual-header { flex-shrink: 0; display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
 .back-btn {
     width: 44px; height: 44px; border-radius: 14px; background: white; border: 1px solid var(--border-soft);
     display: flex; justify-content: center; align-items: center; cursor: pointer; transition: all 0.2s;
@@ -158,7 +158,7 @@ body {
 .titles p { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* Fan Display */
-.fan-display { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; }
+.fan-display { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; min-height: 250px; }
 .fan-glow {
     position: absolute; width: 220px; height: 220px;
     background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%); filter: blur(20px);
@@ -184,7 +184,7 @@ body {
 .spinning { animation: fastSpin 0.5s linear infinite; } /* Moderated speed for fixed mode */
 
 /* Power Control Toggle (Modern Switch-like) */
-.power-control-wrapper { margin-top: 30px; }
+.power-control-wrapper { flex-shrink: 0; margin-top: auto; } /* Lock to bottom */
 .power-card {
     background: white; border-radius: 24px; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center;
     box-shadow: var(--shadow-sm); border: 1px solid var(--border-soft); transition: all 0.3s ease;
@@ -209,9 +209,17 @@ body {
 .power-toggle.on .toggle-knob { transform: translateX(30px); }
 .power-toggle.on .p-icon { color: var(--accent-color); }
 
-/* Right Panel */
-.dashboard-data { padding: 40px; display: flex; flex-direction: column; background: white; }
-.data-group { margin-bottom: 30px; }
+/* Right Panel (Sidebar Approach) */
+.dashboard-data { 
+    padding: 40px; 
+    display: flex; 
+    flex-direction: column; 
+    background: white; 
+    height: 100%; 
+    overflow: hidden; 
+}
+
+.data-group { flex-shrink: 0; margin-bottom: 30px; }
 .data-section-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 .data-section-title::before { content: ''; width: 6px; height: 6px; background: var(--accent-color); border-radius: 50%; }
 
@@ -223,16 +231,29 @@ body {
 .temp-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-sm); border-color: #E2E8F0; }
 .temp-icon { width: 54px; height: 54px; background: white; border-radius: 16px; display: flex; justify-content: center; align-items: center; color: var(--accent-color); box-shadow: var(--shadow-sm); }
 .stat-info h4 { font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
-.value { font-size: 36px; font-weight: 800; color: var(--text-main); display: flex; align-items: baseline; gap: 2px; }
+.value { font-size: 36px; font-weight: 800; color: var(--text-main); display: baseline; gap: 2px; }
 .unit { font-size: 16px; color: var(--text-muted); font-weight: 700; }
 .temp-graph { position: absolute; right: 24px; bottom: 20px; width: 80px; height: 40px; opacity: 0.7; }
 .sparkline { width: 100%; height: 100%; overflow: visible; }
 
-/* History Section */
-.history-group { flex: 1; display: flex; flex-direction: column; overflow: hidden; margin-bottom: 0; }
-.history-container {
-    flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 8px;
+/* History Section (Scrollable Sidebar) */
+.history-group { 
+    flex-grow: 1; 
+    display: flex; 
+    flex-direction: column; 
+    overflow: hidden; 
 }
+
+.history-container {
+    flex-grow: 1; 
+    overflow-y: auto; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 12px; 
+    padding-right: 12px;
+}
+
+/* Scrollbar Style */
 .history-container::-webkit-scrollbar { width: 6px; }
 .history-container::-webkit-scrollbar-track { background: transparent; }
 .history-container::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
