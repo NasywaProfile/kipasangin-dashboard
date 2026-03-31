@@ -63,41 +63,51 @@ startBtn.addEventListener('click', () => {
         // Pause spin at whatever angle it is
         heroFan.style.animationPlayState = 'paused';
         
-        // Add hot theme to screen
-        welcomeScreen.classList.add('theme-hot');
-        document.getElementById('hotParticles').classList.remove('hidden-fade');
-        
-        // Trigger onboarding mode
+        // Trigger onboarding mode (Fan starts zooming, remains GREY)
         welcomeContent.classList.add('onboarding-mode');
         welcomeScreen.style.overflow = 'hidden'; // lock scroll
         fanWrapper.classList.add('expanded-1');
         
-        // Show onboarding 1
-        onboarding1.style.display = 'flex';
-        // force reflow
-        void onboarding1.offsetWidth;
-        onboarding1.classList.remove('hidden-fade');
+        // Wait until zoom is almost done to trigger Hot Theme
+        setTimeout(() => {
+            welcomeScreen.classList.add('theme-hot');
+            document.getElementById('hotParticles').classList.remove('hidden-fade');
+            
+            // Show onboarding 1
+            onboarding1.style.display = 'flex';
+            void onboarding1.offsetWidth; // force reflow
+            onboarding1.classList.remove('hidden-fade');
+        }, 1200);
+        
     }, 400); 
 });
 
 nextBtn1.addEventListener('click', () => {
+    // Fade out text and particles immediately
     onboarding1.classList.add('hidden-fade');
+    document.getElementById('hotParticles').classList.add('hidden-fade');
+    
+    // Remove hot theme so blade starts returning to GREY
+    welcomeScreen.classList.remove('theme-hot');
+    
     setTimeout(() => {
         onboarding1.style.display = 'none';
         
-        // Switch to cold theme
-        welcomeScreen.classList.remove('theme-hot');
-        welcomeScreen.classList.add('theme-cold');
-        
-        document.getElementById('hotParticles').classList.add('hidden-fade');
-        document.getElementById('coldParticles').classList.remove('hidden-fade');
-        
+        // Rotate fan (while turning grey)
         fanWrapper.classList.remove('expanded-1');
         fanWrapper.classList.add('expanded-2');
         
-        onboarding2.style.display = 'flex';
-        void onboarding2.offsetWidth;
-        onboarding2.classList.remove('hidden-fade');
+        // Wait until rotation is almost done to trigger Cold Theme
+        setTimeout(() => {
+            welcomeScreen.classList.add('theme-cold');
+            document.getElementById('coldParticles').classList.remove('hidden-fade');
+            
+            // Show onboarding 2
+            onboarding2.style.display = 'flex';
+            void onboarding2.offsetWidth;
+            onboarding2.classList.remove('hidden-fade');
+        }, 1200);
+        
     }, 400);
 });
 
