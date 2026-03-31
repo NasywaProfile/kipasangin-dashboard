@@ -9,100 +9,85 @@
 <body>
     <!-- Welcome Homepage -->
     <div id="welcomeScreen" class="welcome-screen">
-        <div class="welcome-content">
-            <div class="welcome-icon">🌪️</div>
-            <h1>Smart<span>Fan</span></h1>
-            <p>Experience the future of comfort. Monitor and control your environment with ease.</p>
-            <button id="startBtn" class="primary-btn">Get Started</button>
-        </div>
-        <div class="welcome-bg-decoration"></div>
+        <div class="welcome-icon">🌀</div>
+        <h1>Smart<span>Fan</span></h1>
+        <p>Your digital atmosphere controller. Experience the perfect breeze with just one touch.</p>
+        <button id="startBtn" class="start-btn">Get Started</button>
     </div>
 
-    <!-- Main Dashboard (Initially Hidden) -->
+    <!-- Main Dashboard -->
     <div id="appContainer" class="app-container hidden">
-        <!-- Header -->
-        <header>
-            <div class="back-home-btn" id="backHomeBtn">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-            </div>
-            <div class="header-titles">
-                <h1>Smart <span>Fan</span></h1>
-                <p>Living Room</p>
-            </div>
-            <div class="settings-btn">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            </div>
-        </header>
+        <!-- Part 1: Visuals Control -->
+        <section class="dashboard-visuals">
+            <header class="visual-header">
+                <h1>Smart<span>Fan</span></h1>
+                <p>Living Room Device</p>
+            </header>
 
-        <!-- Main Visual Section -->
-        <main>
-            <div class="fan-visual-container">
-                <div class="fan-mesh-bg"></div>
-                <div class="fan-wrapper" id="fanWrapper">
-                    <div class="fan-blades" id="fanBlades">
-                        <div class="blade blade-1"></div>
-                        <div class="blade blade-2"></div>
-                        <div class="blade blade-3"></div>
-                        <div class="fan-center"></div>
+            <div class="fan-display">
+                <div class="fan-glow"></div>
+                <div class="fan-frame">
+                    <div class="fan-spinner" id="fanBlades">
+                        <div class="fan-blade b1"></div>
+                        <div class="fan-blade b2"></div>
+                        <div class="fan-blade b3"></div>
+                        <div class="fan-hub"></div>
                     </div>
                 </div>
-                
-                <!-- Main Control Switch -->
-                <div class="power-toggle-container">
-                    <button id="powerSwitch" class="power-switch off">
-                        <div class="switch-handle">
-                            <span class="power-icon">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
-                            </span>
+            </div>
+
+            <div class="visual-controls">
+                <button id="powerSwitch" class="power-btn off">
+                    <div class="icon-circle">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+                    </div>
+                    <span id="statusLabel">Standby</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Part 2: Data & Detailed Controls -->
+        <section class="dashboard-data">
+            <!-- Analytics Section -->
+            <div class="stats-section">
+                <h3 class="data-section-title">Current State</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-icon">🌡️</div>
+                        <div class="stat-info">
+                            <h4>Temperature</h4>
+                            <div class="value"><span id="tempValue">24.5</span>°C</div>
                         </div>
-                    </button>
-                    <p id="statusLabel">Off</p>
-                </div>
-            </div>
-
-            <!-- Stats & Controls -->
-            <div class="dashboard-controls">
-                <!-- Temperature Card -->
-                <div class="stat-card temp-card">
-                    <div class="stat-header">
-                        <span class="icon">🌡️</span>
-                        <h3>Temperature</h3>
-                    </div>
-                    <div class="stat-value">
-                        <span id="tempValue">24</span>°C
-                    </div>
-                    <p class="stat-meta">Condition: Optimal</p>
-                </div>
-
-                <!-- Mode/Speed Slider (Interactive) -->
-                <div class="stat-card control-card">
-                    <div class="stat-header">
-                        <h3>Fan Speed</h3>
-                    </div>
-                    <div class="slider-container">
-                        <input type="range" min="0" max="100" value="0" class="fan-slider" id="speedSlider">
-                        <div class="slider-fill" id="sliderFill"></div>
-                    </div>
-                    <div class="speed-labels">
-                        <span>Min</span>
-                        <span id="speedValue">0%</span>
-                        <span>Max</span>
-                    </div>
-                </div>
-
-                <!-- History Section -->
-                <div class="history-section">
-                    <div class="section-title">
-                        <h3>Device History</h3>
-                        <a href="#" class="view-all">View All</a>
-                    </div>
-                    <div class="history-list" id="historyList">
-                        <!-- Items populated by JS -->
                     </div>
                 </div>
             </div>
-        </main>
+
+            <!-- Detailed Controls -->
+            <div class="controls-section">
+                <h3 class="data-section-title">Manual Control</h3>
+                <div class="control-item">
+                    <label>Fan Speed Intensity</label>
+                    <div class="range-wrap">
+                        <input type="range" class="slider" id="speedSlider" min="0" max="100" value="0">
+                        <div class="range-labels">
+                            <span>0%</span>
+                            <span class="active-val" id="speedValue">Standby</span>
+                            <span>100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div class="history-wrap">
+                <h3 class="data-section-title">Recent Activity</h3>
+                <div class="history-container" id="historyList">
+                    <!-- History items via JS -->
+                </div>
+            </div>
+        </section>
     </div>
+
     <script type="module" src="main.js"></script>
 </body>
 </html>
