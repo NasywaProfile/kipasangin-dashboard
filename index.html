@@ -12,23 +12,56 @@
     <!-- Welcome Homepage -->
     <div id="welcomeScreen" class="welcome-screen">
         <div class="bg-gradient-anim"></div>
-        <div class="welcome-content">
-            <div class="hero-fan-icon">
-                <div class="hf-hub"></div>
-                <div class="hf-blade hfb1"></div>
-                <div class="hf-blade hfb2"></div>
-                <div class="hf-blade hfb3"></div>
+        <div class="welcome-content" id="welcomeContent">
+            <div class="fan-wrapper" id="fanWrapper">
+                <div class="hero-fan-icon" id="heroFan">
+                    <div class="hf-hub"></div>
+                    <div class="hf-blade hfb1"></div>
+                    <div class="hf-blade hfb2"></div>
+                    <div class="hf-blade hfb3"></div>
+                </div>
             </div>
-            <h1 class="fade-up-1">Smart<span>Fan</span></h1>
-            <p class="fade-up-2">Next-generation atmospheric control.<br>Minimalist, elegant, and intelligent.</p>
-            <button id="startBtn" class="start-btn fade-up-3">
-                Access Dashboard
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M5 12h14" />
-                    <path d="m12 5 7 7-7 7" />
-                </svg>
-            </button>
+            
+            <div id="welcomeText" class="text-wrapper">
+                <h1 class="fade-up-1">Smart<span>Fan</span></h1>
+                <p class="fade-up-2">Next-generation atmospheric control.<br>Minimalist, elegant, and intelligent.</p>
+                <button id="startBtn" class="start-btn fade-up-3">
+                    Access Dashboard
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Onboarding Step 1 -->
+            <div id="onboarding1" class="text-wrapper hidden-fade" style="display: none;">
+                <h2 class="fade-up-1">Smart Temperature</h2>
+                <p class="fade-up-2">Automatically adjusts cooling intensity based on real-time ambient temperature sensors.</p>
+                <button id="nextBtn1" class="start-btn fade-up-3">
+                    Next
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Onboarding Step 2 -->
+            <div id="onboarding2" class="text-wrapper hidden-fade" style="display: none;">
+                <h2 class="fade-up-1">Whisper Quiet</h2>
+                <p class="fade-up-2">Aerodynamic blade design ensures maximum airflow with practically zero noise disruption.</p>
+                <button id="nextBtn2" class="start-btn fade-up-3">
+                    Enter Dashboard
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
         </div>
     </div>
 

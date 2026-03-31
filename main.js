@@ -4,6 +4,16 @@ const appContainer = document.getElementById('appContainer');
 const startBtn = document.getElementById('startBtn');
 const backBtn = document.getElementById('backBtn');
 
+// --- Onboarding Elements ---
+const welcomeText = document.getElementById('welcomeText');
+const onboarding1 = document.getElementById('onboarding1');
+const onboarding2 = document.getElementById('onboarding2');
+const nextBtn1 = document.getElementById('nextBtn1');
+const nextBtn2 = document.getElementById('nextBtn2');
+const welcomeContent = document.getElementById('welcomeContent');
+const fanWrapper = document.getElementById('fanWrapper');
+const heroFan = document.getElementById('heroFan');
+
 const powerSwitch = document.getElementById('powerSwitch');
 const statusLabel = document.getElementById('statusLabel');
 const fanBlades = document.getElementById('fanBlades');
@@ -44,29 +54,83 @@ function init() {
     }, 2000);
 }
 
-// --- Navigation ---
+// --- Navigation & Onboarding Flow ---
 startBtn.addEventListener('click', () => {
-    welcomeScreen.classList.add('hidden');
-    appContainer.classList.remove('hidden');
-    appContainer.style.animation = 'fadeUp 0.6s ease forwards';
-    sessionActive = true;
-    
-    if (historyList.children.length === 0) {
-        // Initial set of events to fill the "sidebar"
-        addHistory('System Initialized', 'on', 24.5);
-        addHistory('Automatic Cooling Engaged', 'on', 26.2);
-        addHistory('Energy Saving Mode', 'off', 24.8);
-        addHistory('Night Mode Active', 'on', 23.5);
-        addHistory('Manual Override', 'off', 24.1);
-        addHistory('Temperature Calibration', 'on', 24.4);
-        addHistory('Fan Speed Optimized', 'on', 24.5);
-    }
+    welcomeText.classList.add('hidden-fade');
+    setTimeout(() => {
+        welcomeText.style.display = 'none';
+        
+        // Pause spin at whatever angle it is
+        heroFan.style.animationPlayState = 'paused';
+        
+        // Trigger onboarding mode
+        welcomeContent.classList.add('onboarding-mode');
+        welcomeScreen.style.overflow = 'hidden'; // lock scroll
+        fanWrapper.classList.add('expanded-1');
+        
+        // Show onboarding 1
+        onboarding1.style.display = 'flex';
+        // force reflow
+        void onboarding1.offsetWidth;
+        onboarding1.classList.remove('hidden-fade');
+    }, 400); 
+});
+
+nextBtn1.addEventListener('click', () => {
+    onboarding1.classList.add('hidden-fade');
+    setTimeout(() => {
+        onboarding1.style.display = 'none';
+        
+        fanWrapper.classList.remove('expanded-1');
+        fanWrapper.classList.add('expanded-2');
+        
+        onboarding2.style.display = 'flex';
+        void onboarding2.offsetWidth;
+        onboarding2.classList.remove('hidden-fade');
+    }, 400);
+});
+
+nextBtn2.addEventListener('click', () => {
+    onboarding2.classList.add('hidden-fade');
+    setTimeout(() => {
+        onboarding2.style.display = 'none';
+        
+        // Enter Dashboard
+        welcomeScreen.classList.add('hidden');
+        appContainer.classList.remove('hidden');
+        appContainer.style.animation = 'fadeUp 0.6s ease forwards';
+        sessionActive = true;
+        
+        if (historyList.children.length === 0) {
+            // Initial set of events to fill the "sidebar"
+            addHistory('System Initialized', 'on', 24.5);
+            addHistory('Automatic Cooling Engaged', 'on', 26.2);
+            addHistory('Energy Saving Mode', 'off', 24.8);
+            addHistory('Night Mode Active', 'on', 23.5);
+            addHistory('Manual Override', 'off', 24.1);
+            addHistory('Temperature Calibration', 'on', 24.4);
+            addHistory('Fan Speed Optimized', 'on', 24.5);
+        }
+    }, 400);
 });
 
 backBtn.addEventListener('click', () => {
     appContainer.classList.add('hidden');
     welcomeScreen.classList.remove('hidden');
     sessionActive = false;
+    
+    // Reset welcome screen state
+    welcomeContent.classList.remove('onboarding-mode');
+    welcomeScreen.style.overflow = ''; 
+    
+    fanWrapper.classList.remove('expanded-1', 'expanded-2');
+    heroFan.style.animationPlayState = 'running';
+    
+    welcomeText.style.display = 'flex';
+    // reset hidden-fade slightly after display flex
+    setTimeout(() => {
+        welcomeText.classList.remove('hidden-fade');
+    }, 50);
 });
 
 // --- Fan Controls ---
