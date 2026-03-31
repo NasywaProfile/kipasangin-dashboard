@@ -12,6 +12,21 @@
     <!-- Welcome Homepage -->
     <div id="welcomeScreen" class="welcome-screen">
         <div class="bg-gradient-anim"></div>
+        
+        <!-- Animated Particles for Themes -->
+        <div class="particle-layer hidden-fade" id="hotParticles">
+            <div class="fire-particle p1"></div>
+            <div class="fire-particle p2"></div>
+            <div class="fire-particle p3"></div>
+            <div class="fire-particle p4"></div>
+        </div>
+        <div class="particle-layer hidden-fade" id="coldParticles">
+            <div class="snow-particle s1"></div>
+            <div class="snow-particle s2"></div>
+            <div class="snow-particle s3"></div>
+            <div class="snow-particle s4"></div>
+        </div>
+
         <div class="welcome-content" id="welcomeContent">
             <div class="fan-wrapper" id="fanWrapper">
                 <div class="hero-fan-icon" id="heroFan">
@@ -37,10 +52,10 @@
 
             <!-- Onboarding Step 1 -->
             <div id="onboarding1" class="text-wrapper hidden-fade" style="display: none;">
-                <h2 class="fade-up-1">Smart Temperature</h2>
-                <p class="fade-up-2">Automatically adjusts cooling intensity based on real-time ambient temperature sensors.</p>
-                <button id="nextBtn1" class="start-btn fade-up-3">
-                    Next
+                <h2 class="fade-up-1 text-white">Extreme Heat?</h2>
+                <p class="fade-up-2 text-white">Our AI detects high room temperatures and neutralizes heat waves instantly.</p>
+                <button id="nextBtn1" class="start-btn btn-hot fade-up-3">
+                    Cool Me Down
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                         stroke-linecap="round" stroke-linejoin="round">
                         <path d="M5 12h14" />
@@ -51,9 +66,9 @@
 
             <!-- Onboarding Step 2 -->
             <div id="onboarding2" class="text-wrapper hidden-fade" style="display: none;">
-                <h2 class="fade-up-1">Whisper Quiet</h2>
-                <p class="fade-up-2">Aerodynamic blade design ensures maximum airflow with practically zero noise disruption.</p>
-                <button id="nextBtn2" class="start-btn fade-up-3">
+                <h2 class="fade-up-1 text-white">Arctic Breeze</h2>
+                <p class="fade-up-2 text-white">Experience refreshing, whisper-quiet icy airflow tailored to you.</p>
+                <button id="nextBtn2" class="start-btn btn-cold fade-up-3">
                     Enter Dashboard
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                         stroke-linecap="round" stroke-linejoin="round">

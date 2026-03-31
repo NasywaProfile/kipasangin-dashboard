@@ -63,6 +63,10 @@ startBtn.addEventListener('click', () => {
         // Pause spin at whatever angle it is
         heroFan.style.animationPlayState = 'paused';
         
+        // Add hot theme to screen
+        welcomeScreen.classList.add('theme-hot');
+        document.getElementById('hotParticles').classList.remove('hidden-fade');
+        
         // Trigger onboarding mode
         welcomeContent.classList.add('onboarding-mode');
         welcomeScreen.style.overflow = 'hidden'; // lock scroll
@@ -81,6 +85,13 @@ nextBtn1.addEventListener('click', () => {
     setTimeout(() => {
         onboarding1.style.display = 'none';
         
+        // Switch to cold theme
+        welcomeScreen.classList.remove('theme-hot');
+        welcomeScreen.classList.add('theme-cold');
+        
+        document.getElementById('hotParticles').classList.add('hidden-fade');
+        document.getElementById('coldParticles').classList.remove('hidden-fade');
+        
         fanWrapper.classList.remove('expanded-1');
         fanWrapper.classList.add('expanded-2');
         
@@ -92,6 +103,7 @@ nextBtn1.addEventListener('click', () => {
 
 nextBtn2.addEventListener('click', () => {
     onboarding2.classList.add('hidden-fade');
+    document.getElementById('coldParticles').classList.add('hidden-fade');
     setTimeout(() => {
         onboarding2.style.display = 'none';
         
@@ -122,6 +134,9 @@ backBtn.addEventListener('click', () => {
     // Reset welcome screen state
     welcomeContent.classList.remove('onboarding-mode');
     welcomeScreen.style.overflow = ''; 
+    welcomeScreen.classList.remove('theme-hot', 'theme-cold');
+    document.getElementById('hotParticles').classList.add('hidden-fade');
+    document.getElementById('coldParticles').classList.add('hidden-fade');
     
     fanWrapper.classList.remove('expanded-1', 'expanded-2');
     heroFan.style.animationPlayState = 'running';
