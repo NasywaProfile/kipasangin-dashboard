@@ -12,16 +12,10 @@
 </head>
 
 <body>
-    <!-- Onboarding / Welcome Screen -->
+    <!-- Onboarding / Premium Slider Screen -->
     <div id="welcomeScreen" class="welcome-screen">
         
-        <!-- Dynamic Background Layer -->
-        <div id="flowBg" class="flow-bg step-1"></div>
-        
-        <!-- Particle Overlays -->
-        <div id="particlesOverlay" class="particles-overlay"></div>
-
-        <!-- Central Interactive Graphic -->
+        <!-- Persistent Central Graphic -->
         <div class="hero-graphic-wrapper">
             <div id="heroFan" class="hero-fan mode-regular">
                 <div class="h-ring"></div>
@@ -34,27 +28,44 @@
             </div>
         </div>
 
-        <!-- Text Slides -->
-        <div class="slides-wrapper">
-            <!-- Slide 1: Intro -->
-            <div id="slide1" class="slide-item active">
-                <h2>SMART CLIMATE</h2>
-                <p>Intelligent atmosphere control designed for modern living. Quiet, powerful, and beautifully seamless.</p>
-                <button class="action-btn btn-neutral" id="btnNext1">Explore Features</button>
+        <!-- Dropping Slides Container -->
+        <div class="slides-container">
+            
+            <!-- Slide 1 -->
+            <div id="slide1" class="slide-card bg-1 active">
+                <div class="slide-content">
+                    <h2 class="stagger-up">SMART CLIMATE</h2>
+                    <p class="stagger-up delay-1">Intelligent atmosphere control designed for modern living. Quiet, powerful, and beautifully seamless.</p>
+                </div>
             </div>
 
-            <!-- Slide 2: Hot -->
-            <div id="slide2" class="slide-item">
-                <h2>FEEL THE HEAT?</h2>
-                <p>When the temperature rises and the air gets stuffy, ordinary fans just push the warm air around.</p>
-                <button class="action-btn btn-hot" id="btnNext2">Activate Cooling</button>
+            <!-- Slide 2 -->
+            <div id="slide2" class="slide-card bg-hot next">
+                <div class="slide-content">
+                    <h2 class="stagger-up">FEEL THE HEAT?</h2>
+                    <p class="stagger-up delay-1">When the temperature rises and the air gets stuffy, ordinary fans just push the warm air around mercilessly.</p>
+                </div>
             </div>
 
-            <!-- Slide 3: Cold -->
-            <div id="slide3" class="slide-item">
-                <h2>ARCTIC BREEZE</h2>
-                <p>Experience rapid, bone-chilling cooling technology instantly. Take complete control of your environment.</p>
-                <button class="action-btn btn-cold" id="btnEnter">Enter Dashboard</button>
+            <!-- Slide 3 -->
+            <div id="slide3" class="slide-card bg-cold next">
+                <div class="slide-content">
+                    <h2 class="stagger-up">ARCTIC BREEZE</h2>
+                    <p class="stagger-up delay-1">Experience rapid, bone-chilling cooling technology instantly. Take complete control of your environment.</p>
+                    <button class="action-btn btn-enter stagger-up delay-2" id="btnEnter">ENTER DASHBOARD</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Floating Navigation -->
+        <div class="slider-controls">
+            <div class="slide-indicator">
+                <span id="slideNum">01</span> / 03
+            </div>
+            <div class="nav-arrows">
+                <button id="btnPrev" class="arrow-btn disabled">&#8592;</button>
+                <button id="btnNext" class="arrow-btn">&#8594;</button>
             </div>
         </div>
 

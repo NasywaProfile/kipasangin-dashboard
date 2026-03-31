@@ -2,13 +2,15 @@
 const welcomeScreen = document.getElementById('welcomeScreen');
 const appContainer = document.getElementById('appContainer');
 // --- Onboarding Elements ---
-const flowBg = document.getElementById('flowBg');
 const heroFan = document.getElementById('heroFan');
 const slide1 = document.getElementById('slide1');
 const slide2 = document.getElementById('slide2');
 const slide3 = document.getElementById('slide3');
-const btnNext1 = document.getElementById('btnNext1');
-const btnNext2 = document.getElementById('btnNext2');
+const slides = [slide1, slide2, slide3];
+
+const btnPrev = document.getElementById('btnPrev');
+const btnNext = document.getElementById('btnNext');
+const slideNum = document.getElementById('slideNum');
 const btnEnter = document.getElementById('btnEnter');
 const backBtn = document.getElementById('backBtn');
 
@@ -52,29 +54,67 @@ function init() {
     }, 2000);
 }
 
-// --- Navigation & Onboarding Flow (3 Slides) ---
-function setSlide(step) {
-    // Hide all slides
-    slide1.classList.remove('active');
-    slide2.classList.remove('active');
-    slide3.classList.remove('active');
+// --- Premium Slider Navigation Flow ---
+let currentStep = 1;
+const totalSteps = 3;
+
+function updateSlider() {
+    // 1. Update text indicator
+    slideNum.textContent = `0${currentStep}`;
     
-    // Update background color wrapper
-    flowBg.className = `flow-bg step-${step}`;
+    // Update theme body wrapper for dynamic indicator color
+    welcomeScreen.className = 'welcome-screen';
+    if(currentStep === 2) welcomeScreen.classList.add('temp-hot');
+    if(currentStep === 3) welcomeScreen.classList.add('temp-cold');
     
-    // Update central hero fan mode
-    if(step === 1) heroFan.className = 'hero-fan mode-regular';
-    if(step === 2) heroFan.className = 'hero-fan mode-hot';
-    if(step === 3) heroFan.className = 'hero-fan mode-cold';
+    // 2. Button states
+    if(currentStep === 1) {
+        btnPrev.classList.add('disabled');
+    } else {
+        btnPrev.classList.remove('disabled');
+    }
     
-    // Show active slide
-    if(step === 1) slide1.classList.add('active');
-    if(step === 2) slide2.classList.add('active');
-    if(step === 3) slide3.classList.add('active');
+    if(currentStep === totalSteps) {
+        btnNext.classList.add('disabled');
+    } else {
+        btnNext.classList.remove('disabled');
+    }
+    
+    // 3. Central Fan Modes
+    if(currentStep === 1) heroFan.className = 'hero-fan mode-regular';
+    if(currentStep === 2) heroFan.className = 'hero-fan mode-hot';
+    if(currentStep === 3) heroFan.className = 'hero-fan mode-cold';
+    
+    // 4. Update the actual slides spatial position
+    slides.forEach((slide, index) => {
+        const slideIndex = index + 1;
+        
+        // Reset classes
+        slide.classList.remove('active', 'past', 'next');
+        
+        if (slideIndex < currentStep) {
+            slide.classList.add('past');
+        } else if (slideIndex === currentStep) {
+            slide.classList.add('active');
+        } else {
+            slide.classList.add('next');
+        }
+    });
 }
 
-btnNext1.addEventListener('click', () => setSlide(2));
-btnNext2.addEventListener('click', () => setSlide(3));
+btnNext.addEventListener('click', () => {
+    if(currentStep < totalSteps) {
+        currentStep++;
+        updateSlider();
+    }
+});
+
+btnPrev.addEventListener('click', () => {
+    if(currentStep > 1) {
+        currentStep--;
+        updateSlider();
+    }
+});
 
 btnEnter.addEventListener('click', () => {
     // Smooth transition out of welcome screen
@@ -113,8 +153,9 @@ backBtn.addEventListener('click', () => {
         welcomeScreen.classList.remove('hidden');
         sessionActive = false;
         
-        // Reset to first slide
-        setSlide(1);
+        // Reset to first slide dynamically
+        currentStep = 1;
+        updateSlider();
         
         // Let welcome screen fade back in
         welcomeScreen.style.animation = 'fadeIn 0.8s ease backwards';
