@@ -1,27 +1,27 @@
 /* Final Refined Dashboard - Neumorphism & Glassmorphism blend */
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-    --bg-color: #F8FAFC;
+    --bg-color: #FAF7F2;
     --card-bg: #FFFFFF;
-    --accent-color: #3B82F6;
-    --accent-light: #EFF6FF;
-    --text-main: #0F172A;
-    --text-muted: #64748B;
-    --border-soft: #F1F5F9;
-    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    --accent-color: #A67347;
+    --accent-light: #F4EAE2;
+    --text-main: #36312D;
+    --text-muted: #8B827A;
+    --border-soft: #EAE4DC;
+    --shadow-sm: 0 4px 6px -1px rgba(166, 115, 71, 0.05);
+    --shadow-md: 0 10px 30px -5px rgba(166, 115, 71, 0.08);
+    --shadow-lg: 0 25px 50px -12px rgba(166, 115, 71, 0.15);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
 
 body {
     background-color: var(--bg-color);
     color: var(--text-main);
     display: flex; justify-content: center; align-items: center;
     min-height: 100vh; padding: 20px; overflow: hidden;
-    background-image: radial-gradient(at 0% 0%, hsla(217,100%,97%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(216,100%,96%,1) 0, transparent 50%);
+    background-image: radial-gradient(at 0% 0%, hsla(30,30%,96%,1) 0, transparent 50%), radial-gradient(at 100% 100%, hsla(35,30%,92%,1) 0, transparent 50%);
 }
 
 .hidden { display: none !important; }
@@ -49,12 +49,16 @@ body {
 }
 
 .welcome-text {
-    position: absolute; top: 12%; left: 8%; z-index: 10;
-    max-width: 400px; color: white; text-align: left;
+    position: absolute; top: 15%; left: 0; right: 0; z-index: 10;
+    text-align: center; color: white; padding: 0 30px;
 }
 .welcome-text h1 {
-    font-size: 56px; font-weight: 700; line-height: 1.15; letter-spacing: -1px;
-    font-family: 'Plus Jakarta Sans', sans-serif; text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    font-size: 68px; font-weight: 700; line-height: 1.1; letter-spacing: -2px;
+    font-family: 'Outfit', sans-serif; text-shadow: 0 4px 30px rgba(0,0,0,0.6);
+}
+.welcome-subtitle {
+    font-size: 20px; font-weight: 300; color: rgba(255,255,255,0.9);
+    margin-top: 15px; letter-spacing: 0.5px; text-shadow: 0 2px 10px rgba(0,0,0,0.5);
 }
 
 /* Swipe Controls Centered */
@@ -64,11 +68,11 @@ body {
 }
 
 .swipe-track {
-    width: 100%; max-width: 280px; height: 52px; background: rgba(255,255,255,0.08); /* Transparent */
+    width: 100%; max-width: 280px; height: 56px; background: rgba(255,255,255,0.15); /* Transparent */
     border-radius: 100px; backdrop-filter: blur(16px);
     position: relative; display: flex; align-items: center; justify-content: center;
-    border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
-    overflow: hidden; box-shadow: inset 0 2px 20px rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.15);
+    border: 1px solid rgba(255,255,255,0.3); cursor: pointer;
+    overflow: hidden; box-shadow: inset 0 2px 20px rgba(0,0,0,0.1), 0 8px 32px rgba(0,0,0,0.25);
 }
 
 .swipe-glow {
@@ -92,10 +96,10 @@ body {
 }
 
 .swipe-thumb {
-    width: 42px; height: 42px; background: white; border-radius: 50%;
-    position: absolute; left: 5px; z-index: 2;
+    width: 48px; height: 48px; background: white; border-radius: 50%;
+    position: absolute; left: 4px; z-index: 2;
     display: flex; justify-content: center; align-items: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15); cursor: grab;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2); cursor: grab;
     transition: transform 0.1s ease-out; /* smooth follow */
     touch-action: none; /* Prevent scroll on mobile drag */
 }
@@ -117,9 +121,10 @@ body {
 }
 
 @media screen and (max-width: 768px) {
-    .welcome-text h1 { font-size: 44px; }
+    .welcome-text h1 { font-size: 48px; }
+    .welcome-subtitle { font-size: 16px; margin-top: 10px; }
     .swipe-wrapper { bottom: 8%; left: 8%; right: 8%; }
-    .welcome-text { left: 0; right: 0; top: 12%; text-align: center; padding: 0 30px; }
+    .welcome-text { left: 0; right: 0; top: 12%; text-align: center; padding: 0 20px; }
 }
 
 
@@ -133,10 +138,10 @@ body {
     transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --- Cool Atmosphere State (When ON) --- */
+/* --- Warm Atmosphere State (When ON) --- */
 .app-container.active-cool {
-    background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 50%, #DBEAFE 100%);
-    box-shadow: 0 40px 100px -20px rgba(59, 130, 246, 0.15);
+    background: linear-gradient(135deg, #FAF7F2 0%, #F4EAE2 50%, #EAD8C8 100%);
+    box-shadow: 0 40px 100px -20px rgba(166, 115, 71, 0.2);
 }
 
 .app-container.active-cool .dashboard-visuals {
@@ -191,7 +196,7 @@ body {
 .titles h1 span { color: var(--accent-color); }
 .sub-header { display: flex; align-items: center; gap: 12px; margin-top: 4px; }
 .titles p { font-size: 13px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
-.header-temp { font-size: 12px; font-weight: 700; color: var(--accent-color); background: var(--accent-light); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(59, 130, 246, 0.1); }
+.header-temp { font-size: 12px; font-weight: 700; color: var(--accent-color); background: var(--accent-light); padding: 2px 8px; border-radius: 6px; border: 1px solid rgba(166, 115, 71, 0.1); }
 
 /* Fan Display */
 .fan-display { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; min-height: 250px; }
@@ -241,7 +246,7 @@ body {
 }
 .p-icon { color: #94A3B8; transition: color 0.4s; }
 
-.power-toggle.on { background: var(--accent-color); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+.power-toggle.on { background: var(--accent-color); box-shadow: 0 4px 12px rgba(166, 115, 71, 0.3); }
 .power-toggle.on .toggle-knob { transform: translateX(30px); }
 .power-toggle.on .p-icon { color: var(--accent-color); }
 
