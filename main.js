@@ -2,8 +2,7 @@
 const welcomeScreen = document.getElementById('welcomeScreen');
 const appContainer = document.getElementById('appContainer');
 // --- Onboarding Elements ---
-const swipeTrack = document.getElementById('swipeTrack');
-const swipeThumb = document.getElementById('swipeThumb');
+const startBtn = document.getElementById('startBtn');
 const backBtn = document.getElementById('backBtn');
 
 const powerSwitch = document.getElementById('powerSwitch');
@@ -46,12 +45,7 @@ function init() {
     }, 2000);
 }
 
-// --- Premium Swipe To Start Flow ---
-let isDragging = false;
-let startX = 0;
-let currentX = 0;
-let maxDrag = 0;
-
+// --- Simple Enter Flow ---
 function enterDashboard() {
     // Smooth transition out of welcome screen
     welcomeScreen.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
@@ -80,68 +74,8 @@ function enterDashboard() {
     }, 600); // Wait for fade out
 }
 
-function onDragStart(e) {
-    if (e.type === 'touchstart') e = e.touches[0];
-    isDragging = true;
-    startX = e.clientX - currentX;
-    maxDrag = swipeTrack.offsetWidth - swipeThumb.offsetWidth - 10; // 5px padding on each side
-    swipeTrack.classList.add('swiping');
-}
-
-function onDragMove(e) {
-    if (!isDragging) return;
-    if (e.type === 'touchmove') e = e.touches[0];
-    currentX = e.clientX - startX;
-    
-    // Bounds
-    if (currentX < 0) currentX = 0;
-    if (currentX > maxDrag) currentX = maxDrag;
-    
-    swipeThumb.style.transform = `translateX(${currentX}px)`;
-}
-
-function onDragEnd() {
-    if (!isDragging) return;
-    isDragging = false;
-    swipeTrack.classList.remove('swiping');
-    
-    if (currentX >= maxDrag - 5) {
-        // Unlocked!
-        enterDashboard();
-        
-        // Reset for next time smoothly
-        setTimeout(() => {
-            currentX = 0;
-            swipeThumb.style.transform = `translateX(0px)`;
-            swipeThumb.style.transition = '';
-        }, 1000);
-    } else {
-        // Snap back to zero
-        currentX = 0;
-        swipeThumb.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1)';
-        swipeThumb.style.transform = `translateX(0px)`;
-    }
-}
-
-// Attach Drag Interactions
-if (swipeThumb) {
-    swipeThumb.addEventListener('mousedown', onDragStart);
-    document.addEventListener('mousemove', onDragMove);
-    document.addEventListener('mouseup', onDragEnd);
-    
-    swipeThumb.addEventListener('touchstart', onDragStart, {passive: true});
-    document.addEventListener('touchmove', onDragMove, {passive: true});
-    document.addEventListener('touchend', onDragEnd);
-    
-    // clear transition so it responds immediately again
-    swipeThumb.addEventListener('transitionend', () => {
-        if (!isDragging) swipeThumb.style.transition = '';
-    });
-}
-
-// Allow clicking on track to skip sliding entirely (optional fallback)
-if (swipeTrack) {
-    swipeTrack.addEventListener('dblclick', enterDashboard);
+if (startBtn) {
+    startBtn.addEventListener('click', enterDashboard);
 }
 
 backBtn.addEventListener('click', () => {
