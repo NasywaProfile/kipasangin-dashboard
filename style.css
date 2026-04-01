@@ -63,7 +63,7 @@ body {
 
 /* Glassmorphism Start Button */
 .start-btn-wrapper {
-    position: absolute; bottom: 8%; left: 0; right: 0; z-index: 10;
+    position: absolute; bottom: 15%; left: 0; right: 0; z-index: 10;
     display: flex; justify-content: center; align-items: center;
 }
 
@@ -112,7 +112,7 @@ body {
 @media screen and (max-width: 768px) {
     .welcome-text h1 { font-size: 48px; }
     .welcome-subtitle { font-size: 16px; margin-top: 10px; }
-    .start-btn-wrapper { bottom: 8%; left: 8%; right: 8%; }
+    .start-btn-wrapper { bottom: 12%; left: 8%; right: 8%; }
     .welcome-text { left: 0; right: 0; top: 12%; text-align: center; padding: 0 20px; }
 }
 
