@@ -109,13 +109,6 @@ body {
     100% { opacity: 0; transform: scale(0.98); }
 }
 
-/* This media query handles intermediate sizing up to 900px */
-@media screen and (max-width: 900px) and (min-width: 769px) {
-    .welcome-text h1 { font-size: 48px; }
-    .welcome-subtitle { font-size: 16px; margin-top: 10px; }
-    .start-btn-wrapper { bottom: 12%; left: 8%; right: 8%; }
-    .welcome-text { left: 0; right: 0; top: 12%; text-align: center; padding: 0 20px; }
-}
 
 
 
@@ -315,61 +308,82 @@ body {
 .history-text span { color: var(--accent-color); font-weight: 700; background: var(--accent-light); padding: 2px 6px; border-radius: 6px; margin-left: 4px; font-size: 11px; }
 .history-time { font-size: 12px; color: var(--text-muted); font-weight: 700; background: #F8FAFC; padding: 6px 10px; border-radius: 8px; }
 
-/* Responsive Update */
-@media screen and (max-width: 900px) {
-    .app-container, .welcome-container { 
-        height: 95vh; max-width: 95%; max-height: none; 
-    }
+/* ---------- Responsive Breakpoints Setup ---------- */
+
+/* 1. Laptop/Desktop Tweaks */
+@media screen and (max-width: 1024px) {
+    .app-container, .welcome-container { width: 95%; max-width: 95%; aspect-ratio: auto; height: 90vh; }
+    .welcome-text h1 { font-size: 56px; }
 }
 
-@media screen and (max-width: 768px) {
-    body { padding: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg-color); }
+/* 2. Tablets (iPad, etc.) */
+@media screen and (max-width: 900px) {
+    .welcome-text h1 { font-size: 48px; }
+    .start-btn-wrapper { bottom: 10%; left: 10%; right: 10%; }
     
-    .welcome-container {
-        height: calc(100dvh - 24px); min-height: calc(100dvh - 24px); max-height: calc(100dvh - 24px);
-        border-radius: 32px; width: 100%; max-width: 100%;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        border: 1px solid rgba(255,255,255,0.2);
-        aspect-ratio: auto;
-    }
-
-    .welcome-text { left: 0; right: 0; top: 12%; text-align: center; padding: 0 16px; }
-    .welcome-text h1 { font-size: 40px; line-height: 1.1; letter-spacing: -1px; }
-    .welcome-subtitle { font-size: 15px; margin-top: 10px; }
-    
-    .start-btn-wrapper { bottom: 8%; left: 16px; right: 16px; }
-    .glass-start-btn { padding: 14px 24px; font-size: 16px; width: 100%; justify-content: center; }
-
     .app-container { 
         grid-template-columns: 1fr; 
-        height: calc(100dvh - 24px); 
-        min-height: calc(100dvh - 24px);
-        max-height: calc(100dvh - 24px);
-        border-radius: 32px; 
-        border: 1px solid var(--border-soft); 
-        box-shadow: var(--shadow-md); 
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
+        display: flex; flex-direction: column;
+        height: 95vh; max-height: none;
+    }
+    .dashboard-visuals { border-right: none; border-bottom: 1px solid var(--border-soft); padding: 30px; min-height: 380px; flex-shrink: 0; }
+    .dashboard-content { border-left: none; flex-grow: 1; display: flex; flex-direction: column; }
+    .dashboard-stats { border-bottom: 1px solid var(--border-soft); }
+    .dashboard-history { flex-grow: 1; overflow-y: auto; }
+}
+
+/* 3. Large Mobile Phones */
+@media screen and (max-width: 768px) {
+    body { padding: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg-color); }
+    
+    /* Mobile-specific fully constrained floating frame */
+    .welcome-container, .app-container {
+        height: calc(100dvh - 32px); min-height: calc(100dvh - 32px); max-height: calc(100dvh - 32px);
+        width: 100%; max-width: 100%; border-radius: 36px;
+        box-shadow: var(--shadow-lg); border: 1px solid rgba(255,255,255,0.2);
     }
     
-    .dashboard-content { display: flex; flex-direction: column; flex-grow: 1; border-left: none; min-height: 0; }
-    .dashboard-visuals { padding: 20px; border-right: none; border-bottom: 1px solid var(--border-soft); flex-shrink: 0; min-height: auto; }
-    .dashboard-stats { padding: 12px 20px; border-bottom: 1px solid var(--border-soft); flex-shrink: 0; height: auto; }
-    .dashboard-history { padding: 12px 20px; flex-grow: 1; overflow-y: auto; height: auto; border-bottom-left-radius: 32px; border-bottom-right-radius: 32px;}
-    .history-header { margin-bottom: 8px; }
-    .history-container { padding-right: 4px; }
+    .welcome-text { top: 12%; left: 0; right: 0; padding: 0 20px; text-align: center; }
+    .welcome-text h1 { font-size: 42px; line-height: 1.1; letter-spacing: -1px; }
+    .welcome-subtitle { font-size: 16px; margin-top: 10px; }
     
-    /* Adjust fan size slightly for mobile */
+    .start-btn-wrapper { bottom: 8%; left: 16px; right: 16px; }
+    .glass-start-btn { width: 100%; justify-content: center; padding: 14px 20px; font-size: 16px; }
+    
+    .dashboard-visuals { padding: 24px; min-height: auto; }
+    .dashboard-stats { padding: 16px 24px; }
+    .dashboard-history { padding: 16px 24px; border-bottom-left-radius: 36px; border-bottom-right-radius: 36px; }
+    .history-header { margin-bottom: 10px; }
+    .history-container { padding-right: 6px; }
+    
     .fan-display { min-height: 200px; }
-    .fan-frame { width: 160px; height: 160px; }
-    .fan-glow { width: 180px; height: 180px; }
-    .fan-hub { width: 30px; height: 30px; }
-    .fan-blade { width: 60px; height: 28px; margin-top: -14px; }
+    .fan-frame { width: 150px; height: 150px; }
+    .fan-glow { width: 170px; height: 170px; }
+    .fan-hub { width: 30px; height: 30px; border-width: 5px; }
+    .fan-blade { width: 55px; height: 26px; margin-top: -13px; }
     
-    /* Adjust cards slightly for mobile */
     .power-card { padding: 16px 20px; border-radius: 20px; }
-    .temp-card { padding: 16px; border-radius: 20px; }
+    .temp-card { padding: 16px; border-radius: 20px; gap: 16px; }
     .temp-icon { width: 44px; height: 44px; }
     .value { font-size: 28px; }
+}
+
+/* 4. Small Mobile Phones */
+@media screen and (max-width: 480px) {
+    body { padding: 12px; }
+    .welcome-container, .app-container {
+        height: calc(100dvh - 24px); min-height: calc(100dvh - 24px); max-height: calc(100dvh - 24px);
+        border-radius: 28px;
+    }
+    .welcome-text { top: 10%; padding: 0 12px; }
+    .welcome-text h1 { font-size: 34px; letter-spacing: -0.5px; }
+    .welcome-subtitle { font-size: 14px; margin-top: 8px; }
+    
+    .dashboard-history { border-bottom-left-radius: 28px; border-bottom-right-radius: 28px; }
+    .history-item { padding: 12px; }
+    .history-text h5 { font-size: 13px; }
+    .history-text p { font-size: 11px; }
+    .history-time { font-size: 11px; padding: 4px 8px; }
+    .history-icon-box { width: 38px; height: 38px; }
+    .history-icon-box svg { width: 16px; height: 16px; }
 }
