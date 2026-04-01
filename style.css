@@ -109,7 +109,8 @@ body {
     100% { opacity: 0; transform: scale(0.98); }
 }
 
-@media screen and (max-width: 768px) {
+/* This media query handles intermediate sizing up to 900px */
+@media screen and (max-width: 900px) and (min-width: 769px) {
     .welcome-text h1 { font-size: 48px; }
     .welcome-subtitle { font-size: 16px; margin-top: 10px; }
     .start-btn-wrapper { bottom: 12%; left: 8%; right: 8%; }
@@ -322,33 +323,53 @@ body {
 }
 
 @media screen and (max-width: 768px) {
-    body { padding: 15px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg-color); }
+    body { padding: 12px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: var(--bg-color); }
     
     .welcome-container {
-        height: calc(100vh - 30px); min-height: calc(100vh - 30px); max-height: calc(100vh - 30px);
-        border-radius: 36px; width: 100%; max-width: 100%;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        height: calc(100dvh - 24px); min-height: calc(100dvh - 24px); max-height: calc(100dvh - 24px);
+        border-radius: 32px; width: 100%; max-width: 100%;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         border: 1px solid rgba(255,255,255,0.2);
         aspect-ratio: auto;
     }
 
+    .welcome-text { left: 0; right: 0; top: 12%; text-align: center; padding: 0 16px; }
+    .welcome-text h1 { font-size: 40px; line-height: 1.1; letter-spacing: -1px; }
+    .welcome-subtitle { font-size: 15px; margin-top: 10px; }
+    
+    .start-btn-wrapper { bottom: 8%; left: 16px; right: 16px; }
+    .glass-start-btn { padding: 14px 24px; font-size: 16px; width: 100%; justify-content: center; }
+
     .app-container { 
         grid-template-columns: 1fr; 
-        height: calc(100vh - 30px); 
-        min-height: calc(100vh - 30px);
-        max-height: calc(100vh - 30px);
-        border-radius: 36px; 
+        height: calc(100dvh - 24px); 
+        min-height: calc(100dvh - 24px);
+        max-height: calc(100dvh - 24px);
+        border-radius: 32px; 
         border: 1px solid var(--border-soft); 
-        box-shadow: var(--shadow-lg); 
+        box-shadow: var(--shadow-md); 
         display: flex;
         flex-direction: column;
         overflow: hidden;
     }
     
     .dashboard-content { display: flex; flex-direction: column; flex-grow: 1; border-left: none; min-height: 0; }
-    .dashboard-visuals { padding: 25px; border-right: none; border-bottom: 1px solid var(--border-soft); flex-shrink: 0; min-height: auto; }
-    .dashboard-stats { padding: 15px 25px; border-bottom: 1px solid var(--border-soft); flex-shrink: 0; height: auto; }
-    .dashboard-history { padding: 15px 25px; flex-grow: 1; overflow-y: auto; height: auto; border-bottom-left-radius: 36px; border-bottom-right-radius: 36px;}
-    .history-header { margin-bottom: 10px; }
-    .history-container { padding-right: 8px; }
+    .dashboard-visuals { padding: 20px; border-right: none; border-bottom: 1px solid var(--border-soft); flex-shrink: 0; min-height: auto; }
+    .dashboard-stats { padding: 12px 20px; border-bottom: 1px solid var(--border-soft); flex-shrink: 0; height: auto; }
+    .dashboard-history { padding: 12px 20px; flex-grow: 1; overflow-y: auto; height: auto; border-bottom-left-radius: 32px; border-bottom-right-radius: 32px;}
+    .history-header { margin-bottom: 8px; }
+    .history-container { padding-right: 4px; }
+    
+    /* Adjust fan size slightly for mobile */
+    .fan-display { min-height: 200px; }
+    .fan-frame { width: 160px; height: 160px; }
+    .fan-glow { width: 180px; height: 180px; }
+    .fan-hub { width: 30px; height: 30px; }
+    .fan-blade { width: 60px; height: 28px; margin-top: -14px; }
+    
+    /* Adjust cards slightly for mobile */
+    .power-card { padding: 16px 20px; border-radius: 20px; }
+    .temp-card { padding: 16px; border-radius: 20px; }
+    .temp-icon { width: 44px; height: 44px; }
+    .value { font-size: 28px; }
 }
