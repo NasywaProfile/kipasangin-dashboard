@@ -1,7 +1,7 @@
 #include <DHT.h>
 
 /*
- * Smart Fan Dashboard - Web Serial Edition (Absolute Override & Auto Mode)
+ * Smart Fan Dashboard - Web Serial Edition (Manual + Auto Mode)
  */
 
 #define DHTPIN 33
@@ -10,7 +10,7 @@ DHT dht(DHTPIN, DHTTYPE);
 
 const int relayPin = 18;
 bool fanState = false;
-bool autoEnabled = true; // Mode bawaan: Otomatis
+bool autoMode = true; // Default adalah otomatis
 
 void setFan(bool state) {
   if (state != fanState) {
@@ -18,12 +18,18 @@ void setFan(bool state) {
     if (fanState) {
       pinMode(relayPin, OUTPUT);
       digitalWrite(relayPin, LOW); 
-      Serial.println("S:1");
+      Serial.println("S:1"); // Kabari Web: Fan ON
     } else {
       pinMode(relayPin, INPUT); 
-      Serial.println("S:0");
+      Serial.println("S:0"); // Kabari Web: Fan OFF
     }
   }
+}
+
+void setAuto(bool mode) {
+  autoMode = mode;
+  Serial.print("A:");
+  Serial.println(autoMode ? "1" : "0"); // Kabari Web: Auto Mode Status
 }
 
 void setup() {
@@ -31,8 +37,7 @@ void setup() {
   dht.begin();
   pinMode(relayPin, INPUT); 
   fanState = false;
-  autoEnabled = true;
-  Serial.println("System Ready - Multi Mode (Auto/Manual)");
+  autoMode = true;
 }
 
 void loop() {
@@ -42,22 +47,19 @@ void loop() {
     input.trim();
     
     if (input == "ON") {
-      autoEnabled = false; // Matikan otomatis jika user klik ON manual
+      setAuto(false); // Matikan Auto jika user klik Power ON di dashboard
       setFan(true);
-      Serial.println("System: Manual ON");
     } 
     else if (input == "OFF") {
-      autoEnabled = false; // Matikan otomatis jika user klik OFF manual
+      setAuto(false); // Matikan Auto jika user klik Power OFF di dashboard
       setFan(false);
-      Serial.println("System: Manual OFF");
     }
     else if (input == "AUTO") {
-      autoEnabled = true; // Kembali ke mode otomatis sensor
-      Serial.println("System: Auto Mode Engaged");
+      setAuto(true); // Aktifkan Auto jika user klik tombol Auto Mode
     }
   }
 
-  // 2. Baca Sensor & Logika
+  // 2. Logika Sensor & Otomatis
   static unsigned long lastSensorRead = 0;
   if (millis() - lastSensorRead > 2000) {
     lastSensorRead = millis();
@@ -67,8 +69,8 @@ void loop() {
       Serial.print("T:");
       Serial.println(temperature, 1);
       
-      // LOGIKA OTOMATIS (Hanya jalan jika autoEnabled = true)
-      if (autoEnabled) {
+      // JALANKAN LOGIKA HANYA JIKA AUTO MODE AKTIF
+      if (autoMode) {
         if (temperature >= 32) {
           setFan(true);
         } else {

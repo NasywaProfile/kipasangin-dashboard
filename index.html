@@ -96,22 +96,25 @@
                         <h3>Device Power</h3>
                         <p id="statusLabel">Standby</p>
                     </div>
-                    <div class="power-controls">
-                        <div class="auto-mode-toggle">
-                            <span>Auto Mode</span>
-                            <input type="checkbox" id="autoToggle" class="auto-checkbox">
-                            <label for="autoToggle" class="auto-slider"></label>
+                    <button id="powerSwitch" class="power-toggle off">
+                        <div class="toggle-knob">
+                            <svg class="p-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                                <line x1="12" y1="2" x2="12" y2="12" />
+                            </svg>
                         </div>
-                        <button id="powerSwitch" class="power-toggle off">
-                            <div class="toggle-knob">
-                                <svg class="p-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
-                                    <line x1="12" y1="2" x2="12" y2="12" />
-                                </svg>
-                            </div>
-                        </button>
+                    </button>
+                </div>
+                <!-- Auto Mode Toggle -->
+                <div class="auto-mode-card">
+                    <div class="power-info">
+                        <h3>Auto Mode</h3>
+                        <p id="autoLabel">Disabled</p>
                     </div>
+                    <button id="autoSwitch" class="auto-toggle off">
+                        <div class="toggle-knob"></div>
+                    </button>
                 </div>
             </div>
         </section>

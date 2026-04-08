@@ -280,60 +280,24 @@ body {
 .power-toggle.on .toggle-knob { transform: translateX(30px); }
 .power-toggle.on .p-icon { color: var(--accent-color); }
 
-.power-controls {
-    display: flex;
-    align-items: center;
-    gap: 20px;
+/* Auto Mode Card */
+.auto-mode-card {
+    background: white; border-radius: 24px; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center;
+    box-shadow: var(--shadow-sm); border: 1px solid var(--border-soft); transition: all 0.3s ease; margin-top: 12px;
+}
+.auto-mode-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+
+.auto-toggle {
+    width: 54px; height: 30px; background: #E2E8F0; border-radius: 20px; border: none; cursor: pointer;
+    position: relative; transition: background 0.4s ease;
+}
+.auto-toggle .toggle-knob {
+    width: 22px; height: 22px; background: white; border-radius: 50%; position: absolute; top: 4px; left: 4px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.auto-mode-toggle {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-}
-
-.auto-mode-toggle span {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--text-muted);
-}
-
-.auto-checkbox {
-    display: none;
-}
-
-.auto-slider {
-    width: 36px;
-    height: 18px;
-    background: #E2E8F0;
-    border-radius: 20px;
-    position: relative;
-    cursor: pointer;
-    transition: background 0.3s;
-}
-
-.auto-slider::before {
-    content: '';
-    position: absolute;
-    width: 14px;
-    height: 14px;
-    background: white;
-    border-radius: 50%;
-    top: 2px;
-    left: 2px;
-    transition: transform 0.3s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.auto-checkbox:checked + .auto-slider {
-    background: #3B82F6;
-}
-
-.auto-checkbox:checked + .auto-slider::before {
-    transform: translateX(18px);
-}
+.auto-toggle.on { background: #10B981; }
+.auto-toggle.on .toggle-knob { transform: translateX(24px); }
 
 /* Panels Styling */
 .dashboard-content {

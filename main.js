@@ -6,14 +6,15 @@ const startBtn = document.getElementById('startBtn');
 const backBtn = document.getElementById('backBtn');
 
 const powerSwitch = document.getElementById('powerSwitch');
+const autoSwitch = document.getElementById('autoSwitch');
 const statusLabel = document.getElementById('statusLabel');
+const autoLabel = document.getElementById('autoLabel');
 const fanBlades = document.getElementById('fanBlades');
 const tempValueLabel = document.getElementById('tempValue');
 const historyList = document.getElementById('historyList');
 const historyCountLabel = document.getElementById('historyCount');
 const tempSparkline = document.getElementById('tempSparkline');
 const connectSerialBtn = document.getElementById('connectSerial');
-const autoToggle = document.getElementById('autoToggle');
 
 // --- Serial State ---
 let port;
@@ -23,6 +24,7 @@ let serialKeepReading = false;
 
 // --- Application State ---
 let isPowerOn = false;
+let isAutoMode = false;
 let currentTemp = 24.5;
 let sessionActive = false;
 let tempHistory = [24.5, 24.5, 24.5, 24.5, 24.5];
@@ -64,36 +66,26 @@ backBtn.addEventListener('click', () => {
 // --- Fan Controls ---
 powerSwitch.addEventListener('click', () => {
     isPowerOn = !isPowerOn;
+    // Manual power click automatically disables Auto Mode for full control
+    isAutoMode = false;
     updatePowerUI();
+    updateAutoUI();
     
-    // Switch to Manual Mode if user clicks the power button
-    if (autoToggle.checked) {
-        autoToggle.checked = false;
-        addHistory('Switched to Manual', 'off');
-    }
-    
-    // Send to Arduino
     if (writer) {
         const cmd = isPowerOn ? "ON\n" : "OFF\n";
         writer.write(new TextEncoder().encode(cmd));
     }
 });
 
-if (autoToggle) {
-    autoToggle.addEventListener('change', () => {
-        if (writer) {
-            if (autoToggle.checked) {
-                writer.write(new TextEncoder().encode("AUTO\n"));
-                addHistory('Auto Mode Engaged', 'on');
-            } else {
-                // If auto turned off, default to current UI power state
-                const cmd = isPowerOn ? "ON\n" : "OFF\n";
-                writer.write(new TextEncoder().encode(cmd));
-                addHistory('Manual Mode Engaged', 'off');
-            }
-        }
-    });
-}
+autoSwitch.addEventListener('click', () => {
+    isAutoMode = !isAutoMode;
+    updateAutoUI();
+    
+    if (writer) {
+        const cmd = isAutoMode ? "AUTO\n" : (isPowerOn ? "ON\n" : "OFF\n");
+        writer.write(new TextEncoder().encode(cmd));
+    }
+});
 
 function updatePowerUI() {
     if (isPowerOn) {
@@ -102,14 +94,24 @@ function updatePowerUI() {
         statusLabel.textContent = 'Active Cooling';
         statusLabel.style.color = '#3B82F6';
         fanBlades.classList.add('spinning');
-        addHistory('Fan Turned On', 'on');
     } else {
         powerSwitch.classList.remove('on');
         appContainer.classList.remove('active-cool');
         statusLabel.textContent = 'Standby';
         statusLabel.style.color = '#64748B';
         fanBlades.classList.remove('spinning');
-        addHistory('Fan Turned Off', 'off');
+    }
+}
+
+function updateAutoUI() {
+    if (isAutoMode) {
+        autoSwitch.classList.add('on');
+        autoLabel.textContent = 'Enabled';
+        autoLabel.style.color = '#10B981';
+    } else {
+        autoSwitch.classList.remove('on');
+        autoLabel.textContent = 'Disabled';
+        autoLabel.style.color = '#64748B';
     }
 }
 
@@ -139,19 +141,16 @@ function addHistory(title, type, temp = null) {
     
     item.style.animation = 'fadeUp 0.4s ease backwards';
     historyList.prepend(item);
-    if (historyList.children.length > 50) historyList.removeChild(historyList.lastChild);
 }
 
 function updateSparkline() {
     const min = 19;
     const max = 29;
-    const range = max - min;
     const pts = tempHistory.map((t, i) => {
         const x = i * 25;
-        const y = 30 - (((t - min) / range) * 30);
+        const y = 30 - (((t - 19) / 10) * 30);
         return `${i === 0 ? 'M' : 'L'} ${x} ${y}`;
     }).join(' ');
-    tempSparkline.style.transition = 'all 0.5s ease';
     tempSparkline.setAttribute('d', pts);
 }
 
@@ -163,79 +162,48 @@ function updateUI() {
 // --- Serial Logic ---
 if (connectSerialBtn) {
     connectSerialBtn.addEventListener('click', async () => {
-        if (!('serial' in navigator)) {
-            alert('Web Serial API not supported in this browser. Please use Chrome or Edge.');
-            return;
-        }
-
         try {
             port = await navigator.serial.requestPort();
             await port.open({ baudRate: 115200 });
-            
             writer = port.writable.getWriter();
             serialKeepReading = true;
-            
             connectSerialBtn.classList.add('connected');
-            connectSerialBtn.innerHTML = `
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                <span>Live</span>
-            `;
-            
+            connectSerialBtn.innerHTML = `Connect Live`;
             readSerial();
-        } catch (err) {
-            console.error('Serial connection failed:', err);
-        }
+        } catch (err) { console.error(err); }
     });
 }
 
 async function readSerial() {
     const textDecoder = new TextDecoderStream();
-    const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+    port.readable.pipeTo(textDecoder.writable);
     reader = textDecoder.readable.getReader();
-
     let buffer = "";
-    try {
-        while (serialKeepReading) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            
-            buffer += value;
-            const lines = buffer.split('\n');
-            buffer = lines.pop();
-
-            for (const line of lines) {
-                const trimmed = line.trim();
-                // Expecting "T:25.4" or "S:1/0"
-                if (trimmed.startsWith('T:')) {
-                    const temp = parseFloat(trimmed.slice(2));
-                    if (!isNaN(temp)) handleTempUpdate(temp);
-                } else if (trimmed.startsWith('S:')) {
-                    const state = trimmed.slice(2);
-                    const newPower = (state === '1');
-                    if (newPower !== isPowerOn) {
-                        isPowerOn = newPower;
-                        updatePowerUI();
-                    }
-                }
+    while (serialKeepReading) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += value;
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('T:')) {
+                handleTempUpdate(parseFloat(trimmed.slice(2)));
+            } else if (trimmed.startsWith('S:')) {
+                isPowerOn = (trimmed.slice(2) === '1');
+                updatePowerUI();
+            } else if (trimmed.startsWith('A:')) {
+                isAutoMode = (trimmed.slice(2) === '1');
+                updateAutoUI();
             }
         }
-    } catch (err) {
-        console.error('Serial read error:', err);
-    } finally {
-        reader.releaseLock();
     }
 }
 
 function handleTempUpdate(temp) {
-    if (Math.abs(temp - currentTemp) > 0.5) {
-        addHistory('Temperature Shift', 'on', temp);
-    }
-    
+    if (Math.abs(temp - currentTemp) > 0.5) addHistory('Temp Update', 'on', temp);
     currentTemp = temp;
     tempValueLabel.textContent = currentTemp.toFixed(1);
-    
     tempHistory.shift();
     tempHistory.push(currentTemp);
     updateSparkline();
