@@ -13,6 +13,7 @@ const historyList = document.getElementById('historyList');
 const historyCountLabel = document.getElementById('historyCount');
 const tempSparkline = document.getElementById('tempSparkline');
 const connectSerialBtn = document.getElementById('connectSerial');
+const autoToggle = document.getElementById('autoToggle');
 
 // --- Serial State ---
 let port;
@@ -65,12 +66,34 @@ powerSwitch.addEventListener('click', () => {
     isPowerOn = !isPowerOn;
     updatePowerUI();
     
+    // Switch to Manual Mode if user clicks the power button
+    if (autoToggle.checked) {
+        autoToggle.checked = false;
+        addHistory('Switched to Manual', 'off');
+    }
+    
     // Send to Arduino
     if (writer) {
         const cmd = isPowerOn ? "ON\n" : "OFF\n";
         writer.write(new TextEncoder().encode(cmd));
     }
 });
+
+if (autoToggle) {
+    autoToggle.addEventListener('change', () => {
+        if (writer) {
+            if (autoToggle.checked) {
+                writer.write(new TextEncoder().encode("AUTO\n"));
+                addHistory('Auto Mode Engaged', 'on');
+            } else {
+                // If auto turned off, default to current UI power state
+                const cmd = isPowerOn ? "ON\n" : "OFF\n";
+                writer.write(new TextEncoder().encode(cmd));
+                addHistory('Manual Mode Engaged', 'off');
+            }
+        }
+    });
+}
 
 function updatePowerUI() {
     if (isPowerOn) {

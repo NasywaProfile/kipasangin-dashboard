@@ -1,7 +1,7 @@
 #include <DHT.h>
 
 /*
- * Smart Fan Dashboard - Web Serial Edition (Manual Override)
+ * Smart Fan Dashboard - Web Serial Edition (Absolute Override & Auto Mode)
  */
 
 #define DHTPIN 33
@@ -10,7 +10,7 @@ DHT dht(DHTPIN, DHTTYPE);
 
 const int relayPin = 18;
 bool fanState = false;
-bool manualMode = false; // Jika true, abaikan logika suhu rendah
+bool autoEnabled = true; // Mode bawaan: Otomatis
 
 void setFan(bool state) {
   if (state != fanState) {
@@ -31,7 +31,8 @@ void setup() {
   dht.begin();
   pinMode(relayPin, INPUT); 
   fanState = false;
-  Serial.println("System Ready - Manual Override Enabled");
+  autoEnabled = true;
+  Serial.println("System Ready - Multi Mode (Auto/Manual)");
 }
 
 void loop() {
@@ -41,16 +42,22 @@ void loop() {
     input.trim();
     
     if (input == "ON") {
-      manualMode = true; // Kunci ke ON
+      autoEnabled = false; // Matikan otomatis jika user klik ON manual
       setFan(true);
+      Serial.println("System: Manual ON");
     } 
     else if (input == "OFF") {
-      manualMode = false; // Kembali ke Logika Suhu
+      autoEnabled = false; // Matikan otomatis jika user klik OFF manual
       setFan(false);
+      Serial.println("System: Manual OFF");
+    }
+    else if (input == "AUTO") {
+      autoEnabled = true; // Kembali ke mode otomatis sensor
+      Serial.println("System: Auto Mode Engaged");
     }
   }
 
-  // 2. Baca Sensor & Logika Otomatis
+  // 2. Baca Sensor & Logika
   static unsigned long lastSensorRead = 0;
   if (millis() - lastSensorRead > 2000) {
     lastSensorRead = millis();
@@ -60,13 +67,11 @@ void loop() {
       Serial.print("T:");
       Serial.println(temperature, 1);
       
-      // LOGIKA OTOMATIS
-      if (temperature >= 32) {
-        setFan(true); // Selalu nyalakan jika panas
-      } 
-      else {
-        // Hanya matikan otomatis jika TIDAK sedang dalam Manual Mode (ON)
-        if (!manualMode) {
+      // LOGIKA OTOMATIS (Hanya jalan jika autoEnabled = true)
+      if (autoEnabled) {
+        if (temperature >= 32) {
+          setFan(true);
+        } else {
           setFan(false);
         }
       }
