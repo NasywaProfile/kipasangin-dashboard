@@ -89,9 +89,13 @@ void loop() {
       Serial.print("Update Suhu: ");
       Serial.println(temperature);
       
-      // Logika Otomatis: Nyalakan jika >= 32 derajat
+      // Logika Otomatis: Nyalakan jika >= 32 derajat, Matikan jika < 32
       if (temperature >= 32 && !fanState) {
           Firebase.RTDB.setInt(&fbdo, "/device/fanState", 1);
+          setFan(true);
+      } else if (temperature < 32 && fanState) {
+          Firebase.RTDB.setInt(&fbdo, "/device/fanState", 0);
+          setFan(false);
       }
     }
   }
