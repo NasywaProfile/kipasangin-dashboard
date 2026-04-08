@@ -18,6 +18,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s",
   authDomain: "smart-fan-ff0a0.firebaseapp.com",
   projectId: "smart-fan-ff0a0",
+  databaseURL: "https://smart-fan-ff0a0-default-rtdb.firebaseio.com",
   storageBucket: "smart-fan-ff0a0.firebasestorage.app",
   messagingSenderId: "63176942461",
   appId: "1:63176942461:web:fac75ae0a051b616f82214",

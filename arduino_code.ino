@@ -1,13 +1,9 @@
 /*
- * Smart Fan Dashboard - Firebase IoT Edition (Support HP & Website)
- * 
- * Library yang dibutuhkan (Install via Library Manager):
- * 1. Firebase ESP Client (oleh Mobizt)
- * 2. DHT sensor library (oleh Adafruit)
+ * Smart Fan Dashboard - Firebase IoT Edition (Library FirebaseESP32)
  */
 
 #include <WiFi.h>
-#include <Firebase_ESP_Client.h>
+#include <FirebaseESP32.h>
 #include <DHT.h>
 
 // 1. KREDENSIAL WIFI
@@ -66,15 +62,12 @@ void setup() {
 void loop() {
   // 1. Baca Perintah dari Firebase (Fan State)
   if (Firebase.ready()) {
-    int val = 0;
-    if (Firebase.RTDB.getInt(&fbdo, "/device/fanState")) {
-      if (fbdo.dataType() == "int") {
-        val = fbdo.intData();
-        bool newS = (val == 1);
-        if (newS != fanState) {
-          setFan(newS);
-          Serial.println(newS ? "Kipas Nyala" : "Kipas Mati");
-        }
+    if (Firebase.getInt(fbdo, "/device/fanState")) {
+      int val = fbdo.intData();
+      bool newS = (val == 1);
+      if (newS != fanState) {
+        setFan(newS);
+        Serial.println(newS ? "Kipas Nyala" : "Kipas Mati");
       }
     }
   }
@@ -85,16 +78,16 @@ void loop() {
     
     float temperature = dht.readTemperature();
     if (!isnan(temperature)) {
-      Firebase.RTDB.setFloat(&fbdo, "/device/temperature", temperature);
+      Firebase.setFloat(fbdo, "/device/temperature", temperature);
       Serial.print("Update Suhu: ");
       Serial.println(temperature);
       
       // Logika Otomatis: Nyalakan jika >= 32 derajat, Matikan jika < 32
       if (temperature >= 32 && !fanState) {
-          Firebase.RTDB.setInt(&fbdo, "/device/fanState", 1);
+          Firebase.setInt(fbdo, "/device/fanState", 1);
           setFan(true);
       } else if (temperature < 32 && fanState) {
-          Firebase.RTDB.setInt(&fbdo, "/device/fanState", 0);
+          Firebase.setInt(fbdo, "/device/fanState", 0);
           setFan(false);
       }
     }
