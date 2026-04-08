@@ -1,27 +1,27 @@
 #include <DHT.h>
 
 /*
- * Smart Fan Dashboard - Web Serial Edition
- * Koneksi via kabel USB (Laptop Only)
+ * Smart Fan Dashboard - Web Serial Edition (Manual Override)
  */
 
-#define DHTPIN 33        // GPIO untuk sensor DHT11
-#define DHTTYPE DHT11    // Tipe sensor DHT11
+#define DHTPIN 33
+#define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 
-const int relayPin = 18; // GPIO untuk Relay
+const int relayPin = 18;
 bool fanState = false;
+bool manualMode = false; // Jika true, abaikan logika suhu rendah
 
 void setFan(bool state) {
   if (state != fanState) {
     fanState = state;
     if (fanState) {
       pinMode(relayPin, OUTPUT);
-      digitalWrite(relayPin, LOW); // Active Low
-      Serial.println("S:1"); // Kirim status ke dashboard
+      digitalWrite(relayPin, LOW); 
+      Serial.println("S:1");
     } else {
-      pinMode(relayPin, INPUT); // Mematikan Relay
-      Serial.println("S:0"); // Kirim status ke dashboard
+      pinMode(relayPin, INPUT); 
+      Serial.println("S:0");
     }
   }
 }
@@ -31,34 +31,44 @@ void setup() {
   dht.begin();
   pinMode(relayPin, INPUT); 
   fanState = false;
-  Serial.println("System Ready - Serial Mode");
+  Serial.println("System Ready - Manual Override Enabled");
 }
 
 void loop() {
-  // 1. Baca Perintah dari Dashboard (Manual Override)
+  // 1. Baca Perintah dari Dashboard
   if (Serial.available() > 0) {
     String input = Serial.readStringUntil('\n');
     input.trim();
-    if (input == "ON") setFan(true);
-    else if (input == "OFF") setFan(false);
+    
+    if (input == "ON") {
+      manualMode = true; // Kunci ke ON
+      setFan(true);
+    } 
+    else if (input == "OFF") {
+      manualMode = false; // Kembali ke Logika Suhu
+      setFan(false);
+    }
   }
 
-  // 2. Baca Sensor & Auto Logic
+  // 2. Baca Sensor & Logika Otomatis
   static unsigned long lastSensorRead = 0;
   if (millis() - lastSensorRead > 2000) {
     lastSensorRead = millis();
     
     float temperature = dht.readTemperature();
     if (!isnan(temperature)) {
-      // Kirim Suhu ke Dashboard
       Serial.print("T:");
       Serial.println(temperature, 1);
       
       // LOGIKA OTOMATIS
       if (temperature >= 32) {
-        setFan(true);
-      } else {
-        setFan(false);
+        setFan(true); // Selalu nyalakan jika panas
+      } 
+      else {
+        // Hanya matikan otomatis jika TIDAK sedang dalam Manual Mode (ON)
+        if (!manualMode) {
+          setFan(false);
+        }
       }
     }
   }
