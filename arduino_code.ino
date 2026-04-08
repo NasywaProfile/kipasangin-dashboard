@@ -8,12 +8,12 @@
 #include "time.h"
 
 // 1. KREDENSIAL WIFI
-#define WIFI_SSID "NAMA_WIFI_KAMU"
-#define WIFI_PASSWORD "PASSWORD_WIFI_KAMU"
+#define WIFI_SSID "MyRepublic_C2464735"
+#define WIFI_PASSWORD "C2464735"
 
 // 2. KREDENSIAL FIREBASE
 #define API_KEY "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s"
-#define DATABASE_URL "https://smart-fan-ff0a0-default-rtdb.asia-southeast1.firebasedatabase.app/"
+#define DATABASE_URL "https://smart-fan-ff0a0-default-rtdb.firebaseio.com/"
 
 // 3. KONFIGURASI PIN
 #define DHTPIN 33
