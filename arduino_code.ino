@@ -1,78 +1,98 @@
-#include <DHT.h>
-
 /*
- * Konfigurasi untuk ESP32 & Dashboard
+ * Smart Fan Dashboard - Firebase IoT Edition (Support HP & Website)
+ * 
+ * Library yang dibutuhkan (Install via Library Manager):
+ * 1. Firebase ESP Client (oleh Mobizt)
+ * 2. DHT sensor library (oleh Adafruit)
  */
 
-#define DHTPIN 33        // GPIO untuk sensor DHT11
-#define DHTTYPE DHT11    // Tipe sensor DHT11
-DHT dht(DHTPIN, DHTTYPE);
+#include <WiFi.h>
+#include <Firebase_ESP_Client.h>
+#include <DHT.h>
 
-const int relayPin = 18; // GPIO untuk Relay
+// 1. KREDENSIAL WIFI
+#define WIFI_SSID "NAMA_WIFI_KAMU"
+#define WIFI_PASSWORD "PASSWORD_WIFI_KAMU"
+
+// 2. KREDENSIAL FIREBASE
+#define API_KEY "ISI_API_KEY_KAMU"
+#define DATABASE_URL "ISI_DATABASE_URL_KAMU"
+
+// 3. KONFIGURASI PIN
+#define DHTPIN 33
+#define DHTTYPE DHT11
+DHT dht(DHTPIN, DHTTYPE);
+const int relayPin = 18;
+
+// Firebase Data Objects
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+
+unsigned long sendDataPrevMillis = 0;
 bool fanState = false;
 
 void setFan(bool state) {
   fanState = state;
   if (fanState) {
-    // Menyalakan Relay (Active Low)
     pinMode(relayPin, OUTPUT);
     digitalWrite(relayPin, LOW); 
-    Serial.println("S:1"); // Kirim status ke dashboard
-    Serial.println("kipas menyala");
   } else {
-    // Mematikan Relay dengan memutus jalur data (High-Impedance)
     pinMode(relayPin, INPUT); 
-    Serial.println("S:0"); // Kirim status ke dashboard
-    Serial.println("kipas mati");
   }
 }
 
 void setup() {
   Serial.begin(115200);
-  dht.begin();
-  Serial.println("Sensor DHT11 Siap");
-  
-  // Awal: Mati
   pinMode(relayPin, INPUT); 
-  fanState = false;
+  dht.begin();
+
+  // Koneksi WiFi
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("Menyambungkan ke WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(300);
+  }
+  Serial.println("\nWiFi Terhubung!");
+
+  // Konfigurasi Firebase
+  config.api_key = API_KEY;
+  config.database_url = DATABASE_URL;
+  Firebase.begin(&config, &auth);
+  Firebase.reconnectWiFi(true);
 }
 
 void loop() {
-  // 1. Baca Perintah dari Dashboard
-  if (Serial.available() > 0) {
-    String cmd = Serial.readStringUntil('\n');
-    cmd.trim();
-    if (cmd == "ON") setFan(true);
-    else if (cmd == "OFF") setFan(false);
+  // 1. Baca Perintah dari Firebase (Fan State)
+  if (Firebase.ready()) {
+    int val = 0;
+    if (Firebase.RTDB.getInt(&fbdo, "/device/fanState")) {
+      if (fbdo.dataType() == "int") {
+        val = fbdo.intData();
+        bool newS = (val == 1);
+        if (newS != fanState) {
+          setFan(newS);
+          Serial.println(newS ? "Kipas Nyala" : "Kipas Mati");
+        }
+      }
+    }
   }
 
-  // 2. Baca Sensor
-  float humidity = dht.readHumidity();
-  float temperature = dht.readTemperature();
-
-  if (isnan(humidity) || isnan(temperature)) {
-    // Serial.println("Gagal membaca sensor DHT11!");
-    return;
+  // 2. Kirim Data ke Firebase (Setiap 3 detik)
+  if (Firebase.ready() && (millis() - sendDataPrevMillis > 3000 || sendDataPrevMillis == 0)) {
+    sendDataPrevMillis = millis();
+    
+    float temperature = dht.readTemperature();
+    if (!isnan(temperature)) {
+      Firebase.RTDB.setFloat(&fbdo, "/device/temperature", temperature);
+      Serial.print("Update Suhu: ");
+      Serial.println(temperature);
+      
+      // Logika Otomatis: Nyalakan jika >= 32 derajat
+      if (temperature >= 32 && !fanState) {
+          Firebase.RTDB.setInt(&fbdo, "/device/fanState", 1);
+      }
+    }
   }
-
-  // 3. Kirim Data ke Dashboard (Format Khusus)
-  Serial.print("T:");
-  Serial.println(temperature, 1);
-  
-  // Log Serial Biasa (Tetap ada untuk Monitor)
-  Serial.print("Suhu: ");
-  Serial.print(temperature);
-  Serial.print(" °C | Kelembaban: ");
-  Serial.print(humidity);
-  Serial.println(" %");
-
-  // 4. Logika Otomatis (Optional: Jika mau dashboard saja yang kontrol, hapus bagian ini)
-  if (temperature >= 32 && !fanState) {
-    setFan(true);
-  } else if (temperature < 32 && fanState) {
-    // Anda bisa matikan otomatis atau biarkan Dashboard yang kontrol penuh
-    // setFan(false); 
-  }
-
-  delay(2000);
 }

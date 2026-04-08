@@ -13,12 +13,20 @@ const historyList = document.getElementById('historyList');
 const historyCountLabel = document.getElementById('historyCount');
 const tempSparkline = document.getElementById('tempSparkline');
 const connectSerialBtn = document.getElementById('connectSerial');
+// --- Firebase Config (Isi data ini dari Firebase Console kamu) ---
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+};
 
-// --- Serial State ---
-let port;
-let writer;
-let reader;
-let serialKeepReading = false;
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
 
 // --- Application State ---
 let isPowerOn = false;
@@ -29,6 +37,41 @@ let tempHistory = [24.5, 24.5, 24.5, 24.5, 24.5];
 // --- Initialize ---
 function init() {
     updateUI();
+    initFirebaseSync();
+}
+
+function initFirebaseSync() {
+    // 1. Listen for Temperature changes from Arduino
+    database.ref('device/temperature').on('value', (snapshot) => {
+        const temp = snapshot.val();
+        if (temp !== null) handleTempUpdate(parseFloat(temp));
+    });
+
+    // 2. Listen for Power state changes
+    database.ref('device/fanState').on('value', (snapshot) => {
+        const state = snapshot.val();
+        if (state !== null) {
+            const newPower = (state === 1 || state === true);
+            if (newPower !== isPowerOn) {
+                isPowerOn = newPower;
+                updatePowerUI();
+            }
+        }
+    });
+
+    // Update Status UI
+    if (connectSerialBtn) {
+        connectSerialBtn.classList.add('connected');
+        connectSerialBtn.innerHTML = `
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12.55a11 11 0 0 1 14.08 0"></path>
+                <path d="M1.42 9a16 16 0 0 1 21.16 0"></path>
+                <path d="M8.53 16.11a6 6 0 0 1 6.94 0"></path>
+                <line x1="12" y1="20" x2="12.01" y2="20"></line>
+            </svg>
+            <span>Cloud Live</span>
+        `;
+    }
 }
 
 // --- Simple Enter Flow ---
@@ -83,11 +126,8 @@ powerSwitch.addEventListener('click', () => {
     isPowerOn = !isPowerOn;
     updatePowerUI();
     
-    // Send to Arduino
-    if (writer) {
-        const cmd = isPowerOn ? "ON\n" : "OFF\n";
-        writer.write(new TextEncoder().encode(cmd));
-    }
+    // Sync to Firebase
+    database.ref('device/fanState').set(isPowerOn ? 1 : 0);
 });
 
 function updatePowerUI() {
@@ -170,78 +210,6 @@ function updateUI() {
     const headerVal = document.getElementById('headerTempValue');
     if (headerVal) headerVal.textContent = val;
     updateSparkline();
-}
-
-// --- Serial Logic ---
-if (connectSerialBtn) {
-    connectSerialBtn.addEventListener('click', async () => {
-        if (!('serial' in navigator)) {
-            alert('Web Serial API not supported in this browser. Please use Chrome or Edge.');
-            return;
-        }
-
-        try {
-            port = await navigator.serial.requestPort();
-            await port.open({ baudRate: 115200 });
-            
-            writer = port.writable.getWriter();
-            serialKeepReading = true;
-            
-            connectSerialBtn.classList.add('connected');
-            connectSerialBtn.innerHTML = `
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                <span>Live</span>
-            `;
-            
-            readSerial();
-            
-        } catch (err) {
-            console.error('Serial connection failed:', err);
-        }
-    });
-}
-
-async function readSerial() {
-    const textDecoder = new TextDecoderStream();
-    const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
-    reader = textDecoder.readable.getReader();
-
-    let buffer = "";
-
-    try {
-        while (serialKeepReading) {
-            const { value, done } = await reader.read();
-            if (done) break;
-            
-            buffer += value;
-            const lines = buffer.split('\n');
-            buffer = lines.pop(); // Keep last incomplete line
-
-            for (const line of lines) {
-                const trimmed = line.trim();
-                // Expecting "T:25.4" or "S:1/0"
-                if (trimmed.startsWith('T:')) {
-                    const temp = parseFloat(trimmed.slice(2));
-                    if (!isNaN(temp)) {
-                        handleTempUpdate(temp);
-                    }
-                } else if (trimmed.startsWith('S:')) {
-                    const state = trimmed.slice(2);
-                    const newPower = state === '1';
-                    if (newPower !== isPowerOn) {
-                        isPowerOn = newPower;
-                        updatePowerUI();
-                    }
-                }
-            }
-        }
-    } catch (err) {
-        console.error('Serial read error:', err);
-    } finally {
-        reader.releaseLock();
-    }
 }
 
 function handleTempUpdate(temp) {
