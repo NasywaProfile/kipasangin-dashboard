@@ -12,6 +12,13 @@ const tempValueLabel = document.getElementById('tempValue');
 const historyList = document.getElementById('historyList');
 const historyCountLabel = document.getElementById('historyCount');
 const tempSparkline = document.getElementById('tempSparkline');
+const connectSerialBtn = document.getElementById('connectSerial');
+
+// --- Serial State ---
+let port;
+let writer;
+let reader;
+let serialKeepReading = false;
 
 // --- Application State ---
 let isPowerOn = false;
@@ -22,27 +29,6 @@ let tempHistory = [24.5, 24.5, 24.5, 24.5, 24.5];
 // --- Initialize ---
 function init() {
     updateUI();
-    
-    // Simulate Temperature fluctuations
-    setInterval(() => {
-        if (!sessionActive) return;
-        
-        if (isPowerOn) {
-            currentTemp -= 0.1;
-            if (currentTemp < 20.0) currentTemp = 20.0;
-        } else {
-            currentTemp += 0.05;
-            if (currentTemp > 28.0) currentTemp = 28.0;
-        }
-        
-        tempValueLabel.textContent = currentTemp.toFixed(1);
-        
-        // Update Sparkline
-        tempHistory.shift();
-        tempHistory.push(currentTemp);
-        updateSparkline();
-        
-    }, 2000);
 }
 
 // --- Simple Enter Flow ---
@@ -95,23 +81,32 @@ backBtn.addEventListener('click', () => {
 // --- Fan Controls ---
 powerSwitch.addEventListener('click', () => {
     isPowerOn = !isPowerOn;
+    updatePowerUI();
     
+    // Send to Arduino
+    if (writer) {
+        const cmd = isPowerOn ? "ON\n" : "OFF\n";
+        writer.write(new TextEncoder().encode(cmd));
+    }
+});
+
+function updatePowerUI() {
     if (isPowerOn) {
         powerSwitch.classList.add('on');
-        appContainer.classList.add('active-cool'); // Add Cool Atmosphere
+        appContainer.classList.add('active-cool');
         statusLabel.textContent = 'Active Cooling';
         statusLabel.style.color = '#3B82F6';
         fanBlades.classList.add('spinning');
         addHistory('Fan Turned On', 'on');
     } else {
         powerSwitch.classList.remove('on');
-        appContainer.classList.remove('active-cool'); // Remove Cool Atmosphere
+        appContainer.classList.remove('active-cool');
         statusLabel.textContent = 'Standby';
         statusLabel.style.color = '#64748B';
         fanBlades.classList.remove('spinning');
         addHistory('Fan Turned Off', 'off');
     }
-});
+}
 
 function addHistory(title, type, temp = null) {
     const now = new Date();
@@ -174,6 +169,92 @@ function updateUI() {
     tempValueLabel.textContent = val;
     const headerVal = document.getElementById('headerTempValue');
     if (headerVal) headerVal.textContent = val;
+    updateSparkline();
+}
+
+// --- Serial Logic ---
+if (connectSerialBtn) {
+    connectSerialBtn.addEventListener('click', async () => {
+        if (!('serial' in navigator)) {
+            alert('Web Serial API not supported in this browser. Please use Chrome or Edge.');
+            return;
+        }
+
+        try {
+            port = await navigator.serial.requestPort();
+            await port.open({ baudRate: 115200 });
+            
+            writer = port.writable.getWriter();
+            serialKeepReading = true;
+            
+            connectSerialBtn.classList.add('connected');
+            connectSerialBtn.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Live</span>
+            `;
+            
+            readSerial();
+            
+        } catch (err) {
+            console.error('Serial connection failed:', err);
+        }
+    });
+}
+
+async function readSerial() {
+    const textDecoder = new TextDecoderStream();
+    const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+    reader = textDecoder.readable.getReader();
+
+    let buffer = "";
+
+    try {
+        while (serialKeepReading) {
+            const { value, done } = await reader.read();
+            if (done) break;
+            
+            buffer += value;
+            const lines = buffer.split('\n');
+            buffer = lines.pop(); // Keep last incomplete line
+
+            for (const line of lines) {
+                const trimmed = line.trim();
+                // Expecting "T:25.4" or "S:1/0"
+                if (trimmed.startsWith('T:')) {
+                    const temp = parseFloat(trimmed.slice(2));
+                    if (!isNaN(temp)) {
+                        handleTempUpdate(temp);
+                    }
+                } else if (trimmed.startsWith('S:')) {
+                    const state = trimmed.slice(2);
+                    const newPower = state === '1';
+                    if (newPower !== isPowerOn) {
+                        isPowerOn = newPower;
+                        updatePowerUI();
+                    }
+                }
+            }
+        }
+    } catch (err) {
+        console.error('Serial read error:', err);
+    } finally {
+        reader.releaseLock();
+    }
+}
+
+function handleTempUpdate(temp) {
+    // If temp changed significantly, add to history
+    if (Math.abs(temp - currentTemp) > 0.5) {
+        addHistory('Temperature Shift', 'on', temp);
+    }
+    
+    currentTemp = temp;
+    tempValueLabel.textContent = currentTemp.toFixed(1);
+    
+    tempHistory.shift();
+    tempHistory.push(currentTemp);
     updateSparkline();
 }
 
