@@ -6,9 +6,7 @@ const startBtn = document.getElementById('startBtn');
 const backBtn = document.getElementById('backBtn');
 
 const powerSwitch = document.getElementById('powerSwitch');
-const autoSwitch = document.getElementById('autoSwitch');
 const statusLabel = document.getElementById('statusLabel');
-const autoLabel = document.getElementById('autoLabel');
 const fanBlades = document.getElementById('fanBlades');
 const tempValueLabel = document.getElementById('tempValue');
 const historyList = document.getElementById('historyList');
@@ -24,7 +22,6 @@ let serialKeepReading = false;
 
 // --- Application State ---
 let isPowerOn = false;
-let isAutoMode = false;
 let currentTemp = 24.5;
 let sessionActive = false;
 let tempHistory = [24.5, 24.5, 24.5, 24.5, 24.5];
@@ -65,11 +62,9 @@ backBtn.addEventListener('click', () => {
 
 // --- Fan Controls ---
 powerSwitch.addEventListener('click', () => {
+    // Optimistically toggle UI, but final word comes from Serial sync S:1/0
     isPowerOn = !isPowerOn;
-    // Manual power click automatically disables Auto Mode for full control
-    isAutoMode = false;
     updatePowerUI();
-    updateAutoUI();
     
     if (writer) {
         const cmd = isPowerOn ? "ON\n" : "OFF\n";
@@ -77,41 +72,21 @@ powerSwitch.addEventListener('click', () => {
     }
 });
 
-autoSwitch.addEventListener('click', () => {
-    isAutoMode = !isAutoMode;
-    updateAutoUI();
-    
-    if (writer) {
-        const cmd = isAutoMode ? "AUTO\n" : (isPowerOn ? "ON\n" : "OFF\n");
-        writer.write(new TextEncoder().encode(cmd));
-    }
-});
-
-function updatePowerUI() {
+function updatePowerUI(source = 'manual') {
     if (isPowerOn) {
         powerSwitch.classList.add('on');
         appContainer.classList.add('active-cool');
         statusLabel.textContent = 'Active Cooling';
         statusLabel.style.color = '#3B82F6';
         fanBlades.classList.add('spinning');
+        if (source === 'auto') addHistory('Auto-Cooling Activated', 'on');
     } else {
         powerSwitch.classList.remove('on');
         appContainer.classList.remove('active-cool');
         statusLabel.textContent = 'Standby';
         statusLabel.style.color = '#64748B';
         fanBlades.classList.remove('spinning');
-    }
-}
-
-function updateAutoUI() {
-    if (isAutoMode) {
-        autoSwitch.classList.add('on');
-        autoLabel.textContent = 'Enabled';
-        autoLabel.style.color = '#10B981';
-    } else {
-        autoSwitch.classList.remove('on');
-        autoLabel.textContent = 'Disabled';
-        autoLabel.style.color = '#64748B';
+        if (source === 'auto') addHistory('Auto-Cooling Deactivated', 'off');
     }
 }
 
@@ -139,13 +114,10 @@ function addHistory(title, type, temp = null) {
         <div class="history-time">${timeStr}</div>
     `;
     
-    item.style.animation = 'fadeUp 0.4s ease backwards';
     historyList.prepend(item);
 }
 
 function updateSparkline() {
-    const min = 19;
-    const max = 29;
     const pts = tempHistory.map((t, i) => {
         const x = i * 25;
         const y = 30 - (((t - 19) / 10) * 30);
@@ -167,7 +139,6 @@ if (connectSerialBtn) {
             await port.open({ baudRate: 115200 });
             writer = port.writable.getWriter();
             serialKeepReading = true;
-            connectSerialBtn.classList.add('connected');
             connectSerialBtn.innerHTML = `Connect Live`;
             readSerial();
         } catch (err) { console.error(err); }
@@ -190,18 +161,18 @@ async function readSerial() {
             if (trimmed.startsWith('T:')) {
                 handleTempUpdate(parseFloat(trimmed.slice(2)));
             } else if (trimmed.startsWith('S:')) {
-                isPowerOn = (trimmed.slice(2) === '1');
-                updatePowerUI();
-            } else if (trimmed.startsWith('A:')) {
-                isAutoMode = (trimmed.slice(2) === '1');
-                updateAutoUI();
+                const newState = (trimmed.slice(2) === '1');
+                if (newState !== isPowerOn) {
+                    isPowerOn = newState;
+                    updatePowerUI('auto'); // Sync from hardware (could be auto or manual ack)
+                }
             }
         }
     }
 }
 
 function handleTempUpdate(temp) {
-    if (Math.abs(temp - currentTemp) > 0.5) addHistory('Temp Update', 'on', temp);
+    if (Math.abs(temp - currentTemp) > 0.5) addHistory('Temperature Update', 'on', temp);
     currentTemp = temp;
     tempValueLabel.textContent = currentTemp.toFixed(1);
     tempHistory.shift();

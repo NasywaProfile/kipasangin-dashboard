@@ -1,7 +1,8 @@
 #include <DHT.h>
 
 /*
- * Smart Fan Dashboard - Web Serial Edition (Manual + Auto Mode)
+ * Smart Fan Dashboard - Web Serial Edition (Smart Hybrid Mode)
+ * Logika: Dashboard mengikuti sensor, tapi klik Manual mengunci status.
  */
 
 #define DHTPIN 33
@@ -10,7 +11,10 @@ DHT dht(DHTPIN, DHTTYPE);
 
 const int relayPin = 18;
 bool fanState = false;
-bool autoMode = true; // Default adalah otomatis
+
+// Logika Cerdas
+bool manualOverride = false; 
+bool lastAutoState = false;
 
 void setFan(bool state) {
   if (state != fanState) {
@@ -18,18 +22,13 @@ void setFan(bool state) {
     if (fanState) {
       pinMode(relayPin, OUTPUT);
       digitalWrite(relayPin, LOW); 
-      Serial.println("S:1"); // Kabari Web: Fan ON
     } else {
       pinMode(relayPin, INPUT); 
-      Serial.println("S:0"); // Kabari Web: Fan OFF
     }
+    // Selalu kabari dashboard setiap kali status berubah
+    Serial.print("S:");
+    Serial.println(fanState ? "1" : "0");
   }
-}
-
-void setAuto(bool mode) {
-  autoMode = mode;
-  Serial.print("A:");
-  Serial.println(autoMode ? "1" : "0"); // Kabari Web: Auto Mode Status
 }
 
 void setup() {
@@ -37,45 +36,51 @@ void setup() {
   dht.begin();
   pinMode(relayPin, INPUT); 
   fanState = false;
-  autoMode = true;
+  
+  // Inisialisasi state awal sensor
+  float t = dht.readTemperature();
+  lastAutoState = (!isnan(t) && t >= 32);
 }
 
 void loop() {
-  // 1. Baca Perintah dari Dashboard
+  // 1. Baca Perintah dari Dashboard (Interaksi User)
   if (Serial.available() > 0) {
     String input = Serial.readStringUntil('\n');
     input.trim();
     
     if (input == "ON") {
-      setAuto(false); // Matikan Auto jika user klik Power ON di dashboard
+      manualOverride = true; 
       setFan(true);
     } 
     else if (input == "OFF") {
-      setAuto(false); // Matikan Auto jika user klik Power OFF di dashboard
+      manualOverride = true; 
       setFan(false);
-    }
-    else if (input == "AUTO") {
-      setAuto(true); // Aktifkan Auto jika user klik tombol Auto Mode
     }
   }
 
-  // 2. Logika Sensor & Otomatis
+  // 2. Logika Sensor & Sinkronisasi
   static unsigned long lastSensorRead = 0;
   if (millis() - lastSensorRead > 2000) {
     lastSensorRead = millis();
     
     float temperature = dht.readTemperature();
     if (!isnan(temperature)) {
+      // Kirim Suhu ke Dashboard
       Serial.print("T:");
       Serial.println(temperature, 1);
       
-      // JALANKAN LOGIKA HANYA JIKA AUTO MODE AKTIF
-      if (autoMode) {
-        if (temperature >= 32) {
-          setFan(true);
-        } else {
-          setFan(false);
-        }
+      bool currentAutoState = (temperature >= 32);
+
+      // JIKA terjadi perubahan ambang batas (misal dari panas ke dingin atau sebaliknya)
+      if (currentAutoState != lastAutoState) {
+        manualOverride = false; // Reset override karena ada "event" suhu baru
+        lastAutoState = currentAutoState;
+        Serial.println("System: Auto-logic reset due to temperature event.");
+      }
+
+      // Jalankan otomatis HANYA jika sedang tidak di-override manual
+      if (!manualOverride) {
+        setFan(currentAutoState);
       }
     }
   }
