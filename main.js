@@ -13,7 +13,7 @@ const historyList = document.getElementById('historyList');
 const historyCountLabel = document.getElementById('historyCount');
 const tempSparkline = document.getElementById('tempSparkline');
 const connectSerialBtn = document.getElementById('connectSerial');
-// --- Firebase Config (Isi data ini dari Firebase Console kamu) ---
+// --- Firebase Config ---
 const firebaseConfig = {
   apiKey: "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s",
   authDomain: "smart-fan-ff0a0.firebaseapp.com",
@@ -21,13 +21,16 @@ const firebaseConfig = {
   databaseURL: "https://smart-fan-ff0a0-default-rtdb.firebaseio.com",
   storageBucket: "smart-fan-ff0a0.firebasestorage.app",
   messagingSenderId: "63176942461",
-  appId: "1:63176942461:web:fac75ae0a051b616f82214",
-  measurementId: "G-YMTMTY4JG5"
+  appId: "1:63176942461:web:fac75ae0a051b616f82214"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+// Initialize Firebase (Compat Mode)
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
 const database = firebase.database();
+
+console.log("Firebase Dashboard Initialized!");
 
 // --- Application State ---
 let isPowerOn = false;
