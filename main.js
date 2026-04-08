@@ -44,7 +44,7 @@ function enterDashboard() {
         sessionActive = true;
         
         if (historyList.children.length === 0) {
-            addHistory('System Initialized', 'on', 24.5);
+            addHistory('System Online', 'on', 24.5);
         }
     }, 600);
 }
@@ -62,9 +62,8 @@ backBtn.addEventListener('click', () => {
 
 // --- Fan Controls ---
 powerSwitch.addEventListener('click', () => {
-    // Optimistically toggle UI, but final word comes from Serial sync S:1/0
     isPowerOn = !isPowerOn;
-    updatePowerUI();
+    updatePowerUI('manual');
     
     if (writer) {
         const cmd = isPowerOn ? "ON\n" : "OFF\n";
@@ -79,14 +78,18 @@ function updatePowerUI(source = 'manual') {
         statusLabel.textContent = 'Active Cooling';
         statusLabel.style.color = '#3B82F6';
         fanBlades.classList.add('spinning');
-        if (source === 'auto') addHistory('Auto-Cooling Activated', 'on');
+        
+        const title = source === 'auto' ? 'Auto-Cooling Activated' : 'Fan Powered On';
+        addHistory(title, 'on');
     } else {
         powerSwitch.classList.remove('on');
         appContainer.classList.remove('active-cool');
         statusLabel.textContent = 'Standby';
         statusLabel.style.color = '#64748B';
         fanBlades.classList.remove('spinning');
-        if (source === 'auto') addHistory('Auto-Cooling Deactivated', 'off');
+        
+        const title = source === 'auto' ? 'Auto-Cooling Deactivated' : 'Fan Powered Off';
+        addHistory(title, 'off');
     }
 }
 
@@ -115,6 +118,9 @@ function addHistory(title, type, temp = null) {
     `;
     
     historyList.prepend(item);
+    if (historyCountLabel) {
+        historyCountLabel.textContent = historyList.children.length;
+    }
 }
 
 function updateSparkline() {
@@ -139,6 +145,7 @@ if (connectSerialBtn) {
             await port.open({ baudRate: 115200 });
             writer = port.writable.getWriter();
             serialKeepReading = true;
+            connectSerialBtn.classList.add('connected');
             connectSerialBtn.innerHTML = `Connect Live`;
             readSerial();
         } catch (err) { console.error(err); }
@@ -164,7 +171,7 @@ async function readSerial() {
                 const newState = (trimmed.slice(2) === '1');
                 if (newState !== isPowerOn) {
                     isPowerOn = newState;
-                    updatePowerUI('auto'); // Sync from hardware (could be auto or manual ack)
+                    updatePowerUI('auto'); // Sync update from device
                 }
             }
         }
@@ -172,7 +179,7 @@ async function readSerial() {
 }
 
 function handleTempUpdate(temp) {
-    if (Math.abs(temp - currentTemp) > 0.5) addHistory('Temperature Update', 'on', temp);
+    // No longer adding history for every temp shift
     currentTemp = temp;
     tempValueLabel.textContent = currentTemp.toFixed(1);
     tempHistory.shift();
