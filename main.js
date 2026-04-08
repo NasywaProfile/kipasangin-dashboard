@@ -15,13 +15,13 @@ const tempSparkline = document.getElementById('tempSparkline');
 const connectSerialBtn = document.getElementById('connectSerial');
 // --- Firebase Config (Isi data ini dari Firebase Console kamu) ---
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s",
+  authDomain: "smart-fan-ff0a0.firebaseapp.com",
+  projectId: "smart-fan-ff0a0",
+  storageBucket: "smart-fan-ff0a0.firebasestorage.app",
+  messagingSenderId: "63176942461",
+  appId: "1:63176942461:web:fac75ae0a051b616f82214",
+  measurementId: "G-YMTMTY4JG5"
 };
 
 // Initialize Firebase

@@ -15,8 +15,8 @@
 #define WIFI_PASSWORD "PASSWORD_WIFI_KAMU"
 
 // 2. KREDENSIAL FIREBASE
-#define API_KEY "ISI_API_KEY_KAMU"
-#define DATABASE_URL "ISI_DATABASE_URL_KAMU"
+#define API_KEY "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s"
+#define DATABASE_URL "https://smart-fan-ff0a0-default-rtdb.firebaseio.com/"
 
 // 3. KONFIGURASI PIN
 #define DHTPIN 33
