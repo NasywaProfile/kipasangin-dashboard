@@ -1,10 +1,11 @@
 /*
- * Smart Fan Dashboard - Firebase IoT Edition (Library FirebaseESP32)
+ * Smart Fan Dashboard - Firebase IoT Edition (FIX TIME SYNC)
  */
 
 #include <WiFi.h>
 #include <FirebaseESP32.h>
 #include <DHT.h>
+#include "time.h"
 
 // 1. KREDENSIAL WIFI
 #define WIFI_SSID "NAMA_WIFI_KAMU"
@@ -12,7 +13,7 @@
 
 // 2. KREDENSIAL FIREBASE
 #define API_KEY "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s"
-#define DATABASE_URL "https://smart-fan-ff0a0-default-rtdb.firebaseio.com/"
+#define DATABASE_URL "https://smart-fan-ff0a0-default-rtdb.asia-southeast1.firebasedatabase.app/"
 
 // 3. KONFIGURASI PIN
 #define DHTPIN 33
@@ -27,6 +28,17 @@ FirebaseConfig config;
 
 unsigned long sendDataPrevMillis = 0;
 bool fanState = false;
+
+// Fungsi Sinkronisasi Waktu (Wajib untuk HTTPS di ESP32)
+void syncTime() {
+  configTime(0, 0, "pool.ntp.org", "time.nist.gov");
+  Serial.print("Menyinkronkan Waktu");
+  while (time(nullptr) < 1000000000l) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWaktu Sinkron!");
+}
 
 void setFan(bool state) {
   fanState = state;
@@ -48,9 +60,12 @@ void setup() {
   Serial.print("Menyambungkan ke WiFi");
   while (WiFi.status() != WL_CONNECTED) {
     Serial.print(".");
-    delay(300);
+    delay(500);
   }
   Serial.println("\nWiFi Terhubung!");
+
+  // Sinkronisasi Waktu
+  syncTime();
 
   // Konfigurasi Firebase
   config.api_key = API_KEY;
@@ -67,20 +82,31 @@ void loop() {
       bool newS = (val == 1);
       if (newS != fanState) {
         setFan(newS);
-        Serial.println(newS ? "Kipas Nyala" : "Kipas Mati");
+        Serial.println(newS ? "Dashboard: Kipas ON" : "Dashboard: Kipas OFF");
       }
     }
   }
 
   // 2. Kirim Data ke Firebase (Setiap 3 detik)
-  if (Firebase.ready() && (millis() - sendDataPrevMillis > 3000 || sendDataPrevMillis == 0)) {
+  if (millis() - sendDataPrevMillis > 3000 || sendDataPrevMillis == 0) {
     sendDataPrevMillis = millis();
     
     float temperature = dht.readTemperature();
-    if (!isnan(temperature)) {
-      Firebase.setFloat(fbdo, "/device/temperature", temperature);
-      Serial.print("Update Suhu: ");
+    
+    if (isnan(temperature)) {
+      Serial.println("Error: Sensor DHT11 tidak terbaca!");
+    } else {
+      Serial.print("Mencoba kirim suhu: ");
       Serial.println(temperature);
+      
+      if (Firebase.ready()) {
+        if (Firebase.setFloat(fbdo, "/device/temperature", temperature)) {
+          Serial.println(">>> BERHASIL KIRIM KE FIREBASE!");
+        } else {
+          Serial.print(">>> GAGAL KIRIM: ");
+          Serial.println(fbdo.errorReason());
+        }
+      }
       
       // Logika Otomatis: Nyalakan jika >= 32 derajat, Matikan jika < 32
       if (temperature >= 32 && !fanState) {
