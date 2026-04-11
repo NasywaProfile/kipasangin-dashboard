@@ -16,6 +16,7 @@ bool fanState = false;
 bool manualOverride = false; 
 bool lastAutoState = false;
 float thresholdTemp = 32.0; // Default threshold
+float hysteresis = 0.5;
 
 void setFan(bool state) {
   if (state != fanState) {
@@ -78,16 +79,21 @@ void loop() {
       Serial.print("T:");
       Serial.println(temperature, 1);
       
-      bool currentAutoState = (temperature >= thresholdTemp);
-
-      // JIKA terjadi perubahan ambang batas (misal dari panas ke dingin atau sebaliknya)
-      if (currentAutoState != lastAutoState) {
-        manualOverride = false; // Reset override karena ada "event" suhu baru
-        lastAutoState = currentAutoState;
-        Serial.println("System: Auto-logic reset due to temperature event.");
+      // --- Nyala di Atas, Mati di Bawah (Hysteresis 0.5) ---
+      if (temperature >= thresholdTemp) {
+        currentAutoState = true;
+      } else if (temperature < (thresholdTemp - hysteresis)) {
+        currentAutoState = false;
+      } else {
+        currentAutoState = lastAutoState;
       }
 
-      // Jalankan otomatis HANYA jika sedang tidak di-override manual
+      // JIKA terjadi perubahan (dingin -> panas atau panas -> dingin)
+      if (currentAutoState != lastAutoState) {
+        manualOverride = false; 
+        lastAutoState = currentAutoState;
+      }
+
       if (!manualOverride) {
         setFan(currentAutoState);
       }

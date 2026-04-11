@@ -359,18 +359,31 @@ body {
 .auto-title h4 { font-size: 14px; font-weight: 700; color: var(--text-main); }
 .auto-title p { font-size: 10px; color: var(--text-muted); margin-top: 1px; font-weight: 600; }
 .auto-badge { 
-    background: var(--accent-light); color: var(--accent-color); 
+    background: #F1F5F9; color: var(--accent-color); 
     font-size: 14px; font-weight: 800; 
-    padding: 2px 10px; border-radius: 10px; 
-    display: flex; align-items: center; gap: 2px;
+    padding: 2px 4px 2px 10px; border-radius: 12px; 
+    display: flex; align-items: center; gap: 4px;
+    border: 1px solid #E2E8F0;
+    transition: all 0.2s ease;
 }
 
+.auto-badge:hover { border-color: var(--accent-color); background: #FFFFFF; }
+
 #thresholdInput {
-    background: transparent; border: none;
-    color: var(--accent-color); font-weight: 800;
-    font-size: 14px; font-family: 'Outfit', sans-serif;
-    width: 38px; text-align: center;
-    outline: none; padding: 0;
+    background: #FFFFFF; border: 1px solid #E2E8F0;
+    color: var(--text-main); font-weight: 800;
+    font-size: 13px; font-family: 'Outfit', sans-serif;
+    width: 44px; text-align: center;
+    outline: none; padding: 2px 0;
+    border-radius: 8px;
+    transition: all 0.2s;
+    cursor: text;
+}
+
+#thresholdInput:focus { 
+    border-color: var(--accent-color); 
+    box-shadow: 0 0 0 3px var(--accent-light);
+    color: var(--accent-color);
 }
 
 /* Hide Spinners (Arrows) */
