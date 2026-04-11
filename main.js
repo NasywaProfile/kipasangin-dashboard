@@ -203,15 +203,14 @@ function updateUI() {
 }
 
 // --- Firebase Configuration ---
-// TO DO: Set your Firebase details here.
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY_HERE",
-    authDomain: "your-project.firebaseapp.com",
-    databaseURL: "https://your-project-default-rtdb.firebaseio.com",
-    projectId: "your-project",
-    storageBucket: "your-project.appspot.com",
-    messagingSenderId: "123456",
-    appId: "1:123456:web:123456"
+    apiKey: "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s",
+    authDomain: "smart-fan-ff0a0.firebaseapp.com",
+    databaseURL: "https://smart-fan-ff0a0-default-rtdb.firebaseio.com",
+    projectId: "smart-fan-ff0a0",
+    storageBucket: "smart-fan-ff0a0.firebasestorage.app",
+    messagingSenderId: "63176942461",
+    appId: "1:63176942461:web:fac75ae0a051b616f82214"
 };
 
 // --- Firebase Initialization ---

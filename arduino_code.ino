@@ -19,8 +19,8 @@ const int relayPin = 18;
 
 // --- FIREBASE CREDENTIALS ---
 // Ganti dengan konfigurasi Firebase Anda
-#define API_KEY "YOUR_API_KEY_HERE"
-#define DATABASE_URL "YOUR_DATABASE_URL_HERE"
+#define API_KEY "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s"
+#define DATABASE_URL "smart-fan-ff0a0-default-rtdb.firebaseio.com"
 
 FirebaseData fbdo;
 FirebaseAuth auth;
