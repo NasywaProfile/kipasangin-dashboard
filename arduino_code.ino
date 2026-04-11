@@ -1,161 +1,95 @@
-// --- Smart Fan IoT - FIREBASE LITE (Super Ringan) ---
-// PERLU DI-INSTALL DI LIBRARY MANAGER:
-// 1. Firebase Arduino Client Library for ESP8266 and ESP32 by Mobizt
-// 2. DHT sensor library by Adafruit
+#include <DHT.h> // Memanggil pustaka untuk sensor suhu dan kelembaban DHT
 
-#include <WiFi.h>
-#include <Firebase_ESP_Client.h>
-#include <addons/TokenHelper.h>
-#include <addons/RTDBHelper.h>
-#include <DHT.h>
+#define DHTPIN 33     // Mendefinisikan pin 33 pada mikrokontroler terhubung ke pin data DHT
+#define DHTTYPE DHT11 // Menentukan tipe sensor yang digunakan yaitu DHT11
+DHT dht(DHTPIN, DHTTYPE); // Membuat objek 'dht' untuk mulai berinteraksi dengan sensor
 
-// --- KONFIGURASI WIFI (Hotspot HP / WiFi Rumah) ---
-// Tulis nama WiFi dan Password di sini agar memori sangat ringan
-#define WIFI_SSID "NAMA_WIFI_KAMU"
-#define WIFI_PASSWORD "PASSWORD_WIFI_KAMU"
+const int relayPin = 18;  // Menentukan pin 18 untuk mengendalikan modul relay (kipas)
+bool fanState = false;    // Variabel untuk menyimpan status kipas saat ini (menyala/mati)
 
-// --- KONFIGURASI RELAY ---
-const int relayPin = 18;
-// TIPE RELAY: ACTIVE LOW
-#define RELAY_ON LOW
-#define RELAY_OFF HIGH
+// Variabel Logika Cerdas
+bool manualOverride = false; // Penanda apakah user sedang mengontrol kipas secara manual via dashboard
+bool lastAutoState = false;  // Menyimpan status memori suhu sebelumnya (panas atau dingin)
 
-// --- KONFIGURASI SENSOR ---
-#define DHTPIN 33
-#define DHTTYPE DHT11
-DHT dht(DHTPIN, DHTTYPE);
-
-// --- FIREBASE CREDENTIALS ---
-#define API_KEY "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s"
-#define DATABASE_URL "smart-fan-ff0a0-default-rtdb.firebaseio.com"
-
-FirebaseData fbdo;
-FirebaseAuth auth;
-FirebaseConfig config;
-
-// State Variables
-bool isPowerOn = false;
-bool manualOverride = false;
-float currentTemp = 24.5;
-float thresholdTemp = 32.0;
-float hysteresis = 0.5;
-unsigned long lastSensorRead = 0;
-unsigned long lastFirebaseSync = 0;
-
+// Fungsi khusus untuk menyalakan/mematikan kipas
 void setFan(bool state) {
-  isPowerOn = state;
-  if(isPowerOn) {
-    digitalWrite(relayPin, RELAY_ON);
-  } else {
-    digitalWrite(relayPin, RELAY_OFF);
+  // Hanya jalankan jika perintah status baru berbeda dengan status kipas saat ini
+  if (state != fanState) {
+    fanState = state; // Perbarui status kipas
+    
+    // Logika untuk modul relay Active-LOW
+    if (fanState) {
+      pinMode(relayPin, OUTPUT);  // Jadikan pin sebagai output
+      digitalWrite(relayPin, LOW); // Beri sinyal LOW untuk menyalakan relay/kipas
+    } else {
+      pinMode(relayPin, INPUT); // Jadikan pin sebagai input (High-Impedance) untuk memutus arus dan mematikan relay
+    }
+    
+    // Mengirimkan data ke dashboard setiap kali ada perubahan status kipas
+    Serial.print("S:");
+    Serial.println(fanState ? "1" : "0"); // Kirim "S:1" jika nyala, "S:0" jika mati
   }
-  
-  // Update status ke Firebase
-  Firebase.RTDB.setBool(&fbdo, "smartfan/power", isPowerOn);
-  Serial.print("Fan State: ");
-  Serial.println(isPowerOn ? "ON" : "OFF");
 }
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(115200);      // Memulai komunikasi Serial (untuk dashboard) dengan kecepatan 115200 bps
+  dht.begin();               // Memulai pembacaan sensor DHT
+  pinMode(relayPin, INPUT);  // Pastikan kipas mati saat alat pertama kali dihidupkan
+  fanState = false;          // Set status awal ke mati
   
-  // PASTIKAN KIPAS MATI SAAT BARU DICOLOK
-  pinMode(relayPin, OUTPUT);
-  digitalWrite(relayPin, RELAY_OFF); 
-  isPowerOn = false;
-  
-  dht.begin();
-
-  // 1. WiFi Singkat (Tanpa WiFiManager, Hemat 400KB+ Memori!)
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print("Menghubungkan ke WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(500);
-  }
-  Serial.println();
-  Serial.print("Tersambung! IP Address: ");
-  Serial.println(WiFi.localIP());
-
-  // 2. Firebase Configuration
-  config.api_key = API_KEY;
-  config.database_url = DATABASE_URL;
-  
-  if (Firebase.signUp(&config, &auth, "", "")) {
-    Serial.println("Firebase Auth Berhasil");
-  } else {
-    Serial.println("Firebase Auth Gagal");
-  }
-  
-  config.token_status_callback = tokenStatusCallback;
-  Firebase.begin(&config, &auth);
-  Firebase.reconnectWiFi(true);
-
-  // 3. Ambil data terakhir dari Firebase (atau setel bawaan)
-  if(Firebase.RTDB.getFloat(&fbdo, "smartfan/threshold")) {
-      thresholdTemp = fbdo.floatData();
-  } else {
-      Firebase.RTDB.setFloat(&fbdo, "smartfan/threshold", thresholdTemp);
-  }
-  
-  // Paksa laporan ke web bahwa kipas posisi OFF dan otomatis pas awal nyala
-  Firebase.RTDB.setBool(&fbdo, "smartfan/power", false);
-  Firebase.RTDB.setBool(&fbdo, "smartfan/manualOverride", false);
-
-  Serial.println("Sistem Berjalan Online! Kipas Siaga (OFF).");
+  // Inisialisasi status awal lingkungan saat alat dinyalakan
+  float t = dht.readTemperature();
+  lastAutoState = (!isnan(t) && t >= 32); // Jika suhu awal >= 32°C, anggap lingkungan sedang "panas" (true)
 }
 
 void loop() {
-  // 1. Baca Sensor dan Logika Threshold setiap 2 detik
-  if (millis() - lastSensorRead > 2000) {
-    lastSensorRead = millis();
+  // ========================================================
+  // 1. Baca Perintah dari Dashboard (Interaksi User / Manual)
+  // ========================================================
+  if (Serial.available() > 0) {
+    String input = Serial.readStringUntil('\n'); // Baca teks dari dashboard sampai enter
+    input.trim(); 
     
-    float temp = dht.readTemperature();
-    if (!isnan(temp)) {
-      currentTemp = temp;
-      
-      // Laporkan Suhu ke Dashboard tiap 5 detik
-      if (millis() - lastFirebaseSync > 5000) {
-         Firebase.RTDB.setFloat(&fbdo, "smartfan/temperature", currentTemp);
-         lastFirebaseSync = millis();
-      }
-
-      // JALANKAN OTOMATIS JIKA TIDAK ADA KUNCIAN MANUAL
-      if (!manualOverride) {
-        if (currentTemp >= thresholdTemp && !isPowerOn) {
-          setFan(true);
-        } else if (currentTemp < (thresholdTemp - hysteresis) && isPowerOn) {
-          setFan(false);
-        }
-      }
+    if (input == "ON") {
+      manualOverride = true; // Aktifkan mode manual
+      setFan(true);          // Paksa kipas menyala
+    } 
+    else if (input == "OFF") {
+      manualOverride = true; // Aktifkan mode manual
+      setFan(false);         // Paksa kipas mati
     }
   }
 
-  // 2. Baca perintah dari Dashboard
-  if (Firebase.ready()) {
-    if (Firebase.RTDB.getBool(&fbdo, "smartfan/manualOverride")) {
-       bool userOverride = fbdo.boolData();
-       if(userOverride != manualOverride) {
-          manualOverride = userOverride;
-          Serial.print("Mode Otomatis: ");
-          Serial.println(manualOverride ? "DIMATIKAN" : "AKTIF");
-       }
-    }
+  // ========================================================
+  // 2. Logika Sensor & Sinkronisasi (Mode Otomatis)
+  // ========================================================
+  static unsigned long lastSensorRead = 0; // Menyimpan waktu terakhir sensor dibaca
+  
+  // Gunakan millis() untuk jeda 2 detik tanpa menghentikan sistem (non-blocking)
+  if (millis() - lastSensorRead > 2000) {
+    lastSensorRead = millis(); // Perbarui waktu pembacaan
+    
+    float temperature = dht.readTemperature(); // Baca suhu saat ini
+    
+    // Pastikan sensor berhasil membaca angka (bukan NaN / Not a Number)
+    if (!isnan(temperature)) {
+      // Kirim Suhu terbaru ke Dashboard secara berkala
+      Serial.print("T:");
+      Serial.println(temperature, 1); // Kirim dengan 1 angka di belakang koma (misal T:32.5)
+      
+      bool currentAutoState = (temperature >= 32); // Kipas harusnya nyala jika suhu >= 32°C
 
-    if (Firebase.RTDB.getBool(&fbdo, "smartfan/power")) {
-       bool webPower = fbdo.boolData();
-       if (webPower != isPowerOn) {
-         setFan(webPower); 
-       }
-    }
+      // JIKA terjadi perubahan drastis(contoh: dari 33°C turun ke 30°C)
+      if (currentAutoState != lastAutoState) {
+        manualOverride = false; // Matikan mode manual, biarkan sistem otomatis mengambil alih lagi
+        lastAutoState = currentAutoState; // Simpan memori suhu terbaru
+        Serial.println("System: Auto-logic reset due to temperature event.");
+      }
 
-    if (Firebase.RTDB.getFloat(&fbdo, "smartfan/threshold")) {
-       float webThresh = fbdo.floatData();
-       if(abs(webThresh - thresholdTemp) > 0.1) {
-          thresholdTemp = webThresh;
-          Serial.print("Threshold Berubah ke: ");
-          Serial.println(thresholdTemp);
-       }
+      // Jika user TIDAK sedang menekan tombol manual, jalankan kipas sesuai suhu otomatis
+      if (!manualOverride) {
+        setFan(currentAutoState);
+      }
     }
   }
 }

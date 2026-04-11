@@ -1,0 +1,15 @@
+845b31d Optimize: Removed WiFiManager to solve Memory limitations, creating Firebase Lite
+a521666 Complete Overhaul: Reverted to bulletproof Firebase Realtime Database and WiFiManager implementation
+f76db44 Switch to MQTT for faster response
+429409c Hardware Logic Update: Enforced strict OFF state on boot and added WiFi reset toggle for debugging
+0c6b416 Auto-Restore: Recovered and injected Firebase credentials from project history
+19e3fc3 IoT Architecture Override: Replaced local Web Serial with global WiFiManager & Firebase Realtime Database sync
+9466dbc Precision Logic: Boosted threshold accuracy to 0.1°C and added detailed target adjustment logging
+21c7b14 Refine Automation Logic: Strict threshold enforcement and unified input UI
+73a7143 UI Enrichment: Added 'Send' button for manual threshold updates and enabled 'Enter' key submission
+91715a7 Optimize Stability: Defined ON/OFF temperature thresholds and clarified manual input UI
+bca1f10 Enhance Automation: Integrated manual temperature input alongside slider and steppers
+8f1d43c Optimize UI layout: Compact cards for Environment and Automation to prioritize Recent Activity
+7fda198 Revitalize Dashboard: New Serenity Canvas premium light theme and optimized UX
+3ec1920 Refine Glassmorphism UI: Increased transparency, highlights, and masonry layout
+2c364fd Elevate Right Panel to Glassmorphism Dark Theme with Circular Dial and Timeline Activity

@@ -63,128 +63,130 @@
                 <div class="titles">
                     <div class="title-row">
                         <h1>Smart<span>Fan</span></h1>
-                            <div class="cloud-status" id="cloudStatus" title="Cloud Connection">
-                                <span class="status-dot"></span>
-                                <span>Offline</span>
-                            </div>
-                        </div>
-                        <div class="sub-header">
-                            <p>Control Device</p>
-                        </div>
-                    </div>
-                </header>
-
-                <div class="fan-display">
-                    <div class="fan-glow"></div>
-                    <div class="fan-frame">
-                        <div class="fan-spinner" id="fanBlades">
-                            <div class="fan-blade b1"></div>
-                            <div class="fan-blade b2"></div>
-                            <div class="fan-blade b3"></div>
-                            <div class="fan-hub"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Modern Power Control -->
-                <div class="power-control-wrapper">
-                    <div class="power-card">
-                        <div class="power-info">
-                            <h3>Device Power</h3>
-                            <p id="statusLabel">Standby</p>
-                        </div>
-                        <button id="powerSwitch" class="power-toggle off">
-                            <div class="toggle-knob">
-                                <svg class="p-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                    stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
-                                    <line x1="12" y1="2" x2="12" y2="12" />
-                                </svg>
-                            </div>
+                        <button id="connectSerial" class="connect-btn" title="Connect Arduino">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
+                                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
+                            </svg>
+                            <span>Connect</span>
                         </button>
                     </div>
+                    <div class="sub-header">
+                        <p>Control Device</p>
+                    </div>
                 </div>
-            </section>
+            </header>
 
-            <div class="dashboard-content modern-light">
-                <!-- Right Panel Sections -->
-                <div class="side-panel-wrapper">
-                    
-                    <!-- 1. Environment Stats -->
-                    <section class="panel-section environment-entry">
-                        <div class="section-tag">Environment</div>
-                        <div class="main-stats-card">
-                            <div class="stats-icon-box">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" /></svg>
-                            </div>
-                            <div class="stats-main-info">
-                                <p>Room Temperature</p>
-                                <div class="stats-value-row">
-                                    <span id="tempValue">--</span><span class="unit-label">°C</span>
-                                </div>
-                            </div>
-                            <div class="stats-trend">
-                                <svg viewBox="0 0 100 30" class="main-sparkline">
-                                    <path d="M0 15 L 25 15 L 50 15 L 75 15 L 100 15" fill="none" stroke="#A67347" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" id="tempSparkline" />
-                                </svg>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- 2. Automation Control -->
-                    <section class="panel-section automation-entry">
-                        <div class="section-tag">Automation Settings</div>
-                        <div class="automation-card">
-                            <div class="auto-header">
-                                <div class="auto-title">
-                                    <h4>Temp Threshold</h4>
-                                    <p>Fan auto-activates at this temperature</p>
-                                </div>
-                                <div class="auto-badge">
-                                    <input type="number" id="thresholdInput" value="32" min="20" max="45" step="0.1">
-                                    <span class="badge-unit">°C</span>
-                                    <button id="sendThresholdBtn" class="mini-send-btn" title="Update Threshold">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="auto-control-box">
-                                <div class="stepper-btn" id="tempDown">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                </div>
-                                <div class="slider-track-box">
-                                    <input type="range" id="thresholdSlider" min="20" max="45" step="0.1" value="32" class="premium-slider">
-                                    <div class="slider-marks">
-                                        <span>20°</span>
-                                        <span>32°</span>
-                                        <span>45°</span>
-                                    </div>
-                                </div>
-                                <div class="stepper-btn" id="tempUp">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    <!-- 3. Recent Activity -->
-                    <section class="panel-section history-entry">
-                        <div class="history-header-row">
-                            <div class="section-tag">Recent Activity</div>
-                            <div class="history-count-pill" id="historyCount">0</div>
-                        </div>
-                        <div class="activity-scroll-list" id="historyList">
-                            <!-- Activity items go here -->
-                        </div>
-                    </section>
-
+            <div class="fan-display">
+                <div class="fan-glow"></div>
+                <div class="fan-frame">
+                    <div class="fan-spinner" id="fanBlades">
+                        <div class="fan-blade b1"></div>
+                        <div class="fan-blade b2"></div>
+                        <div class="fan-blade b3"></div>
+                        <div class="fan-hub"></div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-        <script type="module" src="main.js"></script>
-    </body>
+            <!-- Modern Power Control -->
+            <div class="power-control-wrapper">
+                <div class="power-card">
+                    <div class="power-info">
+                        <h3>Device Power</h3>
+                        <p id="statusLabel">Standby</p>
+                    </div>
+                    <button id="powerSwitch" class="power-toggle off">
+                        <div class="toggle-knob">
+                            <svg class="p-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                                <line x1="12" y1="2" x2="12" y2="12" />
+                            </svg>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <div class="dashboard-content modern-light">
+            <!-- Right Panel Sections -->
+            <div class="side-panel-wrapper">
+                
+                <!-- 1. Environment Stats -->
+                <section class="panel-section environment-entry">
+                    <div class="section-tag">Environment</div>
+                    <div class="main-stats-card">
+                        <div class="stats-icon-box">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" /></svg>
+                        </div>
+                        <div class="stats-main-info">
+                            <p>Room Temperature</p>
+                            <div class="stats-value-row">
+                                <span id="tempValue">24.5</span><span class="unit-label">°C</span>
+                            </div>
+                        </div>
+                        <div class="stats-trend">
+                            <svg viewBox="0 0 100 30" class="main-sparkline">
+                                <path d="M0 15 L 25 15 L 50 15 L 75 15 L 100 15" fill="none" stroke="#A67347" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" id="tempSparkline" />
+                            </svg>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. Automation Control -->
+                <section class="panel-section automation-entry">
+                    <div class="section-tag">Automation Settings</div>
+                    <div class="automation-card">
+                        <div class="auto-header">
+                            <div class="auto-title">
+                                <h4>Temp Threshold</h4>
+                                <p>Fan auto-activates at this temperature</p>
+                            </div>
+                            <div class="auto-badge">
+                                <input type="number" id="thresholdInput" value="32" min="20" max="45" step="0.1">
+                                <span class="badge-unit">°C</span>
+                                <button id="sendThresholdBtn" class="mini-send-btn" title="Update Threshold">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="auto-control-box">
+                            <div class="stepper-btn" id="tempDown">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </div>
+                            <div class="slider-track-box">
+                                <input type="range" id="thresholdSlider" min="20" max="45" step="0.1" value="32" class="premium-slider">
+                                <div class="slider-marks">
+                                    <span>20°</span>
+                                    <span>32°</span>
+                                    <span>45°</span>
+                                </div>
+                            </div>
+                            <div class="stepper-btn" id="tempUp">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. Recent Activity -->
+                <section class="panel-section history-entry">
+                    <div class="history-header-row">
+                        <div class="section-tag">Recent Activity</div>
+                        <div class="history-count-pill" id="historyCount">0</div>
+                    </div>
+                    <div class="activity-scroll-list" id="historyList">
+                        <!-- Activity items go here -->
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+
 </html>

@@ -65,7 +65,16 @@ backBtn.addEventListener('click', () => {
     }, 600);
 });
 
+// --- Fan Controls ---
+powerSwitch.addEventListener('click', () => {
+    isPowerOn = !isPowerOn;
+    updatePowerUI('manual');
 
+    if (writer) {
+        const cmd = isPowerOn ? "ON\n" : "OFF\n";
+        writer.write(new TextEncoder().encode(cmd));
+    }
+});
 
 // --- Automation Logic ---
 if (thresholdSlider) {
@@ -116,7 +125,14 @@ if (sendThresholdBtn) {
     });
 }
 
-
+function sendThreshold(val) {
+    if (writer) {
+        const cmd = `SET:${val}\n`;
+        writer.write(new TextEncoder().encode(cmd));
+    }
+    // Include the precise value in history
+    addHistory(`Target set to ${val.toFixed(1)}°C`, 'settings'); 
+}
 
 if (tempUpBtn) tempUpBtn.addEventListener('click', () => {
     // 0.1 precision as requested
@@ -202,96 +218,48 @@ function updateUI() {
     updateSparkline();
 }
 
-// --- Firebase Configuration (Recovered) ---
-const firebaseConfig = {
-    apiKey: "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s",
-    authDomain: "smart-fan-ff0a0.firebaseapp.com",
-    databaseURL: "https://smart-fan-ff0a0-default-rtdb.firebaseio.com",
-    projectId: "smart-fan-ff0a0",
-    storageBucket: "smart-fan-ff0a0.firebasestorage.app",
-    messagingSenderId: "63176942461",
-    appId: "1:63176942461:web:fac75ae0a051b616f82214"
-};
+// --- Serial Logic ---
+if (connectSerialBtn) {
+    connectSerialBtn.addEventListener('click', async () => {
+        try {
+            port = await navigator.serial.requestPort();
+            await port.open({ baudRate: 115200 });
+            writer = port.writable.getWriter();
+            serialKeepReading = true;
+            connectSerialBtn.classList.add('connected');
+            connectSerialBtn.innerHTML = `Connect Live`;
+            readSerial();
+        } catch (err) { console.error(err); }
+    });
+}
 
-// --- Firebase Initialization ---
-let db;
-try {
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    }
-    db = firebase.database();
-    
-    // UI Cloud Status
-    const cloudStatus = document.getElementById('cloudStatus');
-    const cloudStatusText = cloudStatus.querySelector('span:nth-child(2)');
-    
-    const connectedRef = firebase.database().ref(".info/connected");
-    connectedRef.on("value", (snap) => {
-        if (snap.val() === true) {
-            cloudStatus.classList.add('online');
-            cloudStatusText.textContent = 'Cloud Active';
-            if (historyList && historyList.children.length === 0) {
-                addHistory('Firebase Database Online', 'on', 24.5);
+async function readSerial() {
+    const textDecoder = new TextDecoderStream();
+    port.readable.pipeTo(textDecoder.writable);
+    reader = textDecoder.readable.getReader();
+    let buffer = "";
+    while (serialKeepReading) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        buffer += value;
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('T:')) {
+                handleTempUpdate(parseFloat(trimmed.slice(2)));
+            } else if (trimmed.startsWith('S:')) {
+                const newState = (trimmed.slice(2) === '1');
+                if (newState !== isPowerOn) {
+                    isPowerOn = newState;
+                    updatePowerUI('auto'); // Sync update from device
+                }
+            } else if (trimmed.startsWith('M:')) {
+                console.log("Device Message:", trimmed.slice(2));
             }
-        } else {
-            cloudStatus.classList.remove('online');
-            cloudStatusText.textContent = 'Disconnected';
         }
-    });
-
-    // 1. Listen to Temperature (dari Sensor Arduino)
-    db.ref('smartfan/temperature').on('value', (snapshot) => {
-        const temp = snapshot.val();
-        if (temp !== null) {
-            handleTempUpdate(temp);
-        }
-    });
-
-    // 2. Listen to Power State (dari Interaksi Arduino atau HP lain)
-    db.ref('smartfan/power').on('value', (snapshot) => {
-        const state = snapshot.val();
-        if (state !== null && state !== isPowerOn) {
-            isPowerOn = state;
-            updatePowerUI('auto');
-        }
-    });
-
-    // 3. Listen to Threshold (kalau diubah dari layar lain)
-    db.ref('smartfan/threshold').on('value', (snapshot) => {
-        const t = snapshot.val();
-        if (t !== null && t !== thresholdTemp) {
-            thresholdTemp = t;
-            if (thresholdInput) thresholdInput.value = thresholdTemp;
-            if (thresholdSlider) thresholdSlider.value = thresholdTemp;
-        }
-    });
-
-} catch (err) {
-    console.error("Firebase Init Error:", err);
-    alert("Koneksi Database gagal dimuat!");
-}
-
-// --- Sync Functions ---
-function sendThreshold(val) {
-    if (db) {
-        db.ref('smartfan/threshold').set(val);
-        // Jika ubah suhu target, kita matikan kuncian manual agar bisa otomatis lagi
-        db.ref('smartfan/manualOverride').set(false);
     }
-    addHistory(`Target Suhu Baru: ${val.toFixed(1)}°C`, 'settings'); 
 }
-
-powerSwitch.addEventListener('click', () => {
-    isPowerOn = !isPowerOn;
-    updatePowerUI('manual');
-
-    if (db) {
-        // Kirim perintah ON/OFF ke Firebase
-        db.ref('smartfan/power').set(isPowerOn);
-        // Kasih tau Arduino bahwa ini ditekan DARI TANGAN (Manual Lock)
-        db.ref('smartfan/manualOverride').set(true); 
-    }
-});
 
 function handleTempUpdate(temp) {
     currentTemp = temp;
