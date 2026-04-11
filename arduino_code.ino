@@ -2,6 +2,7 @@
 // Smart Fan IoT - Firebase REST (Super Ringan!)
 // HANYA butuh library bawaan ESP32, TIDAK perlu install library tambahan apapun!
 // Cukup install: DHT sensor library by Adafruit
+// Polling interval: 500ms (respons cepat ~0.5 detik)
 // =====================================================
 
 #include <WiFi.h>
@@ -150,8 +151,8 @@ void loop() {
     }
   }
 
-  // 2. BACA PERINTAH DARI DASHBOARD setiap 2 detik (Firebase polling)
-  if (millis() - lastFirebaseRead > 2000) {
+  // 2. BACA PERINTAH DARI DASHBOARD setiap 500ms (Respons Cepat!)
+  if (millis() - lastFirebaseRead > 500) {
     lastFirebaseRead = millis();
 
     // Cek manualOverride
