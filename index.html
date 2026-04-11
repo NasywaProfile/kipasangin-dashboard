@@ -109,59 +109,73 @@
             </div>
         </section>
 
-        <div class="dashboard-content">
-            <!-- Top Header for Right Panel -->
-            <div class="content-header">
-                <h3 class="data-section-title">Overview</h3>
-            </div>
-
-            <!-- Stats Grid: Temp and Threshold side-by-side -->
-            <section class="stats-grid">
-                <!-- Temperature Card -->
-                <div class="compact-card temp-tint">
-                    <div class="card-top">
-                        <div class="mini-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" /></svg>
-                        </div>
-                        <h4>Room Temp</h4>
+        <div class="dashboard-content glass-theme">
+            <!-- Left Side of Right Panel: Activity -->
+            <section class="activity-column">
+                <div class="glass-section-header">
+                    <div class="header-titles">
+                        <h3>Activity</h3>
+                        <p class="header-date" id="currentDate">July 31, 2025</p>
                     </div>
-                    <div class="card-main">
-                        <span id="tempValue">24.5</span><span class="small-unit">°C</span>
-                    </div>
-                    <div class="card-graph">
-                        <svg viewBox="0 0 100 20" class="sparkline-mini">
-                            <path d="M0 10 L 25 10 L 50 10 L 75 10 L 100 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" id="tempSparkline" />
-                        </svg>
-                    </div>
+                    <button class="see-all-btn">See all <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m9 18 6-6-6-6"/></svg></button>
                 </div>
-
-                <!-- Threshold Card -->
-                <div class="compact-card set-tint">
-                    <div class="card-top">
-                        <div class="mini-icon">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-                        </div>
-                        <h4>Auto Limit</h4>
-                        <div class="val-badge"><span id="thresholdLabel">32</span>°C</div>
-                    </div>
-                    <div class="card-controls">
-                        <input type="range" id="thresholdSlider" min="20" max="45" value="32" class="slim-slider">
-                        <div class="slider-hint">
-                            <span>20°</span>
-                            <span>45°</span>
-                        </div>
-                    </div>
+                
+                <div class="timeline-container" id="historyList">
+                    <!-- History items will be styled as timeline cards -->
                 </div>
             </section>
 
-            <!-- History Sidebar (Fills Remaining Space) -->
-            <section class="dashboard-history">
-                <div class="history-header">
-                    <h3 class="data-section-title">Recent Activity</h3>
-                    <div class="history-count" id="historyCount">0</div>
+            <!-- Right Side of Right Panel: Controls & Stats -->
+            <section class="controls-column">
+                <!-- Circular Temperature Control -->
+                <div class="glass-card dial-card">
+                    <div class="card-label">
+                        <h4>Automation</h4>
+                        <p>Living room</p>
+                    </div>
+                    
+                    <div class="dial-container">
+                        <div class="dial-outer">
+                            <div class="dial-ticks" id="dialTicks"></div>
+                            <div class="dial-inner">
+                                <div class="dial-info">
+                                    <p>Auto-ON at</p>
+                                    <div class="dial-value"><span id="thresholdLabel">32.0</span>°</div>
+                                    <p class="dial-status">Active Mode</p>
+                                </div>
+                            </div>
+                            <div class="dial-handle" id="dialHandle"></div>
+                        </div>
+                        <input type="range" id="thresholdSlider" min="15" max="35" step="0.5" value="32" class="hidden-input">
+                    </div>
+                    
+                    <div class="dial-footer">
+                        <span class="range-min">15°</span>
+                        <div class="footer-controls">
+                            <button class="dial-btn" id="tempDown"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                            <button class="dial-btn" id="tempUp"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+                        </div>
+                        <span class="range-max">35°</span>
+                    </div>
                 </div>
-                <div class="history-container" id="historyList">
-                    <!-- History items via JS -->
+
+                <!-- Room Environment Card -->
+                <div class="glass-card env-card">
+                    <div class="env-info">
+                        <div class="env-text">
+                            <h4>Room Temperature</h4>
+                            <div class="env-main-val"><span id="tempValue">24.5</span>°C</div>
+                        </div>
+                        <div class="env-status-icon">
+                            <div class="status-glow"></div>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" /></svg>
+                        </div>
+                    </div>
+                    <div class="env-graph-box">
+                        <svg viewBox="0 0 100 40" class="env-sparkline">
+                            <path d="M0 20 L 25 20 L 50 20 L 75 20 L 100 20" fill="none" stroke="#FACD15" stroke-width="3" stroke-linecap="round" id="tempSparkline" />
+                        </svg>
+                    </div>
                 </div>
             </section>
         </div>

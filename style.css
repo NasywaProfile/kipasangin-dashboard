@@ -289,187 +289,179 @@ body {
     padding: 20px 40px; display: flex; flex-direction: column; background: white; 
     min-height: 0;
 }
-.sparkline { width: 100%; height: 100%; overflow: visible; }
-.full-width { width: 100%; }
-
-/* --- Optimized Right Panel Layout --- */
-.content-header {
-    padding: 20px 24px 8px;
-    background: #FCFDFF;
-    flex-shrink: 0;
-}
-
-.stats-grid {
+/* --- Glassmorphism Dark Theme (Right Panel Only) --- */
+.dashboard-content.glass-theme {
+    background: #18191D;
+    padding: 24px;
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    padding: 0 24px 16px;
-    background: #FCFDFF;
-    border-bottom: 1px solid var(--border-soft);
-    flex-shrink: 0;
+    grid-template-columns: 1.2fr 1.5fr;
+    gap: 20px;
+    border-left: 1px solid rgba(255,255,255,0.05);
 }
 
-.compact-card {
-    background: white;
-    border: 1px solid var(--border-soft);
-    border-radius: 18px;
-    padding: 12px;
-    box-shadow: var(--shadow-sm);
+.activity-column, .controls-column {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    min-height: 100px;
+    gap: 20px;
 }
 
-.card-top {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
-}
-
-.mini-icon {
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.temp-tint .mini-icon { background: var(--accent-light); color: var(--accent-color); }
-.set-tint .mini-icon { background: #F1F5F9; color: #64748B; }
-
-.card-top h4 {
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.val-badge {
-    margin-left: auto;
-    background: var(--accent-light);
-    color: var(--accent-color);
-    font-size: 10px;
-    font-weight: 800;
-    padding: 1px 6px;
-    border-radius: 4px;
-}
-
-.card-main {
-    font-size: 24px;
-    font-weight: 800;
-    color: var(--text-main);
-    margin: 4px 0;
-}
-
-.small-unit {
-    font-size: 12px;
-    color: var(--text-muted);
-    font-weight: 600;
-    margin-left: 2px;
-}
-
-.card-graph { height: 20px; margin-top: 4px; opacity: 0.8; }
-.sparkline-mini { width: 100%; height: 100%; color: var(--accent-color); }
-
-/* Compact Slider */
-.slim-slider {
-    -webkit-appearance: none; appearance: none;
-    width: 100%; height: 3px;
-    background: #F1F5F9;
-    border-radius: 10px;
-    outline: none;
-    margin-top: 8px;
-}
-
-.slim-slider::-webkit-slider-thumb {
-    -webkit-appearance: none; appearance: none;
-    width: 14px; height: 14px;
-    background: var(--accent-color);
-    border-radius: 50%;
-    cursor: pointer;
-    box-shadow: 0 0 0 2px white, 0 2px 4px rgba(0,0,0,0.1);
-    border: none;
-}
-
-.slider-hint {
+/* Glass Section Headers */
+.glass-section-header {
     display: flex;
     justify-content: space-between;
-    margin-top: 6px;
-    color: var(--text-muted);
-    font-size: 9px;
-    font-weight: 700;
+    align-items: flex-start;
+    padding: 0 4px;
+    margin-bottom: 15px;
+}
+.header-titles h3 { color: white; font-size: 20px; font-weight: 700; }
+.header-date { color: rgba(255,255,255,0.4); font-size: 13px; margin-top: 4px; }
+.see-all-btn {
+    background: rgba(255,255,255,0.08);
+    border: none; color: white; font-size: 11px; font-weight: 700;
+    padding: 6px 12px; border-radius: 20px; cursor: pointer;
+    display: flex; align-items: center; gap: 4px;
 }
 
-/* History Section */
-.dashboard-history { 
-    height: 100%; flex-grow: 1; 
-    background: #FFFFFF; 
-    overflow: hidden; 
-    display: flex; 
-    flex-direction: column; 
-    padding: 24px 32px;
-}
-
-.history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-shrink: 0; }
-.history-count { background: var(--accent-light); color: var(--accent-color); font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 100px; }
-
-.data-section-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-.data-section-title::before { content: ''; width: 6px; height: 6px; background: var(--accent-color); border-radius: 50%; opacity: 0.5; }
-
-.history-container {
-    flex-grow: 1; 
-    overflow-y: auto; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 12px; 
+/* Vertical Timeline */
+.timeline-container {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
     padding-right: 8px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent-color) transparent;
+}
+.timeline-item {
+    background: rgba(255,255,255,0.03);
+    border-radius: 24px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    border: 1px solid rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+}
+.timeline-top { display: flex; align-items: center; gap: 12px; }
+.timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: #FACD15; box-shadow: 0 0 10px #FACD15; }
+.timeline-time { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); }
+.timeline-card {
+    background: white;
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.timeline-card h5 { color: #18191D; font-size: 14px; font-weight: 700; }
+.timeline-card p { color: #64748B; font-size: 12px; margin-top: 2px; }
+
+/* Circular Dial Card */
+.glass-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    backdrop-filter: blur(20px);
+    border-radius: 32px;
+    padding: 24px;
 }
 
-/* Scrollbar Style for Chrome/Safari/Edge */
-.history-container::-webkit-scrollbar { width: 4px; }
-.history-container::-webkit-scrollbar-track { background: #F8FAFC; border-radius: 10px; }
-.history-container::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
-.history-container::-webkit-scrollbar-thumb:hover { background: var(--accent-color); }
+.dial-card { display: flex; flex-direction: column; align-items: center; gap: 20px; flex-grow: 1; min-height: 400px; }
+.card-label { width: 100%; text-align: left; }
+.card-label h4 { color: white; font-size: 18px; font-weight: 700; }
+.card-label p { color: rgba(255,255,255,0.4); font-size: 13px; }
 
-.history-item {
-    padding: 14px; background: white; border-radius: 18px; display: flex; justify-content: space-between; align-items: center;
-    border: 1px solid #F1F5F9; box-shadow: 0 2px 8px rgba(0,0,0,0.01); transition: transform 0.2s, box-shadow 0.2s;
+.dial-container {
+    position: relative;
+    width: 240px; height: 240px;
+    display: flex; justify-content: center; align-items: center;
 }
-.history-item:hover { transform: translateX(2px); box-shadow: var(--shadow-sm); border-color: #E2E8F0; }
-.history-left { display: flex; align-items: center; gap: 12px; }
-.history-icon-box { width: 40px; height: 40px; border-radius: 12px; display: flex; justify-content: center; align-items: center; }
-.type-on { background: #ECFDF5; color: #10B981; }
-.type-off { background: #FEF2F2; color: #F43F5E; }
-.type-settings { background: #F1F5F9; color: var(--accent-color); }
-.history-text h5 { font-size: 13px; font-weight: 700; color: var(--text-main); }
-.history-text p { font-size: 11px; color: var(--text-muted); font-weight: 600; margin-top: 1px; }
-.history-text span { color: var(--accent-color); font-weight: 700; background: var(--accent-light); padding: 1px 6px; border-radius: 5px; margin-left: 4px; font-size: 10px; }
-.history-time { font-size: 11px; color: var(--text-muted); font-weight: 700; background: #F8FAFC; padding: 4px 8px; border-radius: 6px; }
+.dial-outer {
+    width: 100%; height: 100%; border-radius: 50%;
+    position: relative;
+    display: flex; justify-content: center; align-items: center;
+}
+.dial-ticks {
+    position: absolute; width: 100%; height: 100%;
+    transform: rotate(135deg); /* Start of dial */
+}
+.dial-tick {
+    position: absolute; width: 4px; height: 12px;
+    background: rgba(255,255,255,0.1);
+    left: 50%; top: 0; transform-origin: center 120px;
+    border-radius: 2px;
+}
+.dial-tick.active { background: #FACD15; box-shadow: 0 0 8px rgba(250,205,21,0.4); }
 
-/* ---------- Responsive Breakpoints Setup ---------- */
+.dial-inner {
+    width: 180px; height: 180px; border-radius: 50%;
+    background: rgba(255,255,255,0.02);
+    box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+    display: flex; justify-content: center; align-items: center;
+    border: 1px solid rgba(255,255,255,0.03);
+}
+.dial-info { text-align: center; }
+.dial-info p { color: rgba(255,255,255,0.4); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+.dial-value { color: white; font-size: 48px; font-weight: 800; font-family: 'Outfit', sans-serif; margin: 5px 0; }
+.dial-status { color: #FACD15 !important; font-weight: 700 !important; }
 
-/* 1. Laptop/Desktop Tweaks */
-@media screen and (max-width: 1024px) {
-    .app-container, .welcome-container { width: 95%; max-width: 95%; aspect-ratio: auto; height: 90vh; }
+.dial-handle {
+    position: absolute; width: 20px; height: 20px;
+    background: #FACD15; border-radius: 50%;
+    border: 4px solid #18191D;
+    top: -4px; cursor: pointer;
+    box-shadow: 0 0 15px rgba(250,205,21,0.6);
 }
 
-/* 2. Tablets (iPad, etc.) */
+.dial-footer {
+    width: 100%; display: flex; justify-content: space-between; align-items: center;
+}
+.dial-footer span { color: rgba(255,255,255,0.3); font-size: 13px; font-weight: 700; width: 30px; }
+.footer-controls { display: flex; gap: 12px; }
+.dial-btn {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: rgba(255,255,255,0.08); border: none;
+    color: white; cursor: pointer; transition: 0.2s;
+}
+.dial-btn:hover { background: rgba(255,255,255,0.15); }
+.dial-btn:active { transform: scale(0.9); }
+
+/* Environment Card */
+.env-card {
+    display: flex; flex-direction: column; gap: 15px;
+}
+.env-info { display: flex; justify-content: space-between; align-items: center; }
+.env-text h4 { color: rgba(255,255,255,0.5); font-size: 13px; font-weight: 700; text-transform: uppercase; }
+.env-main-val { color: white; font-size: 32px; font-weight: 800; margin-top: 5px; }
+.env-status-icon {
+    width: 48px; height: 48px; border-radius: 16px;
+    background: white; color: #18191D;
+    display: flex; justify-content: center; align-items: center;
+    position: relative;
+}
+.status-glow {
+    position: absolute; width: 100%; height: 100%;
+    background: white; filter: blur(15px); opacity: 0.2; border-radius: 16px;
+}
+
+.env-graph-box { height: 60px; margin-top: 10px; }
+.env-sparkline { width: 100%; height: 100%; overflow: visible; }
+.hidden-input { display: none; }
+
+/* Scrollbar for Dark Theme */
+.timeline-container::-webkit-scrollbar { width: 4px; }
+.timeline-container::-webkit-scrollbar-track { background: transparent; }
+.timeline-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+
+/* ---------- Responsive for Glass Theme ---------- */
 @media screen and (max-width: 900px) {
-    .app-container { 
-        grid-template-columns: 1fr; 
-        display: flex; flex-direction: column;
-        height: 95vh; max-height: none;
-    }
-    .dashboard-visuals { border-right: none; border-bottom: 1px solid var(--border-soft); padding: 24px; min-height: 320px; flex-shrink: 0; }
-    .dashboard-content { border-left: none; flex-grow: 1; display: flex; flex-direction: column; }
-    .dashboard-overview { padding: 20px 24px; border-bottom: 1px solid var(--border-soft); }
-    .dashboard-history { flex-grow: 1; overflow-y: auto; padding: 20px 24px; }
+    .dashboard-content.glass-theme { grid-template-columns: 1fr; overflow-y: auto; height: auto; }
+    .dial-card { min-height: auto; padding-bottom: 40px; }
+}
+@media screen and (max-width: 768px) {
+    .dashboard-content.glass-theme { padding: 16px; }
+    .glass-card { padding: 20px; border-radius: 24px; }
+    .dial-container { width: 200px; height: 200px; }
+    .dial-inner { width: 140px; height: 140px; }
+    .dial-value { font-size: 36px; }
 }
 
 /* 3. Large Mobile Phones */
