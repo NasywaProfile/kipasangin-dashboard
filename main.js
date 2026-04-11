@@ -13,6 +13,8 @@ const historyList = document.getElementById('historyList');
 const historyCountLabel = document.getElementById('historyCount');
 const tempSparkline = document.getElementById('tempSparkline');
 const connectSerialBtn = document.getElementById('connectSerial');
+const thresholdSlider = document.getElementById('thresholdSlider');
+const thresholdLabel = document.getElementById('thresholdLabel');
 
 // --- Serial State ---
 let port;
@@ -24,6 +26,7 @@ let serialKeepReading = false;
 let isPowerOn = false;
 let currentTemp = 24.5;
 let sessionActive = false;
+let thresholdTemp = 32.0;
 let tempHistory = [24.5, 24.5, 24.5, 24.5, 24.5];
 
 // --- Initialize ---
@@ -36,13 +39,13 @@ function enterDashboard() {
     welcomeScreen.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     welcomeScreen.style.opacity = '0';
     welcomeScreen.style.transform = 'scale(1.02)';
-    
+
     setTimeout(() => {
         welcomeScreen.classList.add('hidden');
         appContainer.classList.remove('hidden');
         appContainer.style.animation = 'dashboardEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
         sessionActive = true;
-        
+
         if (historyList.children.length === 0) {
             addHistory('System Online', 'on', 24.5);
         }
@@ -64,11 +67,25 @@ backBtn.addEventListener('click', () => {
 powerSwitch.addEventListener('click', () => {
     isPowerOn = !isPowerOn;
     updatePowerUI('manual');
-    
+
     if (writer) {
         const cmd = isPowerOn ? "ON\n" : "OFF\n";
         writer.write(new TextEncoder().encode(cmd));
     }
+});
+
+// --- Threshold Controls ---
+thresholdSlider.addEventListener('input', (e) => {
+    thresholdTemp = parseFloat(e.target.value);
+    thresholdLabel.textContent = thresholdTemp;
+});
+
+thresholdSlider.addEventListener('change', () => {
+    if (writer) {
+        const cmd = `SET:${thresholdTemp}\n`;
+        writer.write(new TextEncoder().encode(cmd));
+    }
+    addHistory(`Threshold: ${thresholdTemp}°C`, 'settings'); 
 });
 
 function updatePowerUI(source = 'manual') {
@@ -78,7 +95,7 @@ function updatePowerUI(source = 'manual') {
         statusLabel.textContent = 'Active Cooling';
         statusLabel.style.color = '#3B82F6';
         fanBlades.classList.add('spinning');
-        
+
         const title = source === 'auto' ? 'Auto-Cooling Activated' : 'Fan Powered On';
         addHistory(title, 'on');
     } else {
@@ -87,7 +104,7 @@ function updatePowerUI(source = 'manual') {
         statusLabel.textContent = 'Standby';
         statusLabel.style.color = '#64748B';
         fanBlades.classList.remove('spinning');
-        
+
         const title = source === 'auto' ? 'Auto-Cooling Deactivated' : 'Fan Powered Off';
         addHistory(title, 'off');
     }
@@ -98,15 +115,25 @@ function addHistory(title, type, temp = null) {
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const tempToShow = temp !== null ? temp : currentTemp;
     
-    const iconSvg = type === 'on' 
-        ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`
-        : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>`;
+    let iconSvg = '';
+    let typeClass = '';
+    
+    if (type === 'on') {
+        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+        typeClass = 'type-on';
+    } else if (type === 'off') {
+        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>`;
+        typeClass = 'type-off';
+    } else {
+        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`;
+        typeClass = 'type-settings';
+    }
         
     const item = document.createElement('div');
     item.className = 'history-item';
     item.innerHTML = `
         <div class="history-left">
-            <div class="history-icon-box ${type === 'on' ? 'type-on' : 'type-off'}">
+            <div class="history-icon-box ${typeClass}">
                 ${iconSvg}
             </div>
             <div class="history-text">
@@ -116,7 +143,7 @@ function addHistory(title, type, temp = null) {
         </div>
         <div class="history-time">${timeStr}</div>
     `;
-    
+
     historyList.prepend(item);
     if (historyCountLabel) {
         historyCountLabel.textContent = historyList.children.length;
@@ -141,7 +168,7 @@ function updateUI() {
 if (connectSerialBtn) {
     connectSerialBtn.addEventListener('click', async () => {
         try {
-            port = await navigator.serial.requestPort();
+            port = await navigator.serial.requestPort(); // Akses ke Kabel USB
             await port.open({ baudRate: 115200 });
             writer = port.writable.getWriter();
             serialKeepReading = true;
@@ -173,6 +200,8 @@ async function readSerial() {
                     isPowerOn = newState;
                     updatePowerUI('auto'); // Sync update from device
                 }
+            } else if (trimmed.startsWith('M:')) {
+                console.log("Device Message:", trimmed.slice(2));
             }
         }
     }

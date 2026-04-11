@@ -15,6 +15,7 @@ bool fanState = false;
 // Logika Cerdas
 bool manualOverride = false; 
 bool lastAutoState = false;
+float thresholdTemp = 32.0; // Default threshold
 
 void setFan(bool state) {
   if (state != fanState) {
@@ -39,7 +40,7 @@ void setup() {
   
   // Inisialisasi state awal sensor
   float t = dht.readTemperature();
-  lastAutoState = (!isnan(t) && t >= 32);
+  lastAutoState = (!isnan(t) && t >= thresholdTemp);
 }
 
 void loop() {
@@ -56,6 +57,14 @@ void loop() {
       manualOverride = true; 
       setFan(false);
     }
+    else if (input.startsWith("SET:")) {
+      float newThreshold = input.substring(4).toFloat();
+      if (newThreshold > 0) {
+        thresholdTemp = newThreshold;
+        Serial.print("M:Threshold set to ");
+        Serial.println(thresholdTemp);
+      }
+    }
   }
 
   // 2. Logika Sensor & Sinkronisasi
@@ -69,7 +78,7 @@ void loop() {
       Serial.print("T:");
       Serial.println(temperature, 1);
       
-      bool currentAutoState = (temperature >= 32);
+      bool currentAutoState = (temperature >= thresholdTemp);
 
       // JIKA terjadi perubahan ambang batas (misal dari panas ke dingin atau sebaliknya)
       if (currentAutoState != lastAutoState) {
