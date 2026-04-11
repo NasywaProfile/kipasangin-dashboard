@@ -292,122 +292,115 @@ body {
 .sparkline { width: 100%; height: 100%; overflow: visible; }
 .full-width { width: 100%; }
 
-/* --- Compact Overview Section --- */
-.dashboard-overview {
-    padding: 24px 32px 16px;
+/* --- Optimized Right Panel Layout --- */
+.content-header {
+    padding: 20px 24px 8px;
+    background: #FCFDFF;
+    flex-shrink: 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 0 24px 16px;
     background: #FCFDFF;
     border-bottom: 1px solid var(--border-soft);
     flex-shrink: 0;
 }
 
-.overview-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-top: 12px;
-}
-
-.stat-card {
+.compact-card {
     background: white;
     border: 1px solid var(--border-soft);
-    border-radius: 20px;
-    padding: 16px;
+    border-radius: 18px;
+    padding: 12px;
     box-shadow: var(--shadow-sm);
-    transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: space-between;
+    min-height: 100px;
 }
 
-.stat-card:hover { 
-    transform: translateY(-2px); 
-    box-shadow: var(--shadow-md); 
-}
-
-.mini-header {
+.card-top {
     display: flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 12px;
+    margin-bottom: 4px;
 }
 
 .mini-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.temp-tint { background: var(--accent-light); color: var(--accent-color); }
-.set-tint { background: #F1F5F9; color: #64748B; }
+.temp-tint .mini-icon { background: var(--accent-light); color: var(--accent-color); }
+.set-tint .mini-icon { background: #F1F5F9; color: #64748B; }
 
-.mini-header h4 {
-    font-size: 11px;
+.card-top h4 {
+    font-size: 10px;
     font-weight: 700;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-.mini-badge {
+.val-badge {
     margin-left: auto;
     background: var(--accent-light);
     color: var(--accent-color);
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 800;
-    padding: 2px 8px;
-    border-radius: 6px;
+    padding: 1px 6px;
+    border-radius: 4px;
 }
 
-.mini-value {
-    font-size: 28px;
+.card-main {
+    font-size: 24px;
     font-weight: 800;
     color: var(--text-main);
-    margin-bottom: 8px;
+    margin: 4px 0;
 }
 
-.mini-unit {
-    font-size: 14px;
+.small-unit {
+    font-size: 12px;
     color: var(--text-muted);
     font-weight: 600;
     margin-left: 2px;
 }
 
-.mini-graph {
-    height: 30px;
-}
+.card-graph { height: 20px; margin-top: 4px; opacity: 0.8; }
+.sparkline-mini { width: 100%; height: 100%; color: var(--accent-color); }
 
 /* Compact Slider */
-.mini-slider-box {
-    margin-top: 4px;
-}
-
-.compact-slider {
+.slim-slider {
     -webkit-appearance: none; appearance: none;
-    width: 100%; height: 4px;
+    width: 100%; height: 3px;
     background: #F1F5F9;
     border-radius: 10px;
     outline: none;
+    margin-top: 8px;
 }
 
-.compact-slider::-webkit-slider-thumb {
+.slim-slider::-webkit-slider-thumb {
     -webkit-appearance: none; appearance: none;
-    width: 16px; height: 16px;
+    width: 14px; height: 14px;
     background: var(--accent-color);
     border-radius: 50%;
     cursor: pointer;
-    box-shadow: 0 0 0 3px white, 0 3px 6px rgba(166, 115, 71, 0.2);
+    box-shadow: 0 0 0 2px white, 0 2px 4px rgba(0,0,0,0.1);
     border: none;
 }
 
-.slider-ticks {
+.slider-hint {
     display: flex;
     justify-content: space-between;
-    margin-top: 8px;
+    margin-top: 6px;
     color: var(--text-muted);
-    font-size: 10px;
+    font-size: 9px;
     font-weight: 700;
 }
 

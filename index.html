@@ -110,52 +110,51 @@
         </section>
 
         <div class="dashboard-content">
-            <!-- Unified Stats & Settings -->
-            <section class="dashboard-overview">
-                <div class="overview-header">
-                    <h3 class="data-section-title">Overview</h3>
-                </div>
-                
-                <div class="overview-grid">
-                    <!-- Temperature Card -->
-                    <div class="stat-card temp-mini">
-                        <div class="mini-header">
-                            <div class="mini-icon temp-tint">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" /></svg>
-                            </div>
-                            <h4>Room Temperature</h4>
-                        </div>
-                        <div class="mini-value">
-                            <span id="tempValue">24.5</span><span class="mini-unit">°C</span>
-                        </div>
-                        <div class="mini-graph">
-                            <svg viewBox="0 0 100 30" class="sparkline">
-                                <path d="M0 15 L 25 15 L 50 15 L 75 15 L 100 15" fill="none" stroke="#A67347" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" id="tempSparkline" />
-                            </svg>
-                        </div>
-                    </div>
+            <!-- Top Header for Right Panel -->
+            <div class="content-header">
+                <h3 class="data-section-title">Overview</h3>
+            </div>
 
-                    <!-- Threshold Card -->
-                    <div class="stat-card threshold-mini">
-                        <div class="mini-header">
-                            <div class="mini-icon set-tint">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
-                            </div>
-                            <h4>Auto-Limit</h4>
-                            <div class="mini-badge"><span id="thresholdLabel">32</span>°C</div>
+            <!-- Stats Grid: Temp and Threshold side-by-side -->
+            <section class="stats-grid">
+                <!-- Temperature Card -->
+                <div class="compact-card temp-tint">
+                    <div class="card-top">
+                        <div class="mini-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" /></svg>
                         </div>
-                        <div class="mini-slider-box">
-                            <input type="range" id="thresholdSlider" min="20" max="45" value="32" class="compact-slider">
-                            <div class="slider-ticks">
-                                <span>20°</span>
-                                <span>45°</span>
-                            </div>
+                        <h4>Room Temp</h4>
+                    </div>
+                    <div class="card-main">
+                        <span id="tempValue">24.5</span><span class="small-unit">°C</span>
+                    </div>
+                    <div class="card-graph">
+                        <svg viewBox="0 0 100 20" class="sparkline-mini">
+                            <path d="M0 10 L 25 10 L 50 10 L 75 10 L 100 10" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" id="tempSparkline" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Threshold Card -->
+                <div class="compact-card set-tint">
+                    <div class="card-top">
+                        <div class="mini-icon">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </div>
+                        <h4>Auto Limit</h4>
+                        <div class="val-badge"><span id="thresholdLabel">32</span>°C</div>
+                    </div>
+                    <div class="card-controls">
+                        <input type="range" id="thresholdSlider" min="20" max="45" value="32" class="slim-slider">
+                        <div class="slider-hint">
+                            <span>20°</span>
+                            <span>45°</span>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- History Sidebar -->
+            <!-- History Sidebar (Fills Remaining Space) -->
             <section class="dashboard-history">
                 <div class="history-header">
                     <h3 class="data-section-title">Recent Activity</h3>
