@@ -358,7 +358,29 @@ body {
 .auto-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .auto-title h4 { font-size: 14px; font-weight: 700; color: var(--text-main); }
 .auto-title p { font-size: 10px; color: var(--text-muted); margin-top: 1px; font-weight: 600; }
-.auto-badge { background: var(--accent-light); color: var(--accent-color); font-size: 14px; font-weight: 800; padding: 2px 10px; border-radius: 10px; }
+.auto-badge { 
+    background: var(--accent-light); color: var(--accent-color); 
+    font-size: 14px; font-weight: 800; 
+    padding: 2px 10px; border-radius: 10px; 
+    display: flex; align-items: center; gap: 2px;
+}
+
+#thresholdInput {
+    background: transparent; border: none;
+    color: var(--accent-color); font-weight: 800;
+    font-size: 14px; font-family: 'Outfit', sans-serif;
+    width: 38px; text-align: center;
+    outline: none; padding: 0;
+}
+
+/* Hide Spinners (Arrows) */
+#thresholdInput::-webkit-outer-spin-button,
+#thresholdInput::-webkit-inner-spin-button {
+    -webkit-appearance: none; appearance: none; margin: 0;
+}
+#thresholdInput { -moz-appearance: textfield; appearance: textfield; }
+
+.badge-unit { pointer-events: none; }
 
 .auto-control-box { display: flex; align-items: center; gap: 12px; }
 .stepper-btn {

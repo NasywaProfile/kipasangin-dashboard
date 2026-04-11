@@ -14,7 +14,7 @@ const historyCountLabel = document.getElementById('historyCount');
 const tempSparkline = document.getElementById('tempSparkline');
 const connectSerialBtn = document.getElementById('connectSerial');
 const thresholdSlider = document.getElementById('thresholdSlider');
-const thresholdLabel = document.getElementById('thresholdLabel');
+const thresholdInput = document.getElementById('thresholdInput');
 const tempUpBtn = document.getElementById('tempUp');
 const tempDownBtn = document.getElementById('tempDown');
 
@@ -80,16 +80,43 @@ powerSwitch.addEventListener('click', () => {
 if (thresholdSlider) {
     thresholdSlider.addEventListener('input', () => {
         thresholdTemp = parseFloat(thresholdSlider.value);
-        if (thresholdLabel) thresholdLabel.textContent = thresholdTemp;
+        if (thresholdInput) thresholdInput.value = thresholdTemp;
     });
 
     thresholdSlider.addEventListener('change', () => {
-        if (writer) {
-            const cmd = `SET:${thresholdTemp}\n`;
-            writer.write(new TextEncoder().encode(cmd));
-        }
-        addHistory(`Target Adjusted`, 'settings'); 
+        sendThreshold(thresholdTemp);
     });
+}
+
+if (thresholdInput) {
+    thresholdInput.addEventListener('input', () => {
+        let val = parseFloat(thresholdInput.value);
+        if (!isNaN(val)) {
+            if (val < 20) val = 20;
+            if (val > 45) val = 45;
+            thresholdTemp = val;
+            if (thresholdSlider) thresholdSlider.value = thresholdTemp;
+        }
+    });
+
+    thresholdInput.addEventListener('change', () => {
+        let val = parseFloat(thresholdInput.value);
+        if (isNaN(val)) val = 32;
+        if (val < 20) val = 20;
+        if (val > 45) val = 45;
+        thresholdTemp = val;
+        thresholdInput.value = thresholdTemp;
+        if (thresholdSlider) thresholdSlider.value = thresholdTemp;
+        sendThreshold(thresholdTemp);
+    });
+}
+
+function sendThreshold(val) {
+    if (writer) {
+        const cmd = `SET:${val}\n`;
+        writer.write(new TextEncoder().encode(cmd));
+    }
+    addHistory(`Target Adjusted`, 'settings'); 
 }
 
 if (tempUpBtn) tempUpBtn.addEventListener('click', () => {
