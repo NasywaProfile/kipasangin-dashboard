@@ -79,14 +79,16 @@ void loop() {
       Serial.print("T:");
       Serial.println(temperature, 1);
       
-      // --- Strict Logic: Above = ON, Below = OFF ---
+      // --- Nyala di Atas, Mati di Bawah (Hysteresis 0.5) ---
       if (temperature >= thresholdTemp) {
         currentAutoState = true;
-      } else {
+      } else if (temperature < (thresholdTemp - hysteresis)) {
         currentAutoState = false;
+      } else {
+        currentAutoState = lastAutoState;
       }
 
-      // JIKA terjadi perubahan
+      // JIKA terjadi perubahan (dingin -> panas atau panas -> dingin)
       if (currentAutoState != lastAutoState) {
         manualOverride = false; 
         lastAutoState = currentAutoState;

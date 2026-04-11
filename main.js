@@ -130,17 +130,20 @@ function sendThreshold(val) {
         const cmd = `SET:${val}\n`;
         writer.write(new TextEncoder().encode(cmd));
     }
-    addHistory(`Target Adjusted`, 'settings'); 
+    // Include the precise value in history
+    addHistory(`Target set to ${val.toFixed(1)}°C`, 'settings'); 
 }
 
 if (tempUpBtn) tempUpBtn.addEventListener('click', () => {
-    thresholdSlider.value = parseFloat(thresholdSlider.value) + 0.5;
+    // 0.1 precision as requested
+    thresholdSlider.value = (parseFloat(thresholdSlider.value) + 0.1).toFixed(1);
     thresholdSlider.dispatchEvent(new Event('input'));
     thresholdSlider.dispatchEvent(new Event('change'));
 });
 
 if (tempDownBtn) tempDownBtn.addEventListener('click', () => {
-    thresholdSlider.value = parseFloat(thresholdSlider.value) - 0.5;
+    // 0.1 precision
+    thresholdSlider.value = (parseFloat(thresholdSlider.value) - 0.1).toFixed(1);
     thresholdSlider.dispatchEvent(new Event('input'));
     thresholdSlider.dispatchEvent(new Event('change'));
 });
