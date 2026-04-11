@@ -18,11 +18,8 @@ const thresholdInput = document.getElementById('thresholdInput');
 const tempUpBtn = document.getElementById('tempUp');
 const tempDownBtn = document.getElementById('tempDown');
 
-// --- Serial State ---
-let port;
-let writer;
-let reader;
-let serialKeepReading = false;
+// --- Cloud State ---
+
 
 // --- Application State ---
 let isPowerOn = false;
@@ -65,16 +62,7 @@ backBtn.addEventListener('click', () => {
     }, 600);
 });
 
-// --- Fan Controls ---
-powerSwitch.addEventListener('click', () => {
-    isPowerOn = !isPowerOn;
-    updatePowerUI('manual');
 
-    if (writer) {
-        const cmd = isPowerOn ? "ON\n" : "OFF\n";
-        writer.write(new TextEncoder().encode(cmd));
-    }
-});
 
 // --- Automation Logic ---
 if (thresholdSlider) {
@@ -125,14 +113,7 @@ if (sendThresholdBtn) {
     });
 }
 
-function sendThreshold(val) {
-    if (writer) {
-        const cmd = `SET:${val}\n`;
-        writer.write(new TextEncoder().encode(cmd));
-    }
-    // Include the precise value in history
-    addHistory(`Target set to ${val.toFixed(1)}°C`, 'settings'); 
-}
+
 
 if (tempUpBtn) tempUpBtn.addEventListener('click', () => {
     // 0.1 precision as requested
@@ -229,7 +210,7 @@ const firebaseConfig = {
     appId: "1:63176942461:web:fac75ae0a051b616f82214"
 };
 
-let db;
+var db;
 try {
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     db = firebase.database();
