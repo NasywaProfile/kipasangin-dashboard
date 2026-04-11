@@ -110,49 +110,46 @@
         </section>
 
         <div class="dashboard-content">
-            <!-- Environment Stats -->
-            <section class="dashboard-stats">
-                <div class="data-group">
-                    <h3 class="data-section-title">Environment</h3>
-                    <div class="stat-item temp-card">
-                        <div class="stat-icon temp-icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
-                            </svg>
-                        </div>
-                        <div class="stat-info">
+            <!-- Unified Stats & Settings -->
+            <section class="dashboard-overview">
+                <div class="overview-header">
+                    <h3 class="data-section-title">Overview</h3>
+                </div>
+                
+                <div class="overview-grid">
+                    <!-- Temperature Card -->
+                    <div class="stat-card temp-mini">
+                        <div class="mini-header">
+                            <div class="mini-icon temp-tint">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" /></svg>
+                            </div>
                             <h4>Room Temperature</h4>
-                            <div class="value"><span id="tempValue">24.5</span><span class="unit">°C</span></div>
                         </div>
-                        <div class="temp-graph">
+                        <div class="mini-value">
+                            <span id="tempValue">24.5</span><span class="mini-unit">°C</span>
+                        </div>
+                        <div class="mini-graph">
                             <svg viewBox="0 0 100 30" class="sparkline">
-                                <path d="M0 15 L 25 15 L 50 15 L 75 15 L 100 15" fill="none" stroke="#A67347"
-                                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
-                                    id="tempSparkline" />
+                                <path d="M0 15 L 25 15 L 50 15 L 75 15 L 100 15" fill="none" stroke="#A67347" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" id="tempSparkline" />
                             </svg>
                         </div>
                     </div>
-                </div>
 
-                <!-- Settings Threshold -->
-                <div class="data-group settings-group">
-                    <h3 class="data-section-title">Automation Settings</h3>
-                    <div class="stat-item settings-card">
-                        <div class="stat-info full-width">
-                            <div class="settings-header">
-                                <h4>Temp Threshold</h4>
-                                <div class="threshold-badge"><span id="thresholdLabel">32</span>°C</div>
+                    <!-- Threshold Card -->
+                    <div class="stat-card threshold-mini">
+                        <div class="mini-header">
+                            <div class="mini-icon set-tint">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
                             </div>
-                            <div class="slider-container">
-                                <input type="range" id="thresholdSlider" min="20" max="45" value="32" class="modern-slider">
-                                <div class="slider-labels">
-                                    <span>20°C</span>
-                                    <span>32°C</span>
-                                    <span>45°C</span>
-                                </div>
+                            <h4>Auto-Limit</h4>
+                            <div class="mini-badge"><span id="thresholdLabel">32</span>°C</div>
+                        </div>
+                        <div class="mini-slider-box">
+                            <input type="range" id="thresholdSlider" min="20" max="45" value="32" class="compact-slider">
+                            <div class="slider-ticks">
+                                <span>20°</span>
+                                <span>45°</span>
                             </div>
-                            <p class="settings-hint">Fan will auto-activate at this temperature.</p>
                         </div>
                     </div>
                 </div>
@@ -162,6 +159,7 @@
             <section class="dashboard-history">
                 <div class="history-header">
                     <h3 class="data-section-title">Recent Activity</h3>
+                    <div class="history-count" id="historyCount">0</div>
                 </div>
                 <div class="history-container" id="historyList">
                     <!-- History items via JS -->
