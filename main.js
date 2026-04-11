@@ -218,47 +218,96 @@ function updateUI() {
     updateSparkline();
 }
 
-// --- Serial Logic ---
-if (connectSerialBtn) {
-    connectSerialBtn.addEventListener('click', async () => {
-        try {
-            port = await navigator.serial.requestPort();
-            await port.open({ baudRate: 115200 });
-            writer = port.writable.getWriter();
-            serialKeepReading = true;
-            connectSerialBtn.classList.add('connected');
-            connectSerialBtn.innerHTML = `Connect Live`;
-            readSerial();
-        } catch (err) { console.error(err); }
+// --- Firebase Configuration ---
+const firebaseConfig = {
+    apiKey: "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s",
+    authDomain: "smart-fan-ff0a0.firebaseapp.com",
+    databaseURL: "https://smart-fan-ff0a0-default-rtdb.firebaseio.com",
+    projectId: "smart-fan-ff0a0",
+    storageBucket: "smart-fan-ff0a0.firebasestorage.app",
+    messagingSenderId: "63176942461",
+    appId: "1:63176942461:web:fac75ae0a051b616f82214"
+};
+
+let db;
+try {
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+
+    // Cloud Status Indicator
+    const cloudStatus = document.getElementById('cloudStatus');
+    const cloudStatusText = cloudStatus.querySelector('span:nth-child(2)');
+    firebase.database().ref(".info/connected").on("value", (snap) => {
+        if (snap.val() === true) {
+            cloudStatus.classList.add('online');
+            cloudStatusText.textContent = 'Online';
+            if (historyList && historyList.children.length === 0) {
+                addHistory('Firebase Database Online', 'on', 24.5);
+            }
+        } else {
+            cloudStatus.classList.remove('online');
+            cloudStatusText.textContent = 'Offline';
+        }
     });
+
+    // 1. Dengarkan Suhu Realtime dari Sensor
+    db.ref('smartfan/temperature').on('value', (snap) => {
+        const temp = snap.val();
+        if (temp !== null) handleTempUpdate(parseFloat(temp));
+    });
+
+    // 2. Dengarkan State Power (Nyala/Mati) dari Arduino atau HP lain
+    db.ref('smartfan/power').on('value', (snap) => {
+        const state = snap.val();
+        if (state !== null && state !== isPowerOn) {
+            isPowerOn = state;
+            updatePowerUI('auto');
+        }
+    });
+
+    // 3. Dengarkan Threshold dari HP/Laptop lain
+    db.ref('smartfan/threshold').on('value', (snap) => {
+        const t = snap.val();
+        if (t !== null) {
+            thresholdTemp = parseFloat(t);
+            if (thresholdInput) thresholdInput.value = thresholdTemp.toFixed(1);
+            if (thresholdSlider) thresholdSlider.value = thresholdTemp;
+        }
+    });
+
+} catch (err) {
+    console.error("Firebase error:", err);
 }
 
-async function readSerial() {
-    const textDecoder = new TextDecoderStream();
-    port.readable.pipeTo(textDecoder.writable);
-    reader = textDecoder.readable.getReader();
-    let buffer = "";
-    while (serialKeepReading) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += value;
-        const lines = buffer.split('\n');
-        buffer = lines.pop();
-        for (const line of lines) {
-            const trimmed = line.trim();
-            if (trimmed.startsWith('T:')) {
-                handleTempUpdate(parseFloat(trimmed.slice(2)));
-            } else if (trimmed.startsWith('S:')) {
-                const newState = (trimmed.slice(2) === '1');
-                if (newState !== isPowerOn) {
-                    isPowerOn = newState;
-                    updatePowerUI('auto'); // Sync update from device
-                }
-            } else if (trimmed.startsWith('M:')) {
-                console.log("Device Message:", trimmed.slice(2));
-            }
-        }
+// --- Tombol Power → Kirim ke Firebase ---
+powerSwitch.addEventListener('click', () => {
+    isPowerOn = !isPowerOn;
+    updatePowerUI('manual');
+    if (db) {
+        db.ref('smartfan/power').set(isPowerOn);
+        db.ref('smartfan/manualOverride').set(true);
+        // Simpan ke riwayat database
+        db.ref('smartfan/history').push({
+            type: isPowerOn ? 'manual_on' : 'manual_off',
+            temp: currentTemp,
+            ts: Date.now()
+        });
     }
+});
+
+// --- Kirim Threshold ke Firebase ---
+function sendThreshold(val) {
+    if (db) {
+        db.ref('smartfan/threshold').set(val);
+        db.ref('smartfan/manualOverride').set(false);
+        db.ref('smartfan/history').push({
+            type: 'threshold_change',
+            value: val,
+            temp: currentTemp,
+            ts: Date.now()
+        });
+    }
+    addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'settings');
 }
 
 function handleTempUpdate(temp) {
@@ -270,3 +319,4 @@ function handleTempUpdate(temp) {
 }
 
 init();
+
