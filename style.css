@@ -303,88 +303,88 @@ body {
 .side-panel-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 16px; /* Reduced gap */
     height: 100%;
 }
 
 .panel-section {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px; /* Reduced gap */
 }
 
 .section-tag {
-    font-size: 11px;
+    font-size: 10px;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1.2px;
+    letter-spacing: 1px;
     color: var(--text-muted);
     padding-left: 4px;
 }
 
-/* Environment Card */
+/* Compact Environment Card */
 .main-stats-card {
     background: #FFFFFF;
-    border-radius: 28px;
-    padding: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+    border-radius: 20px;
+    padding: 14px 20px; /* Slimmer padding */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 16px;
 }
 
 .stats-icon-box {
-    width: 54px; height: 54px; border-radius: 18px;
+    width: 42px; height: 42px; border-radius: 14px;
     background: var(--accent-light); color: var(--accent-color);
     display: flex; justify-content: center; align-items: center;
 }
 
-.stats-main-info p { font-size: 13px; font-weight: 700; color: var(--text-muted); }
-.stats-value-row { display: flex; align-items: baseline; margin-top: 2px; }
-.stats-value-row span { font-size: 34px; font-weight: 800; color: var(--text-main); }
-.unit-label { font-size: 16px; margin-left: 4px; color: var(--text-muted); }
+.stats-main-info p { font-size: 11px; font-weight: 700; color: var(--text-muted); }
+.stats-value-row { display: flex; align-items: baseline; margin-top: 0px; }
+.stats-value-row span { font-size: 26px; font-weight: 800; color: var(--text-main); }
+.unit-label { font-size: 12px; margin-left: 2px; color: var(--text-muted); }
 
-.stats-trend { margin-left: auto; width: 80px; height: 35px; opacity: 0.8; }
+.stats-trend { margin-left: auto; width: 60px; height: 25px; opacity: 0.6; }
 .main-sparkline { width: 100%; height: 100%; }
 
-/* Automation Card */
+/* Compact Automation Card */
 .automation-card {
     background: #FFFFFF;
-    border-radius: 28px;
-    padding: 24px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+    border-radius: 22px;
+    padding: 16px 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.02);
 }
 
-.auto-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-.auto-title h4 { font-size: 16px; font-weight: 700; color: var(--text-main); }
-.auto-title p { font-size: 12px; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
-.auto-badge { background: var(--accent-light); color: var(--accent-color); font-size: 16px; font-weight: 800; padding: 4px 12px; border-radius: 12px; }
+.auto-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.auto-title h4 { font-size: 14px; font-weight: 700; color: var(--text-main); }
+.auto-title p { font-size: 10px; color: var(--text-muted); margin-top: 1px; font-weight: 600; }
+.auto-badge { background: var(--accent-light); color: var(--accent-color); font-size: 14px; font-weight: 800; padding: 2px 10px; border-radius: 10px; }
 
-.auto-control-box { display: flex; align-items: center; gap: 16px; }
+.auto-control-box { display: flex; align-items: center; gap: 12px; }
 .stepper-btn {
-    width: 48px; height: 48px; border-radius: 16px;
+    width: 38px; height: 38px; border-radius: 12px;
     background: #F1F5F9; color: #64748B;
     display: flex; justify-content: center; align-items: center;
     cursor: pointer; transition: all 0.2s;
 }
 .stepper-btn:hover { background: #E2E8F0; color: var(--text-main); }
-.stepper-btn:active { transform: scale(0.95); }
+.stepper-btn svg { width: 16px; height: 16px; }
 
 .slider-track-box { flex-grow: 1; display: flex; flex-direction: column; }
 .premium-slider {
     -webkit-appearance: none; appearance: none;
-    width: 100%; height: 6px;
+    width: 100%; height: 4px;
     background: #F1F5F9; border-radius: 10px; outline: none;
 }
 .premium-slider::-webkit-slider-thumb {
     -webkit-appearance: none; appearance: none;
-    width: 22px; height: 22px;
+    width: 16px; height: 16px;
     background: var(--accent-color); border-radius: 50%;
-    cursor: pointer; box-shadow: 0 4px 10px rgba(166, 115, 71, 0.3);
+    cursor: pointer; box-shadow: 0 2px 6px rgba(166, 115, 71, 0.2);
     border: 3px solid #FFFFFF;
 }
 
-.slider-marks { display: flex; justify-content: space-between; margin-top: 10px; font-size: 11px; font-weight: 700; color: var(--text-muted); }
+.slider-marks { display: flex; justify-content: space-between; margin-top: 6px; font-size: 9px; font-weight: 700; color: var(--text-muted); }
 
 /* Activity List */
 .history-entry { flex-grow: 1; min-height: 0; }
