@@ -291,18 +291,20 @@ body {
 }
 /* --- Glassmorphism Dark Theme (Right Panel Only) --- */
 .dashboard-content.glass-theme {
-    background: #18191D;
-    padding: 24px;
+    background: rgba(15, 17, 21, 0.4); /* Much more transparent */
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    padding: 28px;
     display: grid;
-    grid-template-columns: 1.2fr 1.5fr;
-    gap: 20px;
-    border-left: 1px solid rgba(255,255,255,0.05);
+    grid-template-columns: 1fr 1.3fr;
+    gap: 24px;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .activity-column, .controls-column {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 24px;
 }
 
 /* Glass Section Headers */
@@ -313,14 +315,15 @@ body {
     padding: 0 4px;
     margin-bottom: 15px;
 }
-.header-titles h3 { color: white; font-size: 20px; font-weight: 700; }
-.header-date { color: rgba(255,255,255,0.4); font-size: 13px; margin-top: 4px; }
+.header-titles h3 { color: #FFFFFF; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+.header-date { color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 500; margin-top: 4px; }
 .see-all-btn {
-    background: rgba(255,255,255,0.08);
-    border: none; color: white; font-size: 11px; font-weight: 700;
-    padding: 6px 12px; border-radius: 20px; cursor: pointer;
-    display: flex; align-items: center; gap: 4px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1); color: #FFFFFF; font-size: 11px; font-weight: 700;
+    padding: 8px 16px; border-radius: 20px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; transition: all 0.3s;
 }
+.see-all-btn:hover { background: rgba(255,255,255,0.12); }
 
 /* Vertical Timeline */
 .timeline-container {
@@ -329,139 +332,131 @@ body {
     gap: 16px;
     overflow-y: auto;
     padding-right: 8px;
+    mask-image: linear-gradient(to bottom, black 90%, transparent);
 }
 .timeline-item {
-    background: rgba(255,255,255,0.03);
-    border-radius: 24px;
-    padding: 20px;
+    background: rgba(255, 255, 255, 0.04);
+    border-radius: 28px;
+    padding: 24px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    border: 1px solid rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
+    gap: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    position: relative;
+    overflow: hidden;
 }
 .timeline-top { display: flex; align-items: center; gap: 12px; }
-.timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: #FACD15; box-shadow: 0 0 10px #FACD15; }
-.timeline-time { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.5); }
+.timeline-dot { width: 8px; height: 8px; border-radius: 50%; background: #FACD15; box-shadow: 0 0 15px #FACD15; }
+.timeline-time { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.5); }
 .timeline-card {
-    background: white;
-    border-radius: 18px;
-    padding: 16px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    padding: 16px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
-.timeline-card h5 { color: #18191D; font-size: 14px; font-weight: 700; }
-.timeline-card p { color: #64748B; font-size: 12px; margin-top: 2px; }
+.timeline-card h5 { color: #18191D; font-size: 15px; font-weight: 700; }
+.timeline-card p { color: #64748B; font-size: 12px; font-weight: 600; margin-top: 2px; }
 
 /* Circular Dial Card */
 .glass-card {
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.05);
-    backdrop-filter: blur(20px);
-    border-radius: 32px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.02);
+    border-radius: 36px;
     padding: 24px;
+    position: relative;
 }
 
-.dial-card { display: flex; flex-direction: column; align-items: center; gap: 20px; flex-grow: 1; min-height: 400px; }
+.dial-card { 
+    display: flex; flex-direction: column; align-items: center; gap: 24px; 
+    flex-grow: 1; min-height: 420px;
+}
 .card-label { width: 100%; text-align: left; }
-.card-label h4 { color: white; font-size: 18px; font-weight: 700; }
-.card-label p { color: rgba(255,255,255,0.4); font-size: 13px; }
+.card-label h4 { color: white; font-size: 19px; font-weight: 700; }
+.card-label p { color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 500; }
 
 .dial-container {
     position: relative;
     width: 240px; height: 240px;
     display: flex; justify-content: center; align-items: center;
 }
-.dial-outer {
-    width: 100%; height: 100%; border-radius: 50%;
-    position: relative;
-    display: flex; justify-content: center; align-items: center;
-}
 .dial-ticks {
     position: absolute; width: 100%; height: 100%;
-    transform: rotate(135deg); /* Start of dial */
+    transform: rotate(135deg);
 }
 .dial-tick {
     position: absolute; width: 4px; height: 12px;
-    background: rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.08);
     left: 50%; top: 0; transform-origin: center 120px;
     border-radius: 2px;
 }
-.dial-tick.active { background: #FACD15; box-shadow: 0 0 8px rgba(250,205,21,0.4); }
+.dial-tick.active { background: #FACD15; box-shadow: 0 0 12px rgba(250,205,21,0.5); }
 
 .dial-inner {
-    width: 180px; height: 180px; border-radius: 50%;
-    background: rgba(255,255,255,0.02);
-    box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
+    width: 184px; height: 184px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.03) 0%, transparent 80%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     display: flex; justify-content: center; align-items: center;
-    border: 1px solid rgba(255,255,255,0.03);
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.6);
 }
-.dial-info { text-align: center; }
-.dial-info p { color: rgba(255,255,255,0.4); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-.dial-value { color: white; font-size: 48px; font-weight: 800; font-family: 'Outfit', sans-serif; margin: 5px 0; }
-.dial-status { color: #FACD15 !important; font-weight: 700 !important; }
+.dial-value { color: white; font-size: 54px; font-weight: 800; text-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.dial-status { color: #FACD15 !important; font-weight: 700; letter-spacing: 0.5px; margin-top: -5px; }
 
 .dial-handle {
-    position: absolute; width: 20px; height: 20px;
+    position: absolute; width: 22px; height: 22px;
     background: #FACD15; border-radius: 50%;
-    border: 4px solid #18191D;
-    top: -4px; cursor: pointer;
-    box-shadow: 0 0 15px rgba(250,205,21,0.6);
+    border: 5px solid #111114;
+    top: -5px; cursor: pointer;
+    box-shadow: 0 0 20px rgba(250,205,21,0.8);
+    z-index: 10;
 }
 
 .dial-footer {
-    width: 100%; display: flex; justify-content: space-between; align-items: center;
+    width: 100%; display: flex; justify-content: space-between; align-items: center; padding-top: 10px;
 }
-.dial-footer span { color: rgba(255,255,255,0.3); font-size: 13px; font-weight: 700; width: 30px; }
-.footer-controls { display: flex; gap: 12px; }
+.dial-footer span { color: rgba(255,255,255,0.3); font-size: 13px; font-weight: 800; width: 30px; }
+.footer-controls { display: flex; gap: 16px; }
 .dial-btn {
-    width: 44px; height: 44px; border-radius: 50%;
-    background: rgba(255,255,255,0.08); border: none;
-    color: white; cursor: pointer; transition: 0.2s;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    color: white; cursor: pointer; transition: 0.3s;
+    display: flex; justify-content: center; align-items: center;
 }
-.dial-btn:hover { background: rgba(255,255,255,0.15); }
-.dial-btn:active { transform: scale(0.9); }
+.dial-btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(250,205,21,0.4); }
 
 /* Environment Card */
 .env-card {
-    display: flex; flex-direction: column; gap: 15px;
+    display: flex; flex-direction: column; gap: 10px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
 }
 .env-info { display: flex; justify-content: space-between; align-items: center; }
-.env-text h4 { color: rgba(255,255,255,0.5); font-size: 13px; font-weight: 700; text-transform: uppercase; }
-.env-main-val { color: white; font-size: 32px; font-weight: 800; margin-top: 5px; }
+.env-text h4 { color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.env-main-val { color: white; font-size: 36px; font-weight: 800; margin-top: 2px; }
 .env-status-icon {
-    width: 48px; height: 48px; border-radius: 16px;
-    background: white; color: #18191D;
+    width: 52px; height: 52px; border-radius: 18px;
+    background: #FFFFFF; color: #111114;
     display: flex; justify-content: center; align-items: center;
-    position: relative;
-}
-.status-glow {
-    position: absolute; width: 100%; height: 100%;
-    background: white; filter: blur(15px); opacity: 0.2; border-radius: 16px;
+    box-shadow: 0 15px 35px rgba(255,255,255,0.1);
 }
 
-.env-graph-box { height: 60px; margin-top: 10px; }
-.env-sparkline { width: 100%; height: 100%; overflow: visible; }
+.env-graph-box { height: 65px; margin-top: 5px; }
+
+/* Scrollbar and Hidden Inputs */
 .hidden-input { display: none; }
-
-/* Scrollbar for Dark Theme */
 .timeline-container::-webkit-scrollbar { width: 4px; }
-.timeline-container::-webkit-scrollbar-track { background: transparent; }
-.timeline-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+.timeline-container::-webkit-scrollbar-thumb { background: rgba(250,205,21,0.2); border-radius: 10px; }
 
-
-/* ---------- Responsive for Glass Theme ---------- */
-@media screen and (max-width: 900px) {
-    .dashboard-content.glass-theme { grid-template-columns: 1fr; overflow-y: auto; height: auto; }
-    .dial-card { min-height: auto; padding-bottom: 40px; }
+/* ---------- Responsive Optimization ---------- */
+@media screen and (max-width: 1024px) {
+    .dashboard-content.glass-theme { padding: 20px; gap: 20px; }
 }
-@media screen and (max-width: 768px) {
-    .dashboard-content.glass-theme { padding: 16px; }
-    .glass-card { padding: 20px; border-radius: 24px; }
-    .dial-container { width: 200px; height: 200px; }
-    .dial-inner { width: 140px; height: 140px; }
-    .dial-value { font-size: 36px; }
+@media screen and (max-width: 900px) {
+    .dashboard-content.glass-theme { grid-template-columns: 1fr; overflow-y: auto; }
+    .timeline-container { height: 350px; mask-image: none; }
+    .dial-card { min-height: auto; padding-bottom: 40px; }
 }
 
 /* 3. Large Mobile Phones */
