@@ -1,98 +1,149 @@
 // =====================================================
-// Smart Fan IoT - Firebase REST (Super Ringan!)
-// HANYA butuh library bawaan ESP32, TIDAK perlu install library tambahan apapun!
-// Cukup install: DHT sensor library by Adafruit
-// Polling interval: 500ms (respons cepat ~0.5 detik)
+// Smart Fan IoT - HYBRID (MQTT Real-time + Firebase Logging)
+// 
+// Install di Library Manager:
+// 1. MQTT by Joel Gaehwiler
+// 2. DHT sensor library by Adafruit
+// 
+// WiFi + HTTPClient sudah bawaan ESP32 (tidak perlu install)
 // =====================================================
 
 #include <WiFi.h>
+#include <MQTT.h>
 #include <HTTPClient.h>
 #include <DHT.h>
 
 // --- KONFIGURASI WIFI ---
-// Ganti dengan nama Hotspot HP atau WiFi kamu
 #define WIFI_SSID     "NAMA_WIFI_KAMU"
 #define WIFI_PASSWORD "PASSWORD_WIFI_KAMU"
 
-// --- KONFIGURASI FIREBASE (sudah diisi otomatis) ---
+// --- KONFIGURASI MQTT (HiveMQ Public - Gratis, Stabil) ---
+const char mqtt_host[] = "broker.hivemq.com";
+const int  mqtt_port   = 1883; // Plain TCP, TANPA SSL = super cepat!
+
+// --- KONFIGURASI FIREBASE (untuk logging suhu saja) ---
 #define FIREBASE_HOST "https://smart-fan-ff0a0-default-rtdb.firebaseio.com"
 #define FIREBASE_AUTH "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s"
 
 // --- KONFIGURASI HARDWARE ---
-#define DHTPIN 33
+#define DHTPIN  33
 #define DHTTYPE DHT11
 DHT dht(DHTPIN, DHTTYPE);
 
 const int relayPin = 18;
-bool isPowerOn = false;
-bool manualOverride = false;
-float currentTemp = 24.5;
+// Active-Low relay: LOW = NYALA, INPUT (Hi-Z) = MATI
+#define RELAY_ON()  { pinMode(relayPin, OUTPUT); digitalWrite(relayPin, LOW); }
+#define RELAY_OFF() { pinMode(relayPin, INPUT); }
+
+// --- State ---
+bool  isPowerOn    = false;
+bool  manualOverride = false;
+float currentTemp  = 24.5;
 float thresholdTemp = 32.0;
-float hysteresis = 0.5;
+float hysteresis   = 0.5;
 
-unsigned long lastSensorRead = 0;
-unsigned long lastFirebaseRead = 0;
+WiFiClient  net;
+MQTTClient  mqttClient(512);
+
+unsigned long lastSensorRead  = 0;
+unsigned long lastFirebaseLog = 0;
+bool pendingFirebaseLog = false;
 
 // =====================================================
-// FUNGSI FIREBASE REST API
+// SWITCH RELAY — INSTAN, lalu publish status ke MQTT
 // =====================================================
+void setFan(bool state) {
+  isPowerOn = state;
+  if (isPowerOn) {
+    RELAY_ON();
+  } else {
+    RELAY_OFF();
+  }
+  // Publish balik status biar dashboard sinkron
+  mqttClient.publish("smartfan/data/power", isPowerOn ? "ON" : "OFF", false, 1);
+  pendingFirebaseLog = true; // tandai untuk log ke Firebase
+  Serial.println(isPowerOn ? "Fan: ON" : "Fan: OFF");
+}
 
-// PUT data ke Firebase (Tulis nilai)
-void firebasePut(String path, String value) {
+// =====================================================
+// TERIMA PERINTAH DARI MQTT — LANGSUNG EKSEKUSI
+// =====================================================
+void messageReceived(String &topic, String &payload) {
+  Serial.println("MSG: " + topic + " -> " + payload);
+
+  if (topic == "smartfan/cmd/power") {
+    manualOverride = true;
+    bool newState = (payload == "ON");
+    if (newState != isPowerOn) {
+      setFan(newState); // ⚡ RELAY NYALA/MATI INSTAN DI SINI
+    }
+  }
+  else if (topic == "smartfan/cmd/threshold") {
+    float val = payload.toFloat();
+    if (val > 0) {
+      thresholdTemp = val;
+      manualOverride = false; // kembalikan ke mode otomatis
+      Serial.println("Threshold: " + String(thresholdTemp, 1));
+    }
+  }
+  else if (topic == "smartfan/cmd/status") {
+    // Dashboard request status saat pertama connect
+    mqttClient.publish("smartfan/data/power", isPowerOn ? "ON" : "OFF");
+    mqttClient.publish("smartfan/data/temp",  String(currentTemp, 1));
+    mqttClient.publish("smartfan/data/threshold", String(thresholdTemp, 1));
+  }
+}
+
+// =====================================================
+// FIREBASE LOG (background, non-blocking waktu)
+// =====================================================
+void logToFirebase(float temp) {
   if (WiFi.status() != WL_CONNECTED) return;
   HTTPClient http;
-  String url = String(FIREBASE_HOST) + path + ".json?auth=" + FIREBASE_AUTH;
-  http.begin(url);
-  http.setTimeout(1500);           // Timeout 1.5 detik agar tidak hang lama
-  http.setConnectTimeout(1500);
+  http.begin(String(FIREBASE_HOST) + "/smartfan/temperature.json?auth=" + FIREBASE_AUTH);
+  http.setTimeout(3000);
   http.addHeader("Content-Type", "application/json");
-  http.addHeader("Connection", "keep-alive"); // Reuse koneksi = lebih cepat
-  http.PUT(value);
+  http.PUT(String(temp, 1));
   http.end();
 }
 
-// GET data dari Firebase (Baca nilai), return sebagai String
-String firebaseGet(String path) {
-  if (WiFi.status() != WL_CONNECTED) return "null";
+void logPowerToFirebase() {
+  if (WiFi.status() != WL_CONNECTED) return;
   HTTPClient http;
-  String url = String(FIREBASE_HOST) + path + ".json?auth=" + FIREBASE_AUTH;
-  http.begin(url);
-  http.setTimeout(1500);
-  http.setConnectTimeout(1500);
-  http.addHeader("Connection", "keep-alive");
-  int code = http.GET();
-  String result = "null";
-  if (code == 200) {
-    result = http.getString();
-    result.trim();
-  }
+  http.begin(String(FIREBASE_HOST) + "/smartfan/power.json?auth=" + FIREBASE_AUTH);
+  http.setTimeout(3000);
+  http.addHeader("Content-Type", "application/json");
+  http.PUT(isPowerOn ? "true" : "false");
   http.end();
-  return result;
 }
 
 // =====================================================
-// LOGIKA KIPAS - RELAY NYALA INSTAN, HTTP MENYUSUL
+// KONEKSI WIFI + MQTT
 // =====================================================
-bool pendingStatusUpdate = false; // Flag: perlu update Firebase setelah relay switch
-
-void setFan(bool state) {
-  if (state != isPowerOn) {
-    isPowerOn = state;
-    
-    // 🔴 RELAY SWITCH INSTAN — Tidak ada HTTP di sini!
-    if (isPowerOn) {
-      pinMode(relayPin, OUTPUT);
-      digitalWrite(relayPin, LOW);   // Active Low: LOW = NYALA
-    } else {
-      pinMode(relayPin, INPUT);      // High-Impedance = MATI
-    }
-    
-    // Tandai untuk update Firebase (dilakukan setelah relay nyala)
-    pendingStatusUpdate = true;
-    
-    Serial.print("Fan: ");
-    Serial.println(isPowerOn ? "ON" : "OFF");
+void connectAll() {
+  // WiFi
+  if (WiFi.status() != WL_CONNECTED) {
+    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+    Serial.print("WiFi");
+    while (WiFi.status() != WL_CONNECTED) { Serial.print("."); delay(500); }
+    Serial.println(" OK! IP: " + WiFi.localIP().toString());
   }
+
+  // MQTT
+  mqttClient.begin(mqtt_host, mqtt_port, net);
+  mqttClient.onMessage(messageReceived);
+  mqttClient.setKeepAlive(60);
+
+  String clientId = "esp32_fan_" + String(WiFi.macAddress());
+  Serial.print("MQTT");
+  while (!mqttClient.connect(clientId.c_str())) { Serial.print("."); delay(500); }
+  Serial.println(" OK!");
+
+  mqttClient.subscribe("smartfan/cmd/#", 1); // QoS 1 = pasti diterima
+
+  // Umumkan status awal ke dashboard
+  mqttClient.publish("smartfan/data/power", isPowerOn ? "ON" : "OFF", false, 1);
+  mqttClient.publish("smartfan/data/threshold", String(thresholdTemp, 1), false, 1);
 }
 
 // =====================================================
@@ -100,110 +151,60 @@ void setFan(bool state) {
 // =====================================================
 void setup() {
   Serial.begin(115200);
-  
+
   // Pastikan kipas MATI saat pertama nyala
-  pinMode(relayPin, INPUT);
+  RELAY_OFF();
   isPowerOn = false;
-  
+
   dht.begin();
-
-  // Sambungkan WiFi
-  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-  Serial.print("Menghubungkan WiFi");
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(500);
-  }
-  Serial.println("\nWiFi Terhubung! IP: " + WiFi.localIP().toString());
-
-  // Set nilai awal di Firebase
-  firebasePut("/smartfan/power", "false");
-  firebasePut("/smartfan/manualOverride", "false");
-  
-  // Baca threshold tersimpan dari Firebase (kalau ada)
-  String savedThresh = firebaseGet("/smartfan/threshold");
-  if (savedThresh != "null" && savedThresh.length() > 0) {
-    thresholdTemp = savedThresh.toFloat();
-  } else {
-    firebasePut("/smartfan/threshold", String(thresholdTemp, 1));
-  }
-  
-  Serial.println("Sistem Online! Threshold: " + String(thresholdTemp, 1) + "°C");
+  connectAll();
+  Serial.println("Siap! Kipas standby (OFF).");
 }
 
 // =====================================================
 // LOOP UTAMA
 // =====================================================
 void loop() {
-  
-  // 1. BACA SENSOR setiap 3 detik
-  if (millis() - lastSensorRead > 3000) {
+  // Jaga koneksi MQTT tetap hidup (non-blocking)
+  mqttClient.loop();
+
+  // Reconnect jika putus
+  if (!mqttClient.connected()) {
+    Serial.println("MQTT putus, reconnect...");
+    connectAll();
+  }
+
+  // Kirim log Firebase untuk power state jika ada perubahan
+  if (pendingFirebaseLog) {
+    pendingFirebaseLog = false;
+    logPowerToFirebase();
+  }
+
+  // Baca sensor setiap 5 detik + publish suhu via MQTT + log ke Firebase
+  if (millis() - lastSensorRead > 5000) {
     lastSensorRead = millis();
-    
+
     float temp = dht.readTemperature();
     if (!isnan(temp)) {
       currentTemp = temp;
-      firebasePut("/smartfan/temperature", String(currentTemp, 1));
-      
+
+      // Publish suhu via MQTT (real-time ke dashboard)
+      mqttClient.publish("smartfan/data/temp", String(currentTemp, 1), false, 0);
+
+      // Log suhu ke Firebase setiap 30 detik (background, tidak ganggu MQTT)
+      if (millis() - lastFirebaseLog > 30000) {
+        lastFirebaseLog = millis();
+        logToFirebase(currentTemp);
+      }
+
+      // Logika Otomatis (hanya jika tidak manual)
       if (!manualOverride) {
         if (currentTemp >= thresholdTemp && !isPowerOn) {
           setFan(true);
-          firebasePut("/smartfan/history/" + String(millis()),
-            "{\"type\":\"auto_on\",\"temp\":" + String(currentTemp,1) + "}");
         } else if (currentTemp < (thresholdTemp - hysteresis) && isPowerOn) {
           setFan(false);
-          firebasePut("/smartfan/history/" + String(millis()),
-            "{\"type\":\"auto_off\",\"temp\":" + String(currentTemp,1) + "}");
-        }
-      }
-    }
-  }
-
-  // 1.5 KIRIM UPDATE STATUS KE FIREBASE (setelah relay switch, non-blocking)
-  if (pendingStatusUpdate) {
-    pendingStatusUpdate = false; // Reset flag dulu
-    firebasePut("/smartfan/power", isPowerOn ? "true" : "false");
-  }
-
-  // 2. BACA SEMUA PERINTAH DASHBOARD SEKALIGUS (1 Request = Lebih Cepat!)
-  // Polling setiap 200ms agar respons sangat cepat
-  if (millis() - lastFirebaseRead > 200) {
-    lastFirebaseRead = millis();
-
-    // Baca seluruh node /smartfan sekaligus dalam 1 HTTP request
-    String payload = firebaseGet("/smartfan");
-    
-    if (payload != "null" && payload.length() > 10) {
-      
-      // --- Parse manualOverride ---
-      bool webOverride = (payload.indexOf("\"manualOverride\":true") >= 0);
-      if (webOverride != manualOverride) {
-        manualOverride = webOverride;
-      }
-
-      // --- Parse power ON/OFF ---
-      bool webPower = (payload.indexOf("\"power\":true") >= 0);
-      if (webPower != isPowerOn) {
-        // Reset state agar setFan() bisa jalan
-        bool prevState = isPowerOn;
-        isPowerOn = !webPower;
-        setFan(webPower);
-      }
-
-      // --- Parse threshold ---
-      int tIdx = payload.indexOf("\"threshold\":");
-      if (tIdx >= 0) {
-        String tStr = payload.substring(tIdx + 12);
-        tStr = tStr.substring(0, tStr.indexOf(",") > 0 ? tStr.indexOf(",") : tStr.indexOf("}"));
-        tStr.trim();
-        float webThresh = tStr.toFloat();
-        if (webThresh > 0 && abs(webThresh - thresholdTemp) > 0.05) {
-          thresholdTemp = webThresh;
-          manualOverride = false;
-          Serial.println("Threshold: " + String(thresholdTemp, 1));
         }
       }
     }
   }
 }
-

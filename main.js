@@ -199,95 +199,118 @@ function updateUI() {
     updateSparkline();
 }
 
-// --- Firebase Configuration ---
-const firebaseConfig = {
-    apiKey: "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s",
-    authDomain: "smart-fan-ff0a0.firebaseapp.com",
-    databaseURL: "https://smart-fan-ff0a0-default-rtdb.firebaseio.com",
-    projectId: "smart-fan-ff0a0",
-    storageBucket: "smart-fan-ff0a0.firebasestorage.app",
-    messagingSenderId: "63176942461",
-    appId: "1:63176942461:web:fac75ae0a051b616f82214"
-};
+// ============================================================
+// MQTT - REAL-TIME PERINTAH (< 200ms)
+// ============================================================
+const MQTT_BROKER = 'wss://broker.hivemq.com:8884/mqtt';
+const MQTT_CLIENT_ID = 'smartfan_web_' + Math.random().toString(16).slice(2, 10);
 
-var db;
-try {
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
+const cloudStatus = document.getElementById('cloudStatus');
+const cloudStatusText = cloudStatus.querySelector('span:nth-child(2)');
 
-    // Cloud Status Indicator
-    const cloudStatus = document.getElementById('cloudStatus');
-    const cloudStatusText = cloudStatus.querySelector('span:nth-child(2)');
-    firebase.database().ref(".info/connected").on("value", (snap) => {
-        if (snap.val() === true) {
-            cloudStatus.classList.add('online');
-            cloudStatusText.textContent = 'Online';
-            if (historyList && historyList.children.length === 0) {
-                addHistory('Firebase Database Online', 'on', 24.5);
-            }
-        } else {
-            cloudStatus.classList.remove('online');
-            cloudStatusText.textContent = 'Offline';
-        }
-    });
+const mqttClient = mqtt.connect(MQTT_BROKER, {
+    clientId: MQTT_CLIENT_ID,
+    clean: true,
+    reconnectPeriod: 2000,
+});
 
-    // 1. Dengarkan Suhu Realtime dari Sensor
-    db.ref('smartfan/temperature').on('value', (snap) => {
-        const temp = snap.val();
-        if (temp !== null) handleTempUpdate(parseFloat(temp));
-    });
+mqttClient.on('connect', () => {
+    cloudStatus.classList.add('online');
+    cloudStatusText.textContent = 'Online';
+    console.log('MQTT Connected!');
 
-    // 2. Dengarkan State Power (Nyala/Mati) dari Arduino atau HP lain
-    db.ref('smartfan/power').on('value', (snap) => {
-        const state = snap.val();
-        if (state !== null && state !== isPowerOn) {
-            isPowerOn = state;
-            updatePowerUI('auto');
-        }
-    });
+    // Subscribe ke data dari Arduino
+    mqttClient.subscribe('smartfan/data/#');
 
-    // 3. Dengarkan Threshold dari HP/Laptop lain
-    db.ref('smartfan/threshold').on('value', (snap) => {
-        const t = snap.val();
-        if (t !== null) {
-            thresholdTemp = parseFloat(t);
-            if (thresholdInput) thresholdInput.value = thresholdTemp.toFixed(1);
-            if (thresholdSlider) thresholdSlider.value = thresholdTemp;
-        }
-    });
+    // Minta status awal dari Arduino
+    mqttClient.publish('smartfan/cmd/status', 'request');
 
-} catch (err) {
-    console.error("Firebase error:", err);
-}
-
-// --- Tombol Power → Kirim ke Firebase ---
-powerSwitch.addEventListener('click', () => {
-    isPowerOn = !isPowerOn;
-    updatePowerUI('manual');
-    if (db) {
-        db.ref('smartfan/power').set(isPowerOn);
-        db.ref('smartfan/manualOverride').set(true);
-        // Simpan ke riwayat database
-        db.ref('smartfan/history').push({
-            type: isPowerOn ? 'manual_on' : 'manual_off',
-            temp: currentTemp,
-            ts: Date.now()
-        });
+    if (historyList && historyList.children.length === 0) {
+        addHistory('Sistem Online (Real-time)', 'on', 24.5);
     }
 });
 
-// --- Kirim Threshold ke Firebase ---
-function sendThreshold(val) {
-    if (db) {
-        db.ref('smartfan/threshold').set(val);
-        db.ref('smartfan/manualOverride').set(false);
-        db.ref('smartfan/history').push({
-            type: 'threshold_change',
-            value: val,
-            temp: currentTemp,
-            ts: Date.now()
-        });
+mqttClient.on('offline', () => {
+    cloudStatus.classList.remove('online');
+    cloudStatusText.textContent = 'Offline';
+});
+
+mqttClient.on('error', (err) => {
+    console.error('MQTT error:', err);
+});
+
+// Terima data dari Arduino via MQTT
+mqttClient.on('message', (topic, message) => {
+    const data = message.toString();
+
+    if (topic === 'smartfan/data/temp') {
+        handleTempUpdate(parseFloat(data));
+
+    } else if (topic === 'smartfan/data/power') {
+        const newState = (data === 'ON');
+        if (newState !== isPowerOn) {
+            isPowerOn = newState;
+            updatePowerUI('auto');
+        }
+
+    } else if (topic === 'smartfan/data/threshold') {
+        const t = parseFloat(data);
+        if (!isNaN(t)) {
+            thresholdTemp = t;
+            if (thresholdInput) thresholdInput.value = t.toFixed(1);
+            if (thresholdSlider) thresholdSlider.value = t;
+        }
     }
+});
+
+// ============================================================
+// FIREBASE - LOGGING RIWAYAT (background, non-blocking)
+// ============================================================
+var db;
+try {
+    const firebaseConfig = {
+        apiKey: "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s",
+        authDomain: "smart-fan-ff0a0.firebaseapp.com",
+        databaseURL: "https://smart-fan-ff0a0-default-rtdb.firebaseio.com",
+        projectId: "smart-fan-ff0a0",
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    db = firebase.database();
+} catch (err) {
+    console.warn("Firebase init error:", err);
+}
+
+function logToFirebase(type, extra = {}) {
+    if (!db) return;
+    db.ref('smartfan/history').push({
+        type, temp: currentTemp, ts: Date.now(), ...extra
+    });
+}
+
+// ============================================================
+// TOMBOL POWER → PUBLISH MQTT INSTAN + LOG FIREBASE
+// ============================================================
+powerSwitch.addEventListener('click', () => {
+    isPowerOn = !isPowerOn;
+    updatePowerUI('manual');
+
+    // Kirim via MQTT — instan ke Arduino!
+    if (mqttClient.connected) {
+        mqttClient.publish('smartfan/cmd/power', isPowerOn ? 'ON' : 'OFF', { qos: 1 });
+    }
+
+    // Log ke Firebase (background, tidak blokir)
+    logToFirebase(isPowerOn ? 'manual_on' : 'manual_off');
+});
+
+// ============================================================
+// KIRIM THRESHOLD → MQTT INSTAN
+// ============================================================
+function sendThreshold(val) {
+    if (mqttClient.connected) {
+        mqttClient.publish('smartfan/cmd/threshold', val.toFixed(1), { qos: 1 });
+    }
+    logToFirebase('threshold_change', { value: val });
     addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'settings');
 }
 
@@ -300,4 +323,3 @@ function handleTempUpdate(temp) {
 }
 
 init();
-
