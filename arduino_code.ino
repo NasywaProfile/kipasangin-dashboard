@@ -10,6 +10,7 @@ bool fanState = false;    // Variabel untuk menyimpan status kipas saat ini (men
 // Variabel Logika Cerdas
 bool manualOverride = false; // Penanda apakah user sedang mengontrol kipas secara manual via dashboard
 bool lastAutoState = false;  // Menyimpan status memori suhu sebelumnya (panas atau dingin)
+float thresholdTemp = 32.0;  // Batas suhu default (bisa diubah via dashboard)
 
 // Fungsi khusus untuk menyalakan/mematikan kipas
 void setFan(bool state) {
@@ -39,7 +40,7 @@ void setup() {
   
   // Inisialisasi status awal lingkungan saat alat dinyalakan
   float t = dht.readTemperature();
-  lastAutoState = (!isnan(t) && t >= 32); // Jika suhu awal >= 32°C, anggap lingkungan sedang "panas" (true)
+  lastAutoState = (!isnan(t) && t >= thresholdTemp);
 }
 
 void loop() {
@@ -57,6 +58,15 @@ void loop() {
     else if (input == "OFF") {
       manualOverride = true; // Aktifkan mode manual
       setFan(false);         // Paksa kipas mati
+    }
+    else if (input.startsWith("SET:")) {
+      float newThresh = input.substring(4).toFloat();
+      if (newThresh > 0) {
+        thresholdTemp = newThresh;
+        Serial.print("M:Suhu diubah jadi ");
+        Serial.println(thresholdTemp);
+        manualOverride = false; // Kembalikan ke mode otomatis jika suhu digeser
+      }
     }
   }
 
@@ -77,13 +87,13 @@ void loop() {
       Serial.print("T:");
       Serial.println(temperature, 1); // Kirim dengan 1 angka di belakang koma (misal T:32.5)
       
-      bool currentAutoState = (temperature >= 32); // Kipas harusnya nyala jika suhu >= 32°C
+      bool currentAutoState = (temperature >= thresholdTemp); // Kipas nyala sesuai nilai slider dashboard
 
-      // JIKA terjadi perubahan drastis(contoh: dari 33°C turun ke 30°C)
+      // JIKA terjadi perubahan drastis
       if (currentAutoState != lastAutoState) {
         manualOverride = false; // Matikan mode manual, biarkan sistem otomatis mengambil alih lagi
         lastAutoState = currentAutoState; // Simpan memori suhu terbaru
-        Serial.println("System: Auto-logic reset due to temperature event.");
+        Serial.println("M:System: Auto-logic reset due to temperature event.");
       }
 
       // Jika user TIDAK sedang menekan tombol manual, jalankan kipas sesuai suhu otomatis
