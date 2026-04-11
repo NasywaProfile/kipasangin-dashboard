@@ -107,6 +107,20 @@ if (thresholdInput) {
         thresholdTemp = val;
         thresholdInput.value = thresholdTemp;
         if (thresholdSlider) thresholdSlider.value = thresholdTemp;
+    });
+
+    // Handle Enter Key
+    thresholdInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            thresholdInput.blur();
+            sendThreshold(thresholdTemp);
+        }
+    });
+}
+
+const sendThresholdBtn = document.getElementById('sendThresholdBtn');
+if (sendThresholdBtn) {
+    sendThresholdBtn.addEventListener('click', () => {
         sendThreshold(thresholdTemp);
     });
 }
