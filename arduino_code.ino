@@ -43,7 +43,10 @@ void firebasePut(String path, String value) {
   HTTPClient http;
   String url = String(FIREBASE_HOST) + path + ".json?auth=" + FIREBASE_AUTH;
   http.begin(url);
+  http.setTimeout(1500);           // Timeout 1.5 detik agar tidak hang lama
+  http.setConnectTimeout(1500);
   http.addHeader("Content-Type", "application/json");
+  http.addHeader("Connection", "keep-alive"); // Reuse koneksi = lebih cepat
   http.PUT(value);
   http.end();
 }
@@ -54,6 +57,9 @@ String firebaseGet(String path) {
   HTTPClient http;
   String url = String(FIREBASE_HOST) + path + ".json?auth=" + FIREBASE_AUTH;
   http.begin(url);
+  http.setTimeout(1500);
+  http.setConnectTimeout(1500);
+  http.addHeader("Connection", "keep-alive");
   int code = http.GET();
   String result = "null";
   if (code == 200) {
@@ -65,19 +71,25 @@ String firebaseGet(String path) {
 }
 
 // =====================================================
-// LOGIKA KIPAS
+// LOGIKA KIPAS - RELAY NYALA INSTAN, HTTP MENYUSUL
 // =====================================================
+bool pendingStatusUpdate = false; // Flag: perlu update Firebase setelah relay switch
+
 void setFan(bool state) {
   if (state != isPowerOn) {
     isPowerOn = state;
+    
+    // 🔴 RELAY SWITCH INSTAN — Tidak ada HTTP di sini!
     if (isPowerOn) {
       pinMode(relayPin, OUTPUT);
       digitalWrite(relayPin, LOW);   // Active Low: LOW = NYALA
     } else {
-      pinMode(relayPin, INPUT);       // High-Impedance = MATI
+      pinMode(relayPin, INPUT);      // High-Impedance = MATI
     }
-    // Sinkronisasi status ke Firebase
-    firebasePut("/smartfan/power", isPowerOn ? "true" : "false");
+    
+    // Tandai untuk update Firebase (dilakukan setelah relay nyala)
+    pendingStatusUpdate = true;
+    
     Serial.print("Fan: ");
     Serial.println(isPowerOn ? "ON" : "OFF");
   }
@@ -145,6 +157,12 @@ void loop() {
         }
       }
     }
+  }
+
+  // 1.5 KIRIM UPDATE STATUS KE FIREBASE (setelah relay switch, non-blocking)
+  if (pendingStatusUpdate) {
+    pendingStatusUpdate = false; // Reset flag dulu
+    firebasePut("/smartfan/power", isPowerOn ? "true" : "false");
   }
 
   // 2. BACA SEMUA PERINTAH DASHBOARD SEKALIGUS (1 Request = Lebih Cepat!)
