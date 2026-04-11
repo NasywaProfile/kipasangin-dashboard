@@ -65,16 +65,7 @@ backBtn.addEventListener('click', () => {
     }, 600);
 });
 
-// --- Fan Controls ---
-powerSwitch.addEventListener('click', () => {
-    isPowerOn = !isPowerOn;
-    updatePowerUI('manual');
 
-    if (writer) {
-        const cmd = isPowerOn ? "ON\n" : "OFF\n";
-        writer.write(new TextEncoder().encode(cmd));
-    }
-});
 
 // --- Automation Logic ---
 if (thresholdSlider) {
@@ -125,14 +116,7 @@ if (sendThresholdBtn) {
     });
 }
 
-function sendThreshold(val) {
-    if (writer) {
-        const cmd = `SET:${val}\n`;
-        writer.write(new TextEncoder().encode(cmd));
-    }
-    // Include the precise value in history
-    addHistory(`Target set to ${val.toFixed(1)}°C`, 'settings'); 
-}
+
 
 if (tempUpBtn) tempUpBtn.addEventListener('click', () => {
     // 0.1 precision as requested
@@ -218,48 +202,82 @@ function updateUI() {
     updateSparkline();
 }
 
-// --- Serial Logic ---
-if (connectSerialBtn) {
-    connectSerialBtn.addEventListener('click', async () => {
-        try {
-            port = await navigator.serial.requestPort();
-            await port.open({ baudRate: 115200 });
-            writer = port.writable.getWriter();
-            serialKeepReading = true;
-            connectSerialBtn.classList.add('connected');
-            connectSerialBtn.innerHTML = `Connect Live`;
-            readSerial();
-        } catch (err) { console.error(err); }
+// --- Firebase Configuration ---
+// TO DO: Set your Firebase details here.
+const firebaseConfig = {
+    apiKey: "YOUR_API_KEY_HERE",
+    authDomain: "your-project.firebaseapp.com",
+    databaseURL: "https://your-project-default-rtdb.firebaseio.com",
+    projectId: "your-project",
+    storageBucket: "your-project.appspot.com",
+    messagingSenderId: "123456",
+    appId: "1:123456:web:123456"
+};
+
+// --- Firebase Initialization ---
+let db;
+try {
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    db = firebase.database();
+    
+    // UI Cloud Status
+    const cloudStatus = document.getElementById('cloudStatus');
+    const cloudStatusText = cloudStatus.querySelector('span:nth-child(2)');
+    
+    const connectedRef = firebase.database().ref(".info/connected");
+    connectedRef.on("value", (snap) => {
+        if (snap.val() === true) {
+            cloudStatus.classList.add('online');
+            cloudStatusText.textContent = 'Online';
+            if (historyList && historyList.children.length === 0) {
+                addHistory('Cloud Connected', 'on', 24.5);
+            }
+        } else {
+            cloudStatus.classList.remove('online');
+            cloudStatusText.textContent = 'Offline';
+        }
     });
+
+    // Listen to Temperature
+    db.ref('smartfan/temperature').on('value', (snapshot) => {
+        const temp = snapshot.val();
+        if (temp !== null) handleTempUpdate(temp);
+    });
+
+    // Listen to Power State
+    db.ref('smartfan/power').on('value', (snapshot) => {
+        const state = snapshot.val();
+        if (state !== null && state !== isPowerOn) {
+            isPowerOn = state;
+            updatePowerUI('auto');
+        }
+    });
+
+} catch (err) {
+    console.error("Firebase Init Error (did you set your config?):", err);
 }
 
-async function readSerial() {
-    const textDecoder = new TextDecoderStream();
-    port.readable.pipeTo(textDecoder.writable);
-    reader = textDecoder.readable.getReader();
-    let buffer = "";
-    while (serialKeepReading) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buffer += value;
-        const lines = buffer.split('\n');
-        buffer = lines.pop();
-        for (const line of lines) {
-            const trimmed = line.trim();
-            if (trimmed.startsWith('T:')) {
-                handleTempUpdate(parseFloat(trimmed.slice(2)));
-            } else if (trimmed.startsWith('S:')) {
-                const newState = (trimmed.slice(2) === '1');
-                if (newState !== isPowerOn) {
-                    isPowerOn = newState;
-                    updatePowerUI('auto'); // Sync update from device
-                }
-            } else if (trimmed.startsWith('M:')) {
-                console.log("Device Message:", trimmed.slice(2));
-            }
-        }
+// --- Sync Functions ---
+function sendThreshold(val) {
+    if (db) {
+        db.ref('smartfan/threshold').set(val);
     }
+    // Include the precise value in history
+    addHistory(`Target set to ${val.toFixed(1)}°C`, 'settings'); 
 }
+
+powerSwitch.addEventListener('click', () => {
+    isPowerOn = !isPowerOn;
+    updatePowerUI('manual');
+
+    // Make sure we write boolean to DB
+    if (db) {
+        db.ref('smartfan/power').set(isPowerOn);
+        db.ref('smartfan/manualOverride').set(true); // Tell ESP32 user clicked it
+    }
+});
 
 function handleTempUpdate(temp) {
     currentTemp = temp;
