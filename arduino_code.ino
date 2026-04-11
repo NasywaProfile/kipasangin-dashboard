@@ -131,55 +131,61 @@ void loop() {
     float temp = dht.readTemperature();
     if (!isnan(temp)) {
       currentTemp = temp;
-      
-      // Kirim suhu ke Firebase
       firebasePut("/smartfan/temperature", String(currentTemp, 1));
       
-      // Logika Otomatis (hanya jika tidak di-override manual)
       if (!manualOverride) {
         if (currentTemp >= thresholdTemp && !isPowerOn) {
           setFan(true);
-          // Catat ke riwayat Firebase
-          String histEntry = "{\"type\":\"auto_on\",\"temp\":" + String(currentTemp,1) + ",\"ts\":" + String(millis()) + "}";
-          firebasePut("/smartfan/history/" + String(millis()), histEntry);
+          firebasePut("/smartfan/history/" + String(millis()),
+            "{\"type\":\"auto_on\",\"temp\":" + String(currentTemp,1) + "}");
         } else if (currentTemp < (thresholdTemp - hysteresis) && isPowerOn) {
           setFan(false);
-          String histEntry = "{\"type\":\"auto_off\",\"temp\":" + String(currentTemp,1) + ",\"ts\":" + String(millis()) + "}";
-          firebasePut("/smartfan/history/" + String(millis()), histEntry);
+          firebasePut("/smartfan/history/" + String(millis()),
+            "{\"type\":\"auto_off\",\"temp\":" + String(currentTemp,1) + "}");
         }
       }
     }
   }
 
-  // 2. BACA PERINTAH DARI DASHBOARD setiap 500ms (Respons Cepat!)
-  if (millis() - lastFirebaseRead > 500) {
+  // 2. BACA SEMUA PERINTAH DASHBOARD SEKALIGUS (1 Request = Lebih Cepat!)
+  // Polling setiap 200ms agar respons sangat cepat
+  if (millis() - lastFirebaseRead > 200) {
     lastFirebaseRead = millis();
 
-    // Cek manualOverride
-    String ovr = firebaseGet("/smartfan/manualOverride");
-    bool webOverride = (ovr == "true");
-    if (webOverride != manualOverride) {
-      manualOverride = webOverride;
-    }
+    // Baca seluruh node /smartfan sekaligus dalam 1 HTTP request
+    String payload = firebaseGet("/smartfan");
+    
+    if (payload != "null" && payload.length() > 10) {
+      
+      // --- Parse manualOverride ---
+      bool webOverride = (payload.indexOf("\"manualOverride\":true") >= 0);
+      if (webOverride != manualOverride) {
+        manualOverride = webOverride;
+      }
 
-    // Cek perintah power dari web
-    String webPowerStr = firebaseGet("/smartfan/power");
-    bool webPower = (webPowerStr == "true");
-    if (webPower != isPowerOn) {
-      isPowerOn = webPower; // Update dulu biar setFan() tidak skip
-      isPowerOn = !webPower; // Reset state agar setFan() mau jalan
-      setFan(webPower);
-    }
+      // --- Parse power ON/OFF ---
+      bool webPower = (payload.indexOf("\"power\":true") >= 0);
+      if (webPower != isPowerOn) {
+        // Reset state agar setFan() bisa jalan
+        bool prevState = isPowerOn;
+        isPowerOn = !webPower;
+        setFan(webPower);
+      }
 
-    // Cek threshold dari web
-    String webThreshStr = firebaseGet("/smartfan/threshold");
-    if (webThreshStr != "null") {
-      float webThresh = webThreshStr.toFloat();
-      if (abs(webThresh - thresholdTemp) > 0.05) {
-        thresholdTemp = webThresh;
-        manualOverride = false; // Kembali ke mode otomatis
-        Serial.println("Threshold baru: " + String(thresholdTemp, 1));
+      // --- Parse threshold ---
+      int tIdx = payload.indexOf("\"threshold\":");
+      if (tIdx >= 0) {
+        String tStr = payload.substring(tIdx + 12);
+        tStr = tStr.substring(0, tStr.indexOf(",") > 0 ? tStr.indexOf(",") : tStr.indexOf("}"));
+        tStr.trim();
+        float webThresh = tStr.toFloat();
+        if (webThresh > 0 && abs(webThresh - thresholdTemp) > 0.05) {
+          thresholdTemp = webThresh;
+          manualOverride = false;
+          Serial.println("Threshold: " + String(thresholdTemp, 1));
+        }
       }
     }
   }
 }
+
