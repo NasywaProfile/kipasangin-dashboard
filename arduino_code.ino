@@ -37,15 +37,21 @@ unsigned long lastFirebaseSync = 0;
 
 void setup() {
   Serial.begin(115200);
+  
+  // 1. Matikan Kipas Secara Tegas Saat Pertama Kali Nyala
   pinMode(relayPin, OUTPUT);
-  digitalWrite(relayPin, HIGH); // Relay off (Active Low assumed, change if needed)
+  digitalWrite(relayPin, HIGH); // HIGH = Kipas Mati (Berdasarkan skema Active-Low / Relay umum)
   isPowerOn = false;
   
   dht.begin();
 
-  // 1. WiFi Manager Configuration
-  // Ini akan membuat WiFi AP bernama "SmartFan_Setup" jika alat gagal koneksi
+  // 2. WiFi Manager Configuration
   WiFiManager wm;
+  // Berguna untuk Test Awal: Hapus tanda // di bawah ini JIKA WiFi lama nyangkut dan portal tidak muncul
+  // wm.resetSettings(); 
+  
+  Serial.println("Memulai Koneksi WiFi...");
+  // Ini akan membuat WiFi AP bernama "SmartFan_Setup" jika alat belum pernah tersambung ke WiFi
   bool res = wm.autoConnect("SmartFan_Setup");
   if (!res) {
     Serial.println("Gagal koneksi WiFi, restart...");
@@ -54,11 +60,10 @@ void setup() {
   }
   Serial.println("WiFi Terhubung!");
 
-  // 2. Firebase Configuration
+  // 3. Firebase Configuration
   config.api_key = API_KEY;
   config.database_url = DATABASE_URL;
   
-  // Karena kita pakai auth kosong (public read/write untuk testing)
   if (Firebase.signUp(&config, &auth, "", "")) {
     Serial.println("Firebase Auth Berhasil");
   } else {
@@ -69,7 +74,7 @@ void setup() {
   Firebase.begin(&config, &auth);
   Firebase.reconnectWiFi(true);
 
-  // Set nilai awal ke Firebase
+  // Set nilai awal Sistem ke Firebase (Selalu MULAI DARI OFF)
   Firebase.RTDB.setFloat(&fbdo, "smartfan/temperature", currentTemp);
   Firebase.RTDB.getFloat(&fbdo, "smartfan/threshold");
   // Cek kalau belum ada, isi default
@@ -78,10 +83,11 @@ void setup() {
   } else {
       thresholdTemp = fbdo.floatData();
   }
+  
   Firebase.RTDB.setBool(&fbdo, "smartfan/power", false);
   Firebase.RTDB.setBool(&fbdo, "smartfan/manualOverride", false);
 
-  Serial.println("Sistem Berjalan Online!");
+  Serial.println("Sistem Berjalan Online! Default Mati.");
 }
 
 void setFan(bool state) {
