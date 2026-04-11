@@ -1,19 +1,22 @@
-// --- Smart Fan IoT PRO (WiFiManager + Firebase Database) ---
+// --- Smart Fan IoT - FIREBASE LITE (Super Ringan) ---
 // PERLU DI-INSTALL DI LIBRARY MANAGER:
-// 1. WiFiManager by tzapu
-// 2. Firebase Arduino Client Library for ESP8266 and ESP32 by Mobizt
-// 3. DHT sensor library by Adafruit
+// 1. Firebase Arduino Client Library for ESP8266 and ESP32 by Mobizt
+// 2. DHT sensor library by Adafruit
 
 #include <WiFi.h>
-#include <WiFiManager.h>
 #include <Firebase_ESP_Client.h>
 #include <addons/TokenHelper.h>
 #include <addons/RTDBHelper.h>
 #include <DHT.h>
 
+// --- KONFIGURASI WIFI (Hotspot HP / WiFi Rumah) ---
+// Tulis nama WiFi dan Password di sini agar memori sangat ringan
+#define WIFI_SSID "NAMA_WIFI_KAMU"
+#define WIFI_PASSWORD "PASSWORD_WIFI_KAMU"
+
 // --- KONFIGURASI RELAY ---
 const int relayPin = 18;
-// TIPE RELAY: ACTIVE LOW (Berdasarkan tes sebelumnya)
+// TIPE RELAY: ACTIVE LOW
 #define RELAY_ON LOW
 #define RELAY_OFF HIGH
 
@@ -63,18 +66,16 @@ void setup() {
   
   dht.begin();
 
-  // 1. WiFi Manager Configuration
-  WiFiManager wm;
-  // wm.resetSettings(); // Buka komentar baris ini SATU KALI kalau gagal nyambung WiFi
-  
-  Serial.println("Memulai WiFi...");
-  bool res = wm.autoConnect("SmartFan_Setup");
-  if (!res) {
-    Serial.println("Gagal koneksi WiFi, restart...");
-    delay(3000);
-    ESP.restart();
+  // 1. WiFi Singkat (Tanpa WiFiManager, Hemat 400KB+ Memori!)
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("Menghubungkan ke WiFi");
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
   }
-  Serial.println("WiFi Terhubung!");
+  Serial.println();
+  Serial.print("Tersambung! IP Address: ");
+  Serial.println(WiFi.localIP());
 
   // 2. Firebase Configuration
   config.api_key = API_KEY;
@@ -132,7 +133,6 @@ void loop() {
 
   // 2. Baca perintah dari Dashboard
   if (Firebase.ready()) {
-    // A. Cek Mode Manual (Apakah user intervensi web?)
     if (Firebase.RTDB.getBool(&fbdo, "smartfan/manualOverride")) {
        bool userOverride = fbdo.boolData();
        if(userOverride != manualOverride) {
@@ -142,15 +142,13 @@ void loop() {
        }
     }
 
-    // B. Cek Perintah Power (Klik ON/OFF dari Web)
     if (Firebase.RTDB.getBool(&fbdo, "smartfan/power")) {
        bool webPower = fbdo.boolData();
        if (webPower != isPowerOn) {
-         setFan(webPower); // Jalankan perubahan status kipas
+         setFan(webPower); 
        }
     }
 
-    // C. Cek Perubahan Threshold Suhu
     if (Firebase.RTDB.getFloat(&fbdo, "smartfan/threshold")) {
        float webThresh = fbdo.floatData();
        if(abs(webThresh - thresholdTemp) > 0.1) {
