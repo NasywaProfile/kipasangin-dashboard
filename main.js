@@ -26,6 +26,7 @@ let isPowerOn = false;
 let currentTemp = 24.5;
 let sessionActive = false;
 let thresholdTemp = 32.0;
+let lastLoggedThreshold = 32.0; // Tambahan untuk memori threshold sebelumnya
 let tempHistory = [24.5, 24.5, 24.5, 24.5, 24.5];
 
 // --- Initialize ---
@@ -304,8 +305,13 @@ function sendThreshold(val) {
     if (mqttClient.connected) {
         mqttClient.publish('smartfan/cmd/threshold', val.toFixed(1), { qos: 1 });
     }
-    logToSupabase('threshold_change');
-    addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'settings');
+    
+    // Cuma rekam ke database JIKA angkanya benar-benar berubah
+    if (val !== lastLoggedThreshold) {
+        logToSupabase('threshold_change');
+        addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'settings');
+        lastLoggedThreshold = val; // Simpan angka baru di memori
+    }
 }
 
 function handleTempUpdate(temp) {
