@@ -21,9 +21,9 @@
 const char mqtt_host[] = "broker.hivemq.com";
 const int  mqtt_port   = 1883; // Plain TCP, TANPA SSL = super cepat!
 
-// --- KONFIGURASI FIREBASE (untuk logging suhu saja) ---
-#define FIREBASE_HOST "https://smart-fan-ff0a0-default-rtdb.firebaseio.com"
-#define FIREBASE_AUTH "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s"
+// --- KONFIGURASI SUPABASE ---
+#define SUPABASE_URL "https://tddbbqwksbkqcfpdpjuc.supabase.co"
+#define SUPABASE_ANON_KEY "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkZGJicXdrc2JrcWNmcGRwanVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTAyMjMsImV4cCI6MjA5MTgyNjIyM30.jEUYXFH3JGhHnBnr2b65T8Ldj6j69EV2msTiRZxPeS8"
 
 // --- KONFIGURASI HARDWARE ---
 #define DHTPIN  33
@@ -46,8 +46,8 @@ WiFiClient  net;
 MQTTClient  mqttClient(512);
 
 unsigned long lastSensorRead  = 0;
-unsigned long lastFirebaseLog = 0;
-bool pendingFirebaseLog = false;
+unsigned long lastSupabaseLog = 0;
+bool pendingSupabaseLog = false;
 
 // =====================================================
 // SWITCH RELAY — INSTAN, lalu publish status ke MQTT
@@ -61,7 +61,7 @@ void setFan(bool state) {
   }
   // Publish balik status biar dashboard sinkron
   mqttClient.publish("smartfan/data/power", isPowerOn ? "ON" : "OFF", false, 1);
-  pendingFirebaseLog = true; // tandai untuk log ke Firebase
+  pendingSupabaseLog = true; // tandai untuk log ke database
   Serial.println(isPowerOn ? "Fan: ON" : "Fan: OFF");
 }
 
@@ -95,25 +95,21 @@ void messageReceived(String &topic, String &payload) {
 }
 
 // =====================================================
-// FIREBASE LOG (background, non-blocking waktu)
+// SUPABASE LOG (background, non-blocking waktu)
 // =====================================================
-void logToFirebase(float temp) {
+void logToSupabase(String type, float temp, float threshold) {
   if (WiFi.status() != WL_CONNECTED) return;
   HTTPClient http;
-  http.begin(String(FIREBASE_HOST) + "/smartfan/temperature.json?auth=" + FIREBASE_AUTH);
-  http.setTimeout(3000);
+  
+  String url = String(SUPABASE_URL) + "/rest/v1/activity_log";
+  http.begin(url);
+  http.addHeader("apikey", SUPABASE_ANON_KEY);
+  http.addHeader("Authorization", "Bearer " + String(SUPABASE_ANON_KEY));
   http.addHeader("Content-Type", "application/json");
-  http.PUT(String(temp, 1));
-  http.end();
-}
+  http.addHeader("Prefer", "return=minimal");
 
-void logPowerToFirebase() {
-  if (WiFi.status() != WL_CONNECTED) return;
-  HTTPClient http;
-  http.begin(String(FIREBASE_HOST) + "/smartfan/power.json?auth=" + FIREBASE_AUTH);
-  http.setTimeout(3000);
-  http.addHeader("Content-Type", "application/json");
-  http.PUT(isPowerOn ? "true" : "false");
+  String payload = "{\"type\": \"" + type + "\", \"temp\": " + String(temp, 1) + ", \"threshold\": " + String(threshold, 1) + "}";
+  http.POST(payload);
   http.end();
 }
 
@@ -174,10 +170,10 @@ void loop() {
     connectAll();
   }
 
-  // Kirim log Firebase untuk power state jika ada perubahan
-  if (pendingFirebaseLog) {
-    pendingFirebaseLog = false;
-    logPowerToFirebase();
+  // Kirim log ke database jika ada perubahan
+  if (pendingSupabaseLog) {
+    pendingSupabaseLog = false;
+    logToSupabase(isPowerOn ? "manual_on" : "manual_off", currentTemp, thresholdTemp);
   }
 
   // Baca sensor setiap 5 detik + publish suhu via MQTT + log ke Firebase
@@ -191,10 +187,10 @@ void loop() {
       // Publish suhu via MQTT (real-time ke dashboard)
       mqttClient.publish("smartfan/data/temp", String(currentTemp, 1), false, 0);
 
-      // Log suhu ke Firebase setiap 30 detik (background, tidak ganggu MQTT)
-      if (millis() - lastFirebaseLog > 30000) {
-        lastFirebaseLog = millis();
-        logToFirebase(currentTemp);
+      // Log suhu ke Supabase setiap 30 detik (background, tidak ganggu MQTT)
+      if (millis() - lastSupabaseLog > 30000) {
+        lastSupabaseLog = millis();
+        logToSupabase("auto_log", currentTemp, thresholdTemp);
       }
 
       // Logika Otomatis (hanya jika tidak manual)

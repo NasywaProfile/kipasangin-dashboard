@@ -136,7 +136,7 @@ function updatePowerUI(source = 'manual') {
         statusLabel.textContent = 'Active Cooling';
         statusLabel.style.color = '#A67347';
         fanBlades.classList.add('spinning');
-        
+
         const title = source === 'auto' ? 'Auto-Cooling' : 'Fan Started';
         addHistory(title, 'on');
     } else {
@@ -145,7 +145,7 @@ function updatePowerUI(source = 'manual') {
         statusLabel.textContent = 'Standby';
         statusLabel.style.color = '#64748B';
         fanBlades.classList.remove('spinning');
-        
+
         const title = source === 'auto' ? 'Target Reached' : 'Fan Stopped';
         addHistory(title, 'off');
     }
@@ -155,10 +155,10 @@ function addHistory(title, type, temp = null) {
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const tempToShow = temp !== null ? temp : currentTemp;
-    
+
     let iconSvg = '';
     let typeClass = '';
-    
+
     if (type === 'on') {
         iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
         typeClass = 'act-on';
@@ -169,7 +169,7 @@ function addHistory(title, type, temp = null) {
         iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`;
         typeClass = 'act-settings';
     }
-    
+
     const item = document.createElement('div');
     item.className = 'activity-card';
     item.innerHTML = `
@@ -180,7 +180,7 @@ function addHistory(title, type, temp = null) {
         </div>
         <div class="act-time">${timeStr}</div>
     `;
-    
+
     historyList.prepend(item);
     if (historyCountLabel) historyCountLabel.textContent = historyList.children.length;
 }
@@ -264,26 +264,20 @@ mqttClient.on('message', (topic, message) => {
 });
 
 // ============================================================
-// FIREBASE - LOGGING RIWAYAT (background, non-blocking)
+// SUPABASE - LOGGING RIWAYAT (background, non-blocking)
 // ============================================================
-var db;
-try {
-    const firebaseConfig = {
-        apiKey: "AIzaSyDFLZu2goPcVIj5ZbsjyfqEEfVlqAMDZ4s",
-        authDomain: "smart-fan-ff0a0.firebaseapp.com",
-        databaseURL: "https://smart-fan-ff0a0-default-rtdb.firebaseio.com",
-        projectId: "smart-fan-ff0a0",
-    };
-    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
-} catch (err) {
-    console.warn("Firebase init error:", err);
-}
+const supabaseUrl = 'https://tddbbqwksbkqcfpdpjuc.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkZGJicXdrc2JrcWNmcGRwanVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTAyMjMsImV4cCI6MjA5MTgyNjIyM30.jEUYXFH3JGhHnBnr2b65T8Ldj6j69EV2msTiRZxPeS8';
+const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-function logToFirebase(type, extra = {}) {
-    if (!db) return;
-    db.ref('smartfan/history').push({
-        type, temp: currentTemp, ts: Date.now(), ...extra
+function logToSupabase(type, extra = {}) {
+    supabaseClient.from('activity_log').insert([{
+        type: type,
+        temp: currentTemp,
+        threshold: thresholdTemp
+        // note: any extra object keys that mismatch columns will be ignored or error, so mapping precisely is better
+    }]).then(({ error }) => {
+        if (error) console.error("Supabase Error:", error);
     });
 }
 
@@ -299,8 +293,8 @@ powerSwitch.addEventListener('click', () => {
         mqttClient.publish('smartfan/cmd/power', isPowerOn ? 'ON' : 'OFF', { qos: 1 });
     }
 
-    // Log ke Firebase (background, tidak blokir)
-    logToFirebase(isPowerOn ? 'manual_on' : 'manual_off');
+    // Log ke Supabase (background, tidak blokir)
+    logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
 });
 
 // ============================================================
@@ -310,7 +304,7 @@ function sendThreshold(val) {
     if (mqttClient.connected) {
         mqttClient.publish('smartfan/cmd/threshold', val.toFixed(1), { qos: 1 });
     }
-    logToFirebase('threshold_change', { value: val });
+    logToSupabase('threshold_change');
     addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'settings');
 }
 
