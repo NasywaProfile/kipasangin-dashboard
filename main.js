@@ -233,20 +233,21 @@ const mqttClient = mqtt.connect(MQTT_BROKER, {
     reconnectPeriod: 2000,
 });
 
+let deviceTimeout;
+
 mqttClient.on('connect', () => {
-    cloudStatus.classList.add('online');
-    cloudStatusText.textContent = 'Online';
-    console.log('MQTT Connected!');
+    // Saat web merespon server MQTT, status JANGAN langsung hijau.
+    // Tunggu sampai ada data beneran dari Kipas Pintar.
+    cloudStatus.classList.remove('online');
+    cloudStatusText.textContent = 'Mencari Kipas...';
+    console.log('Dashboard Terhubung ke Server. Menunggu Kipas...');
 
     // Subscribe ke data dari Arduino
     mqttClient.subscribe('smartfan/data/#');
 
     // Minta status awal dari Arduino
+    // (Jika Kipas online, dia akan menangkap pesan ini dan membalas)
     mqttClient.publish('smartfan/cmd/status', 'request');
-
-    if (historyList && historyList.children.length === 0) {
-        addHistory('Sistem Online (Real-time)', 'on', 24.5);
-    }
 });
 
 mqttClient.on('offline', () => {
@@ -261,6 +262,27 @@ mqttClient.on('error', (err) => {
 // Terima data dari Arduino via MQTT
 mqttClient.on('message', (topic, message) => {
     const data = message.toString();
+
+    // 🌟 LOGIKA HEARTBEAT/REAL-TIME 🌟
+    // Karena ESP32 mengirim suhu setiap 2 detik, artinya selama kita
+    // menerima pesan apapun, KIPAS 100% ONLINE SECARA FISIK!
+    if (cloudStatusText.textContent !== 'Online') {
+        cloudStatus.classList.add('online');
+        cloudStatusText.textContent = 'Online';
+        if (historyList && historyList.children.length === 0) {
+            addHistory('Kipas Terhubung', 'on', currentTemp);
+        }
+    }
+
+    // Hitung mundur: Jika selama 6 detik kita sama sekali tidak menerima 
+    // pesan dari ESP32 (entah dicabut kabel / putus WiFi), kembalikan status ke Offline!
+    clearTimeout(deviceTimeout);
+    deviceTimeout = setTimeout(() => {
+        if (cloudStatusText.textContent === 'Online') {
+            cloudStatus.classList.remove('online');
+            cloudStatusText.textContent = 'Offline';
+        }
+    }, 6000);
 
     if (topic === 'smartfan/data/temp') {
         handleTempUpdate(parseFloat(data));
