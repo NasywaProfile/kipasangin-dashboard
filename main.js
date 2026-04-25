@@ -243,7 +243,7 @@ mqttClient.on('connect', () => {
     // Saat web merespon server MQTT, status JANGAN langsung hijau.
     // Tunggu sampai ada data beneran dari Kipas Pintar.
     cloudStatus.classList.remove('online');
-    cloudStatusText.textContent = 'Mencari Kipas...';
+    cloudStatusText.textContent = 'Offline';
     console.log('Dashboard Terhubung ke Server. Menunggu Kipas...');
 
     // Subscribe ke data dari Arduino
