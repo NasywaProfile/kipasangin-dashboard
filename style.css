@@ -60,6 +60,7 @@ body {
     background: #18181B;
     transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    margin: auto; /* Ini kunci pemusatan frame! */
 }
 
 .welcome-video {
@@ -564,16 +565,18 @@ body {
     .welcome-container {
         height: calc(100dvh - 24px); 
         border-radius: 32px;
+        margin: auto; /* Memaksa rata tengah */
     }
-    .welcome-text { top: 10%; padding: 0 20px; }
-    .welcome-text h1 { font-size: 40px; letter-spacing: -1px; }
+    .welcome-text { top: 22%; padding: 0 20px; }
+    .welcome-text h1 { font-size: 38px; letter-spacing: -1px; }
     .welcome-subtitle { font-size: 16px; margin-top: 10px; }
-    .start-btn-wrapper { bottom: 10%; }
+    .start-btn-wrapper { bottom: 18%; }
     .glass-start-btn { padding: 14px 30px; font-size: 16px; }
 
     .app-container {
         border-radius: 28px;
         max-width: 100%;
+        margin: auto; /* Menjaga dashboard di tengah bila layar masih lapang */
     }
 
     .dashboard-visuals { padding: 20px; }
