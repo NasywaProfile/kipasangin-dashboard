@@ -9,13 +9,14 @@
 // =====================================================
 
 #include <WiFi.h>
+#include <WiFiManager.h> // <-- Tambahan Library Baru!
 #include <MQTT.h>
 #include <HTTPClient.h>
 #include <DHT.h>
 
 // --- KONFIGURASI WIFI ---
-#define WIFI_SSID     "NAMA_WIFI_KAMU"
-#define WIFI_PASSWORD "PASSWORD_WIFI_KAMU"
+// WiFi sekarang diatur secara otomatis/dinamis dari HP! 
+// Jadi kita tidak perlu lagi menuliskan SSID & Password di sini.
 
 // --- KONFIGURASI MQTT (HiveMQ Public - Gratis, Stabil) ---
 const char mqtt_host[] = "broker.hivemq.com";
@@ -40,19 +41,17 @@ bool  isPowerOn    = false;
 bool  manualOverride = false;
 float currentTemp  = 24.5;
 float thresholdTemp = 32.0;
-float hysteresis   = 0.5;
+float hysteresis   = 0.2; // Diperkecil supaya bereaksi lebih cepat
 
 WiFiClient  net;
 MQTTClient  mqttClient(512);
 
 unsigned long lastSensorRead  = 0;
-unsigned long lastSupabaseLog = 0;
-bool pendingSupabaseLog = false;
 
 // =====================================================
 // SWITCH RELAY — INSTAN, lalu publish status ke MQTT
 // =====================================================
-void setFan(bool state) {
+void setFan(bool state, String source) {
   isPowerOn = state;
   if (isPowerOn) {
     RELAY_ON();
@@ -61,8 +60,13 @@ void setFan(bool state) {
   }
   // Publish balik status biar dashboard sinkron
   mqttClient.publish("smartfan/data/power", isPowerOn ? "ON" : "OFF", false, 1);
-  pendingSupabaseLog = true; // tandai untuk log ke database
   Serial.println(isPowerOn ? "Fan: ON" : "Fan: OFF");
+
+  // Jika triggernya dari sensor suhu (otomatis), log ke database.
+  // Kalau dari manual, dashboard udah nge-log, jadi ngga perlu dobel.
+  if (source == "auto") {
+    logToSupabase(isPowerOn ? "auto_on" : "auto_off", currentTemp, thresholdTemp);
+  }
 }
 
 // =====================================================
@@ -75,7 +79,7 @@ void messageReceived(String &topic, String &payload) {
     manualOverride = true;
     bool newState = (payload == "ON");
     if (newState != isPowerOn) {
-      setFan(newState); // ⚡ RELAY NYALA/MATI INSTAN DI SINI
+      setFan(newState, "manual"); // ⚡ RELAY NYALA/MATI INSTAN DI SINI
     }
   }
   else if (topic == "smartfan/cmd/threshold") {
@@ -119,10 +123,22 @@ void logToSupabase(String type, float temp, float threshold) {
 void connectAll() {
   // WiFi
   if (WiFi.status() != WL_CONNECTED) {
-    WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
-    Serial.print("WiFi");
-    while (WiFi.status() != WL_CONNECTED) { Serial.print("."); delay(500); }
-    Serial.println(" OK! IP: " + WiFi.localIP().toString());
+    WiFiManager wm;
+    
+    // NOTE: Kalau kamu pengen ngehapus WiFi rumah lama yang sempat tersimpan 
+    // agar kipasnya mancarin "Setup_Kipas_Pintar" lagi, hilangkan komentar (//) pada baris di bawah:
+    // wm.resetSettings(); 
+
+    Serial.println("\nMencari WiFi yang tersimpan...");
+    
+    // Ini ajaibnya: Kalau gagal nemu WiFi, ESP32 otomatis bikin WiFi namanya "Setup_Kipas_Pintar"
+    if (!wm.autoConnect("Setup_Kipas_Pintar")) {
+      Serial.println("Gagal connect dan timeout... Restart alat.");
+      delay(3000);
+      ESP.restart();
+      delay(5000);
+    }
+    Serial.println("\nWiFi OK! Terhubung dengan IP: " + WiFi.localIP().toString());
   }
 
   // MQTT
@@ -170,14 +186,10 @@ void loop() {
     connectAll();
   }
 
-  // Kirim log ke database jika ada perubahan
-  if (pendingSupabaseLog) {
-    pendingSupabaseLog = false;
-    logToSupabase(isPowerOn ? "manual_on" : "manual_off", currentTemp, thresholdTemp);
-  }
 
-  // Baca sensor setiap 5 detik + publish suhu via MQTT + log ke Firebase
-  if (millis() - lastSensorRead > 5000) {
+
+  // Baca sensor setiap 2 detik (batas maksimal kecepatan sensor DHT11)
+  if (millis() - lastSensorRead > 2000) {
     lastSensorRead = millis();
 
     float temp = dht.readTemperature();
@@ -186,21 +198,16 @@ void loop() {
 
       // Publish suhu via MQTT (real-time ke dashboard)
       mqttClient.publish("smartfan/data/temp", String(currentTemp, 1), false, 0);
+    }
+  }
 
-      // Log suhu ke Supabase setiap 30 detik (background, tidak ganggu MQTT)
-      if (millis() - lastSupabaseLog > 30000) {
-        lastSupabaseLog = millis();
-        logToSupabase("auto_log", currentTemp, thresholdTemp);
-      }
-
-      // Logika Otomatis (hanya jika tidak manual)
-      if (!manualOverride) {
-        if (currentTemp >= thresholdTemp && !isPowerOn) {
-          setFan(true);
-        } else if (currentTemp < (thresholdTemp - hysteresis) && isPowerOn) {
-          setFan(false);
-        }
-      }
+  // Logika Otomatis (dievaluasi terus-menerus, tidak usah nunggu 2 detik!)
+  // Bereaksi INSTAN kalau batas threshold diubah dari HP.
+  if (!manualOverride) {
+    if (currentTemp >= thresholdTemp && !isPowerOn) {
+      setFan(true, "auto");
+    } else if (currentTemp < (thresholdTemp - hysteresis) && isPowerOn) {
+      setFan(false, "auto");
     }
   }
 }
