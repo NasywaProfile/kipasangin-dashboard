@@ -1,9 +1,11 @@
-// --- DOM Elements ---
 const welcomeScreen = document.getElementById('welcomeScreen');
 const appContainer = document.getElementById('appContainer');
 // --- Onboarding Elements ---
 const startBtn = document.getElementById('startBtn');
 const backBtn = document.getElementById('backBtn');
+const tutorialScreen = document.getElementById('tutorialScreen');
+const openTutorialBtn = document.getElementById('openTutorialBtn');
+const closeTutorialBtn = document.getElementById('closeTutorialBtn');
 
 const powerSwitch = document.getElementById('powerSwitch');
 const statusLabel = document.getElementById('statusLabel');
@@ -61,6 +63,22 @@ backBtn.addEventListener('click', () => {
         welcomeScreen.classList.remove('hidden');
         sessionActive = false;
     }, 600);
+});
+
+// --- Tutorial Screen Logic ---
+if (openTutorialBtn) openTutorialBtn.addEventListener('click', () => {
+    welcomeScreen.classList.add('hidden');
+    tutorialScreen.classList.remove('hidden');
+    // Using the same smooth enter animation as the dashboard
+    tutorialScreen.style.animation = 'dashboardEnter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+});
+
+if (closeTutorialBtn) closeTutorialBtn.addEventListener('click', () => {
+    tutorialScreen.style.animation = 'dashboardExit 0.5s ease forwards';
+    setTimeout(() => {
+        tutorialScreen.classList.add('hidden');
+        welcomeScreen.classList.remove('hidden');
+    }, 500);
 });
 
 
