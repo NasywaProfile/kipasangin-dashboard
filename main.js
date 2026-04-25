@@ -61,6 +61,8 @@ backBtn.addEventListener('click', () => {
     setTimeout(() => {
         appContainer.classList.add('hidden');
         welcomeScreen.classList.remove('hidden');
+        welcomeScreen.style.opacity = '1';
+        welcomeScreen.style.transform = 'scale(1)';
         sessionActive = false;
     }, 600);
 });
@@ -69,16 +71,18 @@ backBtn.addEventListener('click', () => {
 if (openTutorialBtn) openTutorialBtn.addEventListener('click', () => {
     welcomeScreen.classList.add('hidden');
     tutorialScreen.classList.remove('hidden');
-    // Using the same smooth enter animation as the dashboard
     tutorialScreen.style.animation = 'dashboardEnter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
 });
 
-if (closeTutorialBtn) closeTutorialBtn.addEventListener('click', () => {
-    tutorialScreen.style.animation = 'dashboardExit 0.5s ease forwards';
-    setTimeout(() => {
-        tutorialScreen.classList.add('hidden');
-        welcomeScreen.classList.remove('hidden');
-    }, 500);
+const closeTutorialBtns = document.querySelectorAll('.closeTutorialBtn');
+closeTutorialBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        tutorialScreen.style.animation = 'dashboardExit 0.5s ease forwards';
+        setTimeout(() => {
+            tutorialScreen.classList.add('hidden');
+            welcomeScreen.classList.remove('hidden');
+        }, 500);
+    });
 });
 
 
