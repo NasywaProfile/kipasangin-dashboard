@@ -30,6 +30,7 @@ let sessionActive = false;
 let thresholdTemp = 32.0;
 let lastLoggedThreshold = 32.0; // Tambahan untuk memori threshold sebelumnya
 let tempHistory = [24.5, 24.5, 24.5, 24.5, 24.5];
+let lastDbStatus = false; // Untuk melacak status di database agar tidak boros update
 
 // --- Initialize ---
 function init() {
@@ -38,6 +39,11 @@ function init() {
 
 // --- Simple Enter Flow ---
 function enterDashboard() {
+    // Minta izin notifikasi saat tombol ditekan (best practice agar tidak diblokir browser)
+    if ("Notification" in window && Notification.permission !== "granted") {
+        Notification.requestPermission();
+    }
+
     welcomeScreen.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     welcomeScreen.style.opacity = '0';
     welcomeScreen.style.transform = 'scale(1.02)';
@@ -162,6 +168,13 @@ function updatePowerUI(source = 'manual') {
 
         const title = source === 'auto' ? 'Auto-Cooling' : 'Fan Started';
         addHistory(title, 'on');
+        
+        // Memunculkan Notifikasi Push Web
+        if (source === 'auto') {
+            fireNotification('⚠️ Suhu Panas - Kipas Menyala', `Kipas Pintar menyala otomatis. Suhu ruangan mencapai ${currentTemp.toFixed(1)}°C (Batas: ${thresholdTemp.toFixed(1)}°C).`);
+        } else {
+            fireNotification('🌬️ Kipas Menyala (Manual)', `Kamu menyalakan kipas secara manual. Suhu saat ini: ${currentTemp.toFixed(1)}°C.`);
+        }
     } else {
         powerSwitch.classList.remove('on');
         appContainer.classList.remove('active-cool');
@@ -222,6 +235,16 @@ function updateUI() {
     updateSparkline();
 }
 
+// Fungsi bantu untuk memanggil Notifikasi OS
+function fireNotification(title, body) {
+    if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(title, {
+            body: body,
+            icon: 'vidsunset.png' // Meminjam gambar sunset sebagai icon notif
+        });
+    }
+}
+
 // ============================================================
 // MQTT - REAL-TIME PERINTAH (< 200ms)
 // ============================================================
@@ -276,6 +299,12 @@ mqttClient.on('message', (topic, message) => {
         if (historyList && historyList.children.length === 0) {
             addHistory('Kipas Terhubung', 'on', currentTemp);
         }
+        
+        // Sync ke Database - Set Online
+        if (!lastDbStatus) {
+            syncDeviceStatus(true);
+            lastDbStatus = true;
+        }
     }
 
     // Hitung mundur: Jika selama 6 detik kita sama sekali tidak menerima 
@@ -285,6 +314,13 @@ mqttClient.on('message', (topic, message) => {
         if (cloudStatusText.textContent === 'Online') {
             cloudStatus.classList.remove('online');
             cloudStatusText.textContent = 'Offline';
+            
+            // Sync ke Database - Set Offline & Log Error
+            if (lastDbStatus) {
+                syncDeviceStatus(false);
+                logSystemError('Koneksi Terputus / Mati Lampu');
+                lastDbStatus = false;
+            }
         }
     }, 6000);
 
@@ -314,6 +350,7 @@ mqttClient.on('message', (topic, message) => {
 const supabaseUrl = 'https://tddbbqwksbkqcfpdpjuc.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkZGJicXdrc2JrcWNmcGRwanVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTAyMjMsImV4cCI6MjA5MTgyNjIyM30.jEUYXFH3JGhHnBnr2b65T8Ldj6j69EV2msTiRZxPeS8';
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+window.supabaseClient = supabaseClient; // Agar bisa diakses dari console browser
 
 function logToSupabase(type, extra = {}) {
     supabaseClient.from('activity_log').insert([{
@@ -323,6 +360,26 @@ function logToSupabase(type, extra = {}) {
         // note: any extra object keys that mismatch columns will be ignored or error, so mapping precisely is better
     }]).then(({ error }) => {
         if (error) console.error("Supabase Error:", error);
+    });
+}
+
+// Fungsi Baru: Sync status Online/Offline ke Tabel Devices
+window.syncDeviceStatus = function(status) {
+    supabaseClient.from('devices').update({ 
+        is_online: status,
+        last_seen: new Date().toISOString()
+    }).eq('id', 'kipas-01').then(({ error }) => {
+        if (error) console.error("Gagal sync status perangkat:", error);
+    });
+}
+
+// Fungsi Baru: Mencatat Error otomatis ke Tabel Error Log
+window.logSystemError = function(msg) {
+    supabaseClient.from('error_log').insert([{
+        device_id: 'kipas-01',
+        error_msg: msg
+    }]).then(({ error }) => {
+        if (error) console.error("Gagal mencatat error log:", error);
     });
 }
 

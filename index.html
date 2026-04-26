@@ -13,8 +13,10 @@
     <style>
         .split-tutorial {
             display: flex;
-            width: 100%; max-width: 1000px;
-            height: 90vh; max-height: 700px;
+            width: 100%;
+            max-width: 1000px;
+            height: 90vh;
+            max-height: 700px;
             background: #FFFFFF;
             border-radius: 40px;
             box-shadow: 0 25px 50px -12px rgba(166, 115, 71, 0.15);
@@ -22,36 +24,55 @@
             margin: auto;
             border: 1px solid white;
         }
+
         .tutorial-left {
-            flex: 1.1; padding: 40px;
+            flex: 1.1;
+            padding: 40px;
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: white; display: flex; flex-direction: column; justify-content: center;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
+
         .tutorial-right {
-            flex: 1.2; padding: 40px; background: #F9F9FB;
-            display: flex; flex-direction: column; justify-content: flex-start; color: #36312D;
-            overflow-y: auto; position: relative; scrollbar-width: thin;
+            flex: 1.2;
+            padding: 40px;
+            background: #F9F9FB;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            color: #36312D;
+            overflow-y: auto;
+            position: relative;
+            scrollbar-width: thin;
         }
-        .d-none { display: none !important; }
+
+        .d-none {
+            display: none !important;
+        }
+
         @media screen and (max-width: 900px) {
             .split-tutorial {
-                flex-direction: column; 
-                height: max-content; 
-                max-height: none; 
-                overflow-y: visible; 
-                border-radius: 28px;
+                flex-direction: column;
+                height: auto;
+                max-height: 90vh;
+                overflow-y: auto;
+                border-radius: 32px;
             }
-            .tutorial-left {
-                padding: 24px 20px;
-                flex: none;
-            }
+
+            .tutorial-left,
             .tutorial-right {
-                padding: 24px 20px;
-                flex: none;
-                overflow-y: visible;
+                padding: 25px;
             }
-            .mobile-close-btn { display: flex !important; }
-            .desktop-close-btn { display: none !important; }
+
+            .mobile-close-btn {
+                display: flex !important;
+            }
+
+            .desktop-close-btn {
+                display: none !important;
+            }
         }
     </style>
 </head>
@@ -76,15 +97,18 @@
         <div class="start-btn-wrapper" style="flex-direction: column; align-items: center; gap: 0;">
             <button id="startBtn" class="glass-start-btn">
                 <span>Start Experience</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                     <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
             </button>
 
             <!-- Trik Setup Pertama Kali -->
-            <div style="margin-top: 25px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; width: 100%;">
-                <button id="openTutorialBtn" style="color: rgba(255,255,255,0.85); background: transparent; border: none; text-decoration: none; font-size: 0.9rem; font-weight: 400; cursor: pointer; padding: 5px; transition: color 0.3s; font-family: 'Outfit', sans-serif;">
+            <div
+                style="margin-top: 25px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; width: 100%;">
+                <button id="openTutorialBtn"
+                    style="color: rgba(255,255,255,0.85); background: transparent; border: none; text-decoration: none; font-size: 0.9rem; font-weight: 400; cursor: pointer; padding: 5px; transition: color 0.3s; font-family: 'Outfit', sans-serif;">
                     Belum konfigurasi WiFi? <span style="text-decoration: underline;">Sambungkan dulu</span>
                 </button>
             </div>
@@ -160,13 +184,16 @@
         <div class="dashboard-content modern-light">
             <!-- Right Panel Sections -->
             <div class="side-panel-wrapper">
-                
+
                 <!-- 1. Environment Stats -->
                 <section class="panel-section environment-entry">
                     <div class="section-tag">Environment</div>
                     <div class="main-stats-card">
                         <div class="stats-icon-box">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" /></svg>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
+                            </svg>
                         </div>
                         <div class="stats-main-info">
                             <p>Room Temperature</p>
@@ -176,7 +203,9 @@
                         </div>
                         <div class="stats-trend">
                             <svg viewBox="0 0 100 30" class="main-sparkline">
-                                <path d="M0 15 L 25 15 L 50 15 L 75 15 L 100 15" fill="none" stroke="#A67347" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" id="tempSparkline" />
+                                <path d="M0 15 L 25 15 L 50 15 L 75 15 L 100 15" fill="none" stroke="#A67347"
+                                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                                    id="tempSparkline" />
                             </svg>
                         </div>
                     </div>
@@ -195,17 +224,24 @@
                                 <input type="number" id="thresholdInput" value="32" min="20" max="45" step="0.1">
                                 <span class="badge-unit">°C</span>
                                 <button id="sendThresholdBtn" class="mini-send-btn" title="Update Threshold">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
                                 </button>
                             </div>
                         </div>
-                        
+
                         <div class="auto-control-box">
                             <div class="stepper-btn" id="tempDown">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="3">
+                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
                             </div>
                             <div class="slider-track-box">
-                                <input type="range" id="thresholdSlider" min="20" max="45" step="0.1" value="32" class="premium-slider">
+                                <input type="range" id="thresholdSlider" min="20" max="45" step="0.1" value="32"
+                                    class="premium-slider">
                                 <div class="slider-marks">
                                     <span>20°</span>
                                     <span>32°</span>
@@ -213,7 +249,11 @@
                                 </div>
                             </div>
                             <div class="stepper-btn" id="tempUp">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="3">
+                                    <line x1="12" y1="5" x2="12" y2="19" />
+                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
                             </div>
                         </div>
                     </div>
@@ -235,47 +275,67 @@
     </div>
 
     <!-- New Tutorial Screen - Split Layout -->
-    <div id="tutorialScreen" class="hidden" style="position: fixed; top: 0; left: 0; width: 100%; height: 100dvh; background: rgba(250, 247, 242, 0.95); backdrop-filter: blur(10px); display: flex; align-items: flex-start; justify-content: center; overflow-y: auto; z-index: 100; padding: 15px; box-sizing: border-box; opacity: 0; -webkit-overflow-scrolling: touch;">
-        
+    <div id="tutorialScreen" class="hidden"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(250, 247, 242, 0.9); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; box-sizing: border-box; opacity: 0;">
+
         <div class="split-tutorial">
             <!-- Left Side (Dark) -->
             <div class="tutorial-left">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
                     <h2 style="margin: 0; font-size: 1.8rem; font-weight: 700;">Panduan Setup WiFi</h2>
-                    <button class="closeTutorialBtn mobile-close-btn d-none" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; align-items: center; justify-content: center; font-size: 14px;">✕</button>
+                    <button class="closeTutorialBtn mobile-close-btn d-none"
+                        style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; align-items: center; justify-content: center; font-size: 14px;">✕</button>
                 </div>
 
                 <p style="font-size: 1rem; line-height: 1.6; margin-bottom: 25px; color: #cbd5e1;">
-                    Smart Fan ini belum mengenali internet di sekitar Anda. Ikuti langkah di bawah ini untuk menghubungkannya.
+                    Smart Fan ini belum mengenali internet di sekitar Anda. Ikuti langkah di bawah ini untuk
+                    menghubungkannya.
                 </p>
 
-                <div style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px 14px; border-radius: 12px; margin-bottom: 15px;">
-                    <h3 style="font-size: 0.95rem; margin-top: 0; margin-bottom: 6px; color: #fca5a5;">⚠️ SANGAT PENTING!</h3>
-                    <p style="font-size: 0.8rem; margin: 0; line-height: 1.4; color: #f8fafc;">Saat memindahkan koneksi WiFi di Perangkat Anda, <b>JANGAN MENUTUP ATAU ME-REFRESH HALAMAN WEB INI</b>. Biarkan halaman ini tetap terjaga di layar/latar belakang.</p>
+                <div
+                    style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); padding: 18px; border-radius: 16px; margin-bottom: 20px;">
+                    <h3 style="font-size: 1.1rem; margin-top: 0; margin-bottom: 8px; color: #fca5a5;">⚠️ SANGAT PENTING!
+                    </h3>
+                    <p style="font-size: 0.9rem; margin: 0; line-height: 1.5; color: #f8fafc;">Saat memindahkan koneksi
+                        WiFi di Perangkat Anda, <b>JANGAN MENUTUP ATAU ME-REFRESH HALAMAN WEB INI</b>. Biarkan halaman
+                        ini tetap terjaga di layar/latar belakang.</p>
                 </div>
             </div>
-            
+
             <!-- Right Side (Light) -->
             <div class="tutorial-right">
-                <button class="closeTutorialBtn desktop-close-btn" style="position: absolute; top: 25px; right: 25px; background: white; border: 1px solid #e2e8f0; color: #64748B; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: 0.2s; z-index: 10;">✕</button>
+                <button class="closeTutorialBtn desktop-close-btn"
+                    style="position: absolute; top: 25px; right: 25px; background: white; border: 1px solid #e2e8f0; color: #64748B; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); transition: 0.2s; z-index: 10;">✕</button>
 
                 <div style="margin-top: 10px;">
-                    <h4 style="margin-bottom: 12px; color: #A67347; font-size: 1.1rem; font-weight: 700;">Langkah-langkah:</h4>
-                    <ol style="font-size: 0.95rem; line-height: 1.7; padding-left: 20px; margin-bottom: 25px; color: #36312D; font-weight: 500;">
+                    <h4 style="margin-bottom: 12px; color: #A67347; font-size: 1.1rem; font-weight: 700;">
+                        Langkah-langkah:</h4>
+                    <ol
+                        style="font-size: 0.95rem; line-height: 1.7; padding-left: 20px; margin-bottom: 25px; color: #36312D; font-weight: 500;">
                         <li style="margin-bottom: 10px;">Buka <b>Pengaturan WiFi</b> di HP/Laptop.</li>
-                        <li style="margin-bottom: 10px;">Hubungkan ke WiFi <b>Setup_Kipas_Pintar</b>.<br><i style="font-size: 0.8rem; color: #8B827A; font-weight: 400; line-height: 1.4; display: block; margin-top: 4px;">(Jika ada peringatan 'Tidak ada Internet', pilih opsi 'Tetap Terhubung').</i></li>
+                        <li style="margin-bottom: 10px;">Hubungkan ke WiFi <b>Setup_Kipas_Pintar</b>.<br><i
+                                style="font-size: 0.8rem; color: #8B827A; font-weight: 400; line-height: 1.4; display: block; margin-top: 4px;">(Jika
+                                ada peringatan 'Tidak ada Internet', pilih opsi 'Tetap Terhubung').</i></li>
                         <li style="margin-bottom: 10px;">Setelah tersambung, <b>kembali buka halaman web ini</b>.</li>
                         <li style="margin-bottom: 10px;">Ketuk tombol merah di bawah ini:</li>
                     </ol>
 
-                    <a href="http://192.168.4.1" target="_blank" style="display: block; text-align: center; color: #fff; background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); padding: 16px 20px; border-radius: 14px; text-decoration: none; font-weight: 600; font-size: 1rem; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3); margin-bottom: 25px; transition: transform 0.2s, box-shadow 0.2s;">
+                    <a href="http://192.168.4.1" target="_blank"
+                        style="display: block; text-align: center; color: #fff; background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); padding: 16px 20px; border-radius: 14px; text-decoration: none; font-weight: 600; font-size: 1rem; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3); margin-bottom: 25px; transition: transform 0.2s, box-shadow 0.2s;">
                         ⚙️ Buka Pengaturan Setup
                     </a>
 
                     <div style="border-top: 1px solid #EAE4DC; padding-top: 18px;">
-                        <h4 style="margin-top: 0; margin-bottom: 8px; font-size: 0.95rem; color: #8B827A;">Apa yang terjadi selanjutnya?</h4>
+                        <h4 style="margin-top: 0; margin-bottom: 8px; font-size: 0.95rem; color: #8B827A;">Apa yang
+                            terjadi selanjutnya?</h4>
                         <p style="font-size: 0.85rem; line-height: 1.6; color: #8B827A; margin: 0; font-weight: 400;">
-                            Setelah menyimpan password, Kipas akan me-restart. Silakan tutup layar ini dengan menekan tanda silang (✕) di pojok kanan atas.<br><br>Jika status Dashboard Web Anda masih <span style="background: rgba(239,68,68,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(239,68,68,0.3); font-size: 0.75rem; color: #ef4444; font-weight: 700;">Offline</span>, artinya Kipas gagal mendapat koneksi ke rumah, harap ulangi proses ini.<br><br>Sebaliknya, jika status berubah menjadi <span style="background: rgba(16,185,129,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(16,185,129,0.3); font-size: 0.75rem; color: #10b981; font-weight: 700;">Online</span>, Kipas Anda sudah berhasil terhubung dan Web siap digunakan.
+                            Setelah menyimpan password, Kipas akan me-restart. Silakan tutup layar ini dengan menekan
+                            tanda silang (✕) di pojok kanan atas.<br><br>Jika status Dashboard Web Anda masih <span
+                                style="background: rgba(239,68,68,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(239,68,68,0.3); font-size: 0.75rem; color: #ef4444; font-weight: 700;">Offline</span>,
+                            artinya Kipas gagal mendapat koneksi ke rumah, harap ulangi proses ini.<br><br>Sebaliknya,
+                            jika status berubah menjadi <span
+                                style="background: rgba(16,185,129,0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(16,185,129,0.3); font-size: 0.75rem; color: #10b981; font-weight: 700;">Online</span>,
+                            selamat! Kipas Anda sudah berhasil terhubung dan Web siap digunakan.
                         </p>
                     </div>
                 </div>
@@ -285,7 +345,7 @@
 
     <script src="https://unpkg.com/mqtt@5.1.3/dist/mqtt.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module" src="main.js"></script>
+    <script type="module" src="main.js?v=3"></script>
 </body>
 
 </html>
