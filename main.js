@@ -353,15 +353,18 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 window.supabaseClient = supabaseClient; // Agar bisa diakses dari console browser
 
-function logToSupabase(type, extra = {}) {
-    supabaseClient.from('activity_log').insert([{
-        type: type,
-        temp: currentTemp,
-        threshold: thresholdTemp
-        // note: any extra object keys that mismatch columns will be ignored or error, so mapping precisely is better
-    }]).then(({ error }) => {
-        if (error) console.error("Supabase Error:", error);
-    });
+async function logToSupabase(action) {
+    if (!supabaseClient) return;
+    try {
+        console.log(`📝 Mencatat Aktivitas: ${action}`);
+        await supabaseClient.from('activity_log').insert([{
+            device_id: 'kipas-01',
+            action_type: action,
+            temperature: currentTemp
+        }]);
+    } catch (e) {
+        console.error("Log Error:", e);
+    }
 }
 
 // Fungsi Baru: Mencatat RIWAYAT status Online/Offline (Nambah terus ke bawah)
