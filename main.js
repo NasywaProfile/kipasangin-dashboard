@@ -257,7 +257,9 @@ const cloudStatusText = cloudStatus.querySelector('span:nth-child(2)');
 const mqttClient = mqtt.connect(MQTT_BROKER, {
     clientId: MQTT_CLIENT_ID,
     clean: true,
-    reconnectPeriod: 2000,
+    reconnectPeriod: 1000,
+    keepalive: 30, // Dipersingkat agar koneksi tetap "panas"
+    connectTimeout: 30000
 });
 
 let deviceTimeout;
@@ -393,10 +395,12 @@ window.handlePowerToggle = () => {
     isPowerOn = !isPowerOn;
     updatePowerUI('manual');
 
-    // Kirim via MQTT
-    if (mqttClient.connected) {
-        mqttClient.publish('smartfan/cmd/power', isPowerOn ? 'ON' : 'OFF', { qos: 1 });
+    // Kirim via MQTT - Paksa Reconnect jika putus di HP
+    if (!mqttClient.connected) {
+        mqttClient.reconnect();
     }
+    
+    mqttClient.publish('smartfan/cmd/power', isPowerOn ? 'ON' : 'OFF');
 
     // Log ke Supabase
     logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
@@ -408,9 +412,10 @@ powerSwitch.addEventListener('click', window.handlePowerToggle);
 // KIRIM THRESHOLD → MQTT INSTAN
 // ============================================================
 window.sendThreshold = function(val) {
-    if (mqttClient.connected) {
-        mqttClient.publish('smartfan/cmd/threshold', val.toFixed(1), { qos: 1 });
+    if (!mqttClient.connected) {
+        mqttClient.reconnect();
     }
+    mqttClient.publish('smartfan/cmd/threshold', val.toFixed(1));
     
     // Cuma rekam ke database JIKA angkanya benar-benar berubah
     if (val !== lastLoggedThreshold) {
