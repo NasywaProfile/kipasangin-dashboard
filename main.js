@@ -173,6 +173,7 @@ function updatePowerUI(source = 'manual') {
         addHistory(title, 'on');
         
         if (source === 'auto') {
+            logToSupabase('auto_on');
             fireNotification('⚠️ Suhu Panas - Kipas Menyala', `Kipas Pintar menyala otomatis. Suhu ruangan mencapai ${currentTemp.toFixed(1)}°C.`);
         }
     } else {
@@ -185,6 +186,10 @@ function updatePowerUI(source = 'manual') {
 
         const title = source === 'auto' ? 'Target Reached' : 'Fan Stopped';
         addHistory(title, 'off');
+
+        if (source === 'auto') {
+            logToSupabase('auto_off');
+        }
     }
 }
 
