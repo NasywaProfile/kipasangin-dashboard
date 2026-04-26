@@ -400,9 +400,11 @@ window.handlePowerToggle = () => {
     isPowerOn = !isPowerOn;
     updatePowerUI('manual');
 
-    // Kirim via MQTT
+    // Kirim via MQTT - Dengan Pelacak Error khusus HP
     const cmd = isPowerOn ? 'ON' : 'OFF';
-    mqttClient.publish('smartfan/cmd/power', cmd, { qos: 0 });
+    mqttClient.publish('smartfan/cmd/power', cmd, (err) => {
+        if (err) alert("Gagal kirim sinyal ke kipas: " + err.message);
+    });
 
     // Log ke Supabase
     logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
