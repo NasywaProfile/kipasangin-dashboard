@@ -314,14 +314,14 @@ mqttClient.on('message', (topic, message) => {
     // Hitung mundur: Jika selama 6 detik kita sama sekali tidak menerima 
     // pesan dari ESP32 (entah dicabut kabel / putus WiFi), kembalikan status ke Offline!
     clearTimeout(deviceTimeout);
-    deviceTimeout = setTimeout(() => {
+    deviceTimeout = setTimeout(async () => {
         if (cloudStatusText.textContent === 'Online') {
             cloudStatus.classList.remove('online');
             cloudStatusText.textContent = 'Offline';
             
             // Sync ke Database - Catat Riwayat Offline & Log Error
             if (lastDbStatus) {
-                syncDeviceStatus('Offline');
+                await syncDeviceStatus('Offline');
                 logSystemError('Koneksi Terputus / Mati Lampu');
                 lastDbStatus = false;
             }
