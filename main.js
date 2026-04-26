@@ -390,19 +390,21 @@ async function syncDeviceStatus(statusStr) {
     if (!supabaseClient) return;
     try {
         const statusBool = (statusStr === 'Online');
-        console.log(`📡 Mencatat Riwayat: ${statusStr} (${statusBool})`);
+        console.log(`📡 Mencatat Riwayat Koneksi: ${statusStr}`);
         
-        // Sekarang pakai .insert() agar BARIS NAMBAH TERUS (History)
         const { error } = await supabaseClient
             .from('devices') 
             .insert([
                 { 
-                    device_name: 'kipas-01', // Nama kolom baru sesuai SQL
+                    device_name: 'kipas-01', 
                     is_online: statusBool 
                 }
             ]);
         
-        if (error) console.error("Supabase Error:", error.message);
+        if (error) {
+            console.error("Supabase Error (Devices):", error.message);
+            alert("DB Devices Gagal: " + error.message);
+        }
     } catch (e) {
         console.error("Sync Error:", e);
     }
@@ -412,10 +414,15 @@ async function syncDeviceStatus(statusStr) {
 async function logSystemError(msg) {
     if (!supabaseClient) return;
     try {
-        await supabaseClient.from('error_log').insert([{ 
-            device_id: 'kipas-01', // Samakan dengan ID di tabel devices
+        const { error } = await supabaseClient.from('error_log').insert([{ 
+            device_id: 'kipas-01', 
             error_msg: msg 
         }]);
+        
+        if (error) {
+            console.error("Supabase Error (Error Log):", error.message);
+            alert("DB Error Log Gagal: " + error.message);
+        }
     } catch(e) {}
 }
 
