@@ -437,6 +437,13 @@ window.sendThreshold = function(val) {
     }
     mqttClient.publish('smartfan/cmd/threshold', val.toFixed(1));
     
+    // LOGIKA INSTAN: Agar HP langsung berubah tanpa nunggu sinyal
+    const shouldBeOn = currentTemp >= val;
+    if (shouldBeOn !== isPowerOn) {
+        isPowerOn = shouldBeOn;
+        updatePowerUI('auto');
+    }
+
     // Cuma rekam ke database JIKA angkanya benar-benar berubah
     if (val !== lastLoggedThreshold) {
         logToSupabase('threshold_change');
@@ -451,6 +458,13 @@ function handleTempUpdate(temp) {
     tempHistory.shift();
     tempHistory.push(currentTemp);
     updateSparkline();
+
+    // LOGIKA INSTAN: Cek suhu otomatis setiap kali ada data suhu baru masuk
+    const shouldBeOn = currentTemp >= thresholdTemp;
+    if (shouldBeOn !== isPowerOn) {
+        isPowerOn = shouldBeOn;
+        updatePowerUI('auto');
+    }
 }
 
 // Loop Reconnect Otomatis khusus untuk HP (Cek setiap 5 detik)
