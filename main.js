@@ -455,19 +455,19 @@ window.sendThreshold = async function(val) {
     // KETIKA SLIDER DIGESER → Kembali ke Mode Otomatis
     isManualOverride = false;
 
-    // LOGIKA INSTAN: Cek kondisi suhu saat ini vs Slider baru
+    // 1. Catat perubahan threshold DULU
+    if (val !== lastLoggedThreshold) {
+        await logToSupabase('threshold_change', val);
+        addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'settings');
+        lastLoggedThreshold = val;
+    }
+
+    // 2. Kemudian baru cek kondisi suhu vs Slider baru (Auto On/Off)
     const shouldBeOn = currentTemp >= val;
     if (shouldBeOn !== isPowerOn) {
         isPowerOn = shouldBeOn;
         // Tunggu proses Update UI & Log Auto Selesai
         await updatePowerUI('auto'); 
-    }
-
-    // Kemudian catat perubahan threshold-nya
-    if (val !== lastLoggedThreshold) {
-        await logToSupabase('threshold_change', val);
-        addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'settings');
-        lastLoggedThreshold = val;
     }
 }
 
