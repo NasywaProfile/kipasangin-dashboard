@@ -291,7 +291,7 @@ mqttClient.on('error', (err) => {
 
 // Terima data dari Arduino via MQTT
 mqttClient.on('message', (topic, message) => {
-    const data = message.toString();
+    const data = message.toString().trim();
 
     // 🌟 LOGIKA HEARTBEAT/REAL-TIME 🌟
     // Karena ESP32 mengirim suhu setiap 2 detik, artinya selama kita
@@ -400,11 +400,14 @@ window.handlePowerToggle = () => {
     isPowerOn = !isPowerOn;
     updatePowerUI('manual');
 
-    // Kirim via MQTT - Dengan Pelacak Error khusus HP
+    // Kirim via MQTT - Beri jeda 100ms agar HP tidak kewalahan
     const cmd = isPowerOn ? 'ON' : 'OFF';
-    mqttClient.publish('smartfan/cmd/power', cmd, (err) => {
-        if (err) alert("Gagal kirim sinyal ke kipas: " + err.message);
-    });
+    setTimeout(() => {
+        mqttClient.publish('smartfan/cmd/power', cmd, (err) => {
+            if (err) alert("Eror Kirim: " + err.message);
+            console.log("MQTT Sent: " + cmd);
+        });
+    }, 100);
 
     // Log ke Supabase
     logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
