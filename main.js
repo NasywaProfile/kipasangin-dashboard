@@ -30,7 +30,8 @@ let sessionActive = false;
 let thresholdTemp = 32.0;
 let lastLoggedThreshold = 32.0; // Tambahan untuk memori threshold sebelumnya
 let tempHistory = [24.5, 24.5, 24.5, 24.5, 24.5];
-let lastDbStatus = false; // Untuk melacak status di database agar tidak boros update
+let lastDbStatus = false; 
+let lastPowerCommandTime = 0; // Kunci agar status tidak balik-balik sendiri saat diklik
 
 // --- Initialize ---
 function init() {
@@ -330,6 +331,9 @@ mqttClient.on('message', (topic, message) => {
         handleTempUpdate(parseFloat(data));
 
     } else if (topic === 'smartfan/data/power') {
+        // JANGAN UPDATE UI jika kita baru saja menekan tombol manual (cegah Race Condition)
+        if (Date.now() - lastPowerCommandTime < 3000) return;
+
         const newState = (data === 'ON');
         if (newState !== isPowerOn) {
             isPowerOn = newState;
@@ -388,6 +392,7 @@ window.logSystemError = function(msg) {
 // TOMBOL POWER → PUBLISH MQTT INSTAN + LOG FIREBASE
 // ============================================================
 window.handlePowerToggle = () => {
+    lastPowerCommandTime = Date.now(); // Kunci data luar selama 3 detik
     console.log("Button Clicked!");
     // Feedback Getar untuk HP
     if ("vibrate" in navigator) navigator.vibrate(50);
