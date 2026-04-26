@@ -369,20 +369,22 @@ async function syncDeviceStatus(statusStr) {
     if (!supabaseClient) return;
     try {
         const statusBool = (statusStr === 'Online');
-        console.log(`📡 Mengirim ke DB: ${statusStr} (${statusBool})`);
+        console.log(`📡 Mengupdate Status: ${statusStr} (${statusBool})`);
         
+        // Gunakan UPSERT: Jika kipas-01 sudah ada, UPDATE statusnya. Jika belum, TAMBAH.
         const { error } = await supabaseClient
             .from('devices') 
-            .insert([
+            .upsert([
                 { 
-                    id: 'kipas-01', // Sesuai screenshot Supabase kamu
-                    is_online: statusBool // Sesuai screenshot Supabase kamu
+                    id: 'kipas-01', 
+                    is_online: statusBool,
+                    last_seen: new Date().toISOString() // Update waktu terakhir terlihat
                 }
             ]);
         
         if (error) {
             console.error("Supabase Error:", error.message);
-            alert("Gagal catat ke Database: " + error.message);
+            alert("Gagal update Database: " + error.message);
         }
     } catch (e) {
         console.error("Sync Error:", e);
