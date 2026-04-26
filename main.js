@@ -375,7 +375,8 @@ async function syncDeviceStatus(statusStr) {
             .from('devices') 
             .insert([
                 { 
-                    status: statusBool // Hanya kirim status saja agar tidak error kolom
+                    id: 'kipas-01', // Sesuai screenshot Supabase kamu
+                    is_online: statusBool // Sesuai screenshot Supabase kamu
                 }
             ]);
         
