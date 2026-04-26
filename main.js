@@ -409,12 +409,17 @@ async function logSystemError(msg) {
     } catch(e) {}
 }
 
+let isManualOverride = false; // Flag untuk mode Manual vs Auto
+
 // ============================================================
 // TOMBOL POWER → PUBLISH MQTT INSTAN + LOG FIREBASE
 // ============================================================
 window.handlePowerToggle = () => {
     lastPowerCommandTime = Date.now(); 
     if ("vibrate" in navigator) navigator.vibrate(50);
+
+    // KETIKA TOMBOL DITEKAN → Masuk Mode Manual
+    isManualOverride = true; 
 
     isPowerOn = powerSwitch.checked; // Ambil status dari checkbox
     updatePowerUI('manual');
@@ -437,6 +442,9 @@ window.sendThreshold = function(val) {
     }
     mqttClient.publish('smartfan/cmd/threshold', val.toFixed(1));
     
+    // KETIKA SLIDER DIGESER → Kembali ke Mode Otomatis
+    isManualOverride = false;
+
     // LOGIKA INSTAN: Agar HP langsung berubah tanpa nunggu sinyal
     const shouldBeOn = currentTemp >= val;
     if (shouldBeOn !== isPowerOn) {
@@ -459,11 +467,13 @@ function handleTempUpdate(temp) {
     tempHistory.push(currentTemp);
     updateSparkline();
 
-    // LOGIKA INSTAN: Cek suhu otomatis setiap kali ada data suhu baru masuk
-    const shouldBeOn = currentTemp >= thresholdTemp;
-    if (shouldBeOn !== isPowerOn) {
-        isPowerOn = shouldBeOn;
-        updatePowerUI('auto');
+    // HANYA CEK OTOMATIS JIKA TIDAK SEDANG DALAM MODE MANUAL
+    if (!isManualOverride) {
+        const shouldBeOn = currentTemp >= thresholdTemp;
+        if (shouldBeOn !== isPowerOn) {
+            isPowerOn = shouldBeOn;
+            updatePowerUI('auto');
+        }
     }
 }
 
