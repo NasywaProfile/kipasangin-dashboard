@@ -249,8 +249,8 @@ function fireNotification(title, body) {
 // ============================================================
 // MQTT - REAL-TIME PERINTAH (< 200ms)
 // ============================================================
-const MQTT_BROKER = 'wss://broker.hivemq.com:8884/mqtt'; // Kembali ke port standar yang sudah teruji
-const MQTT_CLIENT_ID = 'smartfan_web_' + Math.random().toString(16).slice(2, 10);
+const MQTT_BROKER = 'wss://broker.hivemq.com:8884/mqtt';
+const MQTT_CLIENT_ID = 'SF_' + Math.random().toString(10).slice(2, 6); // ID lebih pendek biar disukai HP
 
 const cloudStatus = document.getElementById('cloudStatus');
 const cloudStatusText = cloudStatus.querySelector('span:nth-child(2)');
@@ -259,8 +259,9 @@ const mqttClient = mqtt.connect(MQTT_BROKER, {
     clientId: MQTT_CLIENT_ID,
     clean: true,
     reconnectPeriod: 1000,
-    keepalive: 10, // Sangat sering menyapa server agar tidak diputus HP
-    connectTimeout: 30000
+    keepalive: 60,
+    connectTimeout: 30000,
+    protocolVersion: 4 // Gunakan versi 4 yang lebih stabil untuk HP
 });
 
 let deviceTimeout;
@@ -331,8 +332,8 @@ mqttClient.on('message', (topic, message) => {
         handleTempUpdate(parseFloat(data));
 
     } else if (topic === 'smartfan/data/power') {
-        // JANGAN UPDATE UI jika kita baru saja menekan tombol manual (cegah Race Condition)
-        if (Date.now() - lastPowerCommandTime < 3000) return;
+        // Jeda kunci diperpendek jadi 1.5 detik biar lebih sinkron
+        if (Date.now() - lastPowerCommandTime < 1500) return;
 
         const newState = (data === 'ON');
         if (newState !== isPowerOn) {
@@ -392,23 +393,17 @@ window.logSystemError = function(msg) {
 // TOMBOL POWER → PUBLISH MQTT INSTAN + LOG FIREBASE
 // ============================================================
 window.handlePowerToggle = () => {
-    lastPowerCommandTime = Date.now(); // Kunci data luar selama 3 detik
+    lastPowerCommandTime = Date.now(); 
     console.log("Button Clicked!");
-    // Feedback Getar untuk HP
     if ("vibrate" in navigator) navigator.vibrate(50);
 
     isPowerOn = !isPowerOn;
     updatePowerUI('manual');
 
-    // Kirim via MQTT - Beri jeda 100ms agar HP tidak kewalahan
+    // Kirim via MQTT - Langsung tanpa jeda agar instan
     const cmd = isPowerOn ? 'ON' : 'OFF';
-    setTimeout(() => {
-        mqttClient.publish('smartfan/cmd/power', cmd, (err) => {
-            if (err) alert("Eror Kirim: " + err.message);
-            console.log("MQTT Sent: " + cmd);
-        });
-    }, 100);
-
+    mqttClient.publish('smartfan/cmd/power', cmd, { qos: 0 });
+    
     // Log ke Supabase
     logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
 };
