@@ -259,7 +259,7 @@ const mqttClient = mqtt.connect(MQTT_BROKER, {
     clientId: MQTT_CLIENT_ID,
     clean: true,
     reconnectPeriod: 1000,
-    keepalive: 30, // Dipersingkat agar koneksi tetap "panas"
+    keepalive: 10, // Sangat sering menyapa server agar tidak diputus HP
     connectTimeout: 30000
 });
 
@@ -325,7 +325,7 @@ mqttClient.on('message', (topic, message) => {
                 lastDbStatus = false;
             }
         }
-    }, 6000);
+    }, 20000); // Beri HP waktu 20 detik (lebih longgar agar tidak gampang Offline)
 
     if (topic === 'smartfan/data/temp') {
         handleTempUpdate(parseFloat(data));
