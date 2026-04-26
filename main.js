@@ -249,7 +249,7 @@ function fireNotification(title, body) {
 // ============================================================
 // MQTT - REAL-TIME PERINTAH (< 200ms)
 // ============================================================
-const MQTT_BROKER = 'wss://broker.hivemq.com/mqtt'; // Jalur utama HTTPS, lebih aman untuk HP
+const MQTT_BROKER = 'wss://broker.hivemq.com:8884/mqtt'; // Kembali ke port standar yang sudah teruji
 const MQTT_CLIENT_ID = 'smartfan_web_' + Math.random().toString(16).slice(2, 10);
 
 const cloudStatus = document.getElementById('cloudStatus');
