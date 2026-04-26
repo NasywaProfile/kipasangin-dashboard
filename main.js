@@ -300,9 +300,9 @@ mqttClient.on('message', (topic, message) => {
             addHistory('Kipas Terhubung', 'on', currentTemp);
         }
         
-        // Sync ke Database - Set Online
+        // Sync ke Database - Catat Riwayat Online
         if (!lastDbStatus) {
-            syncDeviceStatus(true);
+            syncDeviceStatus('Online');
             lastDbStatus = true;
         }
     }
@@ -315,9 +315,9 @@ mqttClient.on('message', (topic, message) => {
             cloudStatus.classList.remove('online');
             cloudStatusText.textContent = 'Offline';
             
-            // Sync ke Database - Set Offline & Log Error
+            // Sync ke Database - Catat Riwayat Offline & Log Error
             if (lastDbStatus) {
-                syncDeviceStatus(false);
+                syncDeviceStatus('Offline');
                 logSystemError('Koneksi Terputus / Mati Lampu');
                 lastDbStatus = false;
             }
@@ -363,13 +363,12 @@ function logToSupabase(type, extra = {}) {
     });
 }
 
-// Fungsi Baru: Sync status Online/Offline ke Tabel Devices
-window.syncDeviceStatus = function(status) {
-    supabaseClient.from('devices').update({ 
-        is_online: status,
-        last_seen: new Date().toISOString()
-    }).eq('id', 'kipas-01').then(({ error }) => {
-        if (error) console.error("Gagal sync status perangkat:", error);
+// Fungsi Baru: Mencatat RIWAYAT status Online/Offline (Nambah terus ke bawah)
+window.syncDeviceStatus = function(statusLabel) {
+    supabaseClient.from('connection_log').insert([{ 
+        status: statusLabel
+    }]).then(({ error }) => {
+        if (error) console.error("Gagal mencatat riwayat koneksi:", error);
     });
 }
 

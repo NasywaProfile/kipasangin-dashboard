@@ -288,6 +288,7 @@ body {
 .power-toggle {
     width: 68px; height: 38px; background: #E2E8F0; border-radius: 20px; border: none; cursor: pointer;
     position: relative; transition: background 0.4s ease;
+    z-index: 50; touch-action: manipulation;
 }
 .toggle-knob {
     width: 30px; height: 30px; background: white; border-radius: 50%; position: absolute; top: 4px; left: 4px;
