@@ -332,8 +332,8 @@ mqttClient.on('message', (topic, message) => {
         handleTempUpdate(parseFloat(data));
 
     } else if (topic === 'smartfan/data/power') {
-        // Gembok diperkuat jadi 10 detik agar tidak "mental" di HP
-        if (Date.now() - lastPowerCommandTime < 10000) return;
+        // Jeda diperpendek jadi 4 detik agar sinkronisasi antar perangkat lebih cepat (Real-time)
+        if (Date.now() - lastPowerCommandTime < 4000) return;
 
         const newState = (data === 'ON');
         if (newState !== isPowerOn) {
@@ -402,6 +402,7 @@ window.handlePowerToggle = () => {
     const cmd = isPowerOn ? 'ON' : 'OFF';
     mqttClient.publish('smartfan/cmd/power', cmd); 
     
+    // Log ke Supabase tanpa mengganggu tampilan
     logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
 };
 
