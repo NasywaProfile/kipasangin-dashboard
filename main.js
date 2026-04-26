@@ -375,8 +375,7 @@ async function syncDeviceStatus(statusStr) {
             .from('devices') 
             .insert([
                 { 
-                    device_id: 'kipas_pintar_01', 
-                    status: statusBool
+                    status: statusBool // Hanya kirim status saja agar tidak error kolom
                 }
             ]);
         
@@ -386,7 +385,6 @@ async function syncDeviceStatus(statusStr) {
         }
     } catch (e) {
         console.error("Sync Error:", e);
-        alert("Sync Error: " + e.message);
     }
 }
 
