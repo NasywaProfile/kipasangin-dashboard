@@ -390,13 +390,14 @@ async function syncDeviceStatus(statusStr) {
 }
 
 // Fungsi Baru: Mencatat Error otomatis ke Tabel Error Log
-window.logSystemError = function(msg) {
-    supabaseClient.from('error_log').insert([{
-        device_id: 'kipas-01',
-        error_msg: msg
-    }]).then(({ error }) => {
-        if (error) console.error("Gagal mencatat error log:", error);
-    });
+async function logSystemError(msg) {
+    if (!supabaseClient) return;
+    try {
+        await supabaseClient.from('error_log').insert([{ 
+            device_id: 'kipas-01', // Samakan dengan ID di tabel devices
+            error_msg: msg 
+        }]);
+    } catch(e) {}
 }
 
 // ============================================================
