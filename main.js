@@ -165,8 +165,8 @@ function updatePowerUI(source = 'manual') {
         if (powerSwitch) powerSwitch.checked = true;
         if (toggleUI) toggleUI.classList.add('on');
         appContainer.classList.add('active-cool');
-        statusLabel.textContent = 'Active Cooling';
-        statusLabel.style.color = '#A67347';
+        statusLabel.textContent = 'Cooling';
+        statusLabel.style.color = '#10B981';
         fanBlades.classList.add('spinning');
 
         const title = source === 'auto' ? 'Auto-Cooling' : 'Fan Started';
@@ -365,6 +365,13 @@ window.supabaseClient = supabaseClient; // Agar bisa diakses dari console browse
 
 async function logToSupabase(action) {
     if (!supabaseClient) return;
+    
+    // PROTEKSI EKSTRA: Jangan izinkan log AUTO masuk kalau kita sedang MANUAL
+    if (isManualOverride && action.startsWith('auto_')) {
+        console.log(`🚫 Memblokir log ganda: ${action} diabaikan saat Manual Mode`);
+        return;
+    }
+
     try {
         console.log(`📝 Mencatat Aktivitas: ${action}`);
         await supabaseClient.from('activity_log').insert([{
