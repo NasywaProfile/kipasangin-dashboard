@@ -332,8 +332,8 @@ mqttClient.on('message', (topic, message) => {
         handleTempUpdate(parseFloat(data));
 
     } else if (topic === 'smartfan/data/power') {
-        // Jeda kunci diperpendek jadi 1.5 detik biar lebih sinkron
-        if (Date.now() - lastPowerCommandTime < 1500) return;
+        // Gembok diperkuat jadi 10 detik agar tidak "mental" di HP
+        if (Date.now() - lastPowerCommandTime < 10000) return;
 
         const newState = (data === 'ON');
         if (newState !== isPowerOn) {
@@ -393,16 +393,18 @@ window.logSystemError = function(msg) {
 // TOMBOL POWER → PUBLISH MQTT INSTAN + LOG FIREBASE
 // ============================================================
 window.handlePowerToggle = () => {
-    lastPowerCommandTime = Date.now(); 
+    lastPowerCommandTime = Date.now(); // Gembok 10 detik dimulai
     console.log("Button Clicked!");
     if ("vibrate" in navigator) navigator.vibrate(50);
 
     isPowerOn = !isPowerOn;
     updatePowerUI('manual');
 
-    // Kirim via MQTT - Langsung tanpa jeda agar instan
+    // Kirim via MQTT - Kirim 3x dengan jeda 1 detik (Sangat Agresif)
     const cmd = isPowerOn ? 'ON' : 'OFF';
-    mqttClient.publish('smartfan/cmd/power', cmd, { qos: 0 });
+    mqttClient.publish('smartfan/cmd/power', cmd); 
+    setTimeout(() => mqttClient.publish('smartfan/cmd/power', cmd), 1000);
+    setTimeout(() => mqttClient.publish('smartfan/cmd/power', cmd), 2000);
     
     // Log ke Supabase
     logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
