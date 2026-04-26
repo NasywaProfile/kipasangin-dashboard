@@ -385,7 +385,10 @@ window.logSystemError = function(msg) {
 // ============================================================
 // TOMBOL POWER → PUBLISH MQTT INSTAN + LOG FIREBASE
 // ============================================================
-powerSwitch.addEventListener('click', () => {
+const handlePowerToggle = () => {
+    // Feedback Getar untuk HP (biar tahu kalau tombol kepencet)
+    if ("vibrate" in navigator) navigator.vibrate(50);
+
     isPowerOn = !isPowerOn;
     updatePowerUI('manual');
 
@@ -396,7 +399,9 @@ powerSwitch.addEventListener('click', () => {
 
     // Log ke Supabase (background, tidak blokir)
     logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
-});
+};
+
+powerSwitch.addEventListener('click', handlePowerToggle);
 
 // ============================================================
 // KIRIM THRESHOLD → MQTT INSTAN
