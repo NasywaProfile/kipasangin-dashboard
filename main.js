@@ -371,12 +371,27 @@ function logToSupabase(type, extra = {}) {
 }
 
 // Fungsi Baru: Mencatat RIWAYAT status Online/Offline (Nambah terus ke bawah)
-window.syncDeviceStatus = function(statusLabel) {
-    supabaseClient.from('connection_log').insert([{ 
-        status: statusLabel
-    }]).then(({ error }) => {
-        if (error) console.error("Gagal mencatat riwayat koneksi:", error);
-    });
+async function syncDeviceStatus(statusStr) {
+    if (!supabaseClient) return;
+    try {
+        // Konversi Tulisan ke Boolean (true jika Online, false jika Offline)
+        const statusBool = (statusStr === 'Online');
+        
+        console.log(`Syncing connection: ${statusStr} (${statusBool}) to devices table...`);
+        
+        const { error } = await supabaseClient
+            .from('devices') 
+            .insert([
+                { 
+                    device_id: 'kipas_pintar_01', 
+                    status: statusBool 
+                }
+            ]);
+        
+        if (error) console.error("Supabase Error:", error.message);
+    } catch (e) {
+        console.error("Sync Error:", e);
+    }
 }
 
 // Fungsi Baru: Mencatat Error otomatis ke Tabel Error Log
