@@ -385,28 +385,29 @@ window.logSystemError = function(msg) {
 // ============================================================
 // TOMBOL POWER → PUBLISH MQTT INSTAN + LOG FIREBASE
 // ============================================================
-const handlePowerToggle = () => {
-    // Feedback Getar untuk HP (biar tahu kalau tombol kepencet)
+window.handlePowerToggle = () => {
+    console.log("Button Clicked!");
+    // Feedback Getar untuk HP
     if ("vibrate" in navigator) navigator.vibrate(50);
 
     isPowerOn = !isPowerOn;
     updatePowerUI('manual');
 
-    // Kirim via MQTT — instan ke Arduino!
+    // Kirim via MQTT
     if (mqttClient.connected) {
         mqttClient.publish('smartfan/cmd/power', isPowerOn ? 'ON' : 'OFF', { qos: 1 });
     }
 
-    // Log ke Supabase (background, tidak blokir)
+    // Log ke Supabase
     logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
 };
 
-powerSwitch.addEventListener('click', handlePowerToggle);
+powerSwitch.addEventListener('click', window.handlePowerToggle);
 
 // ============================================================
 // KIRIM THRESHOLD → MQTT INSTAN
 // ============================================================
-function sendThreshold(val) {
+window.sendThreshold = function(val) {
     if (mqttClient.connected) {
         mqttClient.publish('smartfan/cmd/threshold', val.toFixed(1), { qos: 1 });
     }
