@@ -313,7 +313,11 @@ mqttClient.on('message', (topic, message) => {
         syncDeviceStatus('Online');
     }
 
-    // Reset timer Offline - Diperlonggar jadi 40 detik untuk HP agar tidak gampang offline
+    // Reset timer Offline
+    // JIKA Kipas OFF: Kita beri waktu 3 menit (180 detik) biar nggak gampang Offline
+    // JIKA Kipas ON: Kita beri waktu 40 detik agar tetap sigap
+    const timeoutDuration = isPowerOn ? 40000 : 180000;
+
     clearTimeout(deviceTimeout);
     deviceTimeout = setTimeout(async () => {
         if (cloudStatusText.textContent === 'Online') {
@@ -325,7 +329,7 @@ mqttClient.on('message', (topic, message) => {
             await syncDeviceStatus('Offline');
             logSystemError('Koneksi Terputus / Mati Lampu');
         }
-    }, 40000); 
+    }, timeoutDuration); 
 
     if (topic === 'smartfan/data/temp') {
         handleTempUpdate(parseFloat(data));
