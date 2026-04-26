@@ -393,20 +393,20 @@ window.logSystemError = function(msg) {
 // TOMBOL POWER → PUBLISH MQTT INSTAN + LOG FIREBASE
 // ============================================================
 window.handlePowerToggle = () => {
-    lastPowerCommandTime = Date.now(); // Gembok 10 detik dimulai
-    console.log("Button Clicked!");
+    lastPowerCommandTime = Date.now(); 
     if ("vibrate" in navigator) navigator.vibrate(50);
 
-    isPowerOn = !isPowerOn;
+    // Amankan status: Cek kondisi nyata tombol saat ini
+    const currentlyOn = powerSwitch.classList.contains('on');
+    isPowerOn = !currentlyOn; // Balikkan statusnya
     updatePowerUI('manual');
 
-    // Kirim via MQTT - Kirim 3x dengan jeda 1 detik (Sangat Agresif)
+    // Kirim via MQTT - Serangan Kilat (3x dalam 0.2 detik)
     const cmd = isPowerOn ? 'ON' : 'OFF';
     mqttClient.publish('smartfan/cmd/power', cmd); 
-    setTimeout(() => mqttClient.publish('smartfan/cmd/power', cmd), 1000);
-    setTimeout(() => mqttClient.publish('smartfan/cmd/power', cmd), 2000);
+    setTimeout(() => mqttClient.publish('smartfan/cmd/power', cmd), 100);
+    setTimeout(() => mqttClient.publish('smartfan/cmd/power', cmd), 200);
     
-    // Log ke Supabase
     logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
 };
 
