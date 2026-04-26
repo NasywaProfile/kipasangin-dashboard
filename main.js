@@ -249,7 +249,7 @@ function fireNotification(title, body) {
 // ============================================================
 // MQTT - REAL-TIME PERINTAH (< 200ms)
 // ============================================================
-const MQTT_BROKER = 'wss://broker.hivemq.com:8884/mqtt';
+const MQTT_BROKER = 'wss://broker.hivemq.com/mqtt'; // Jalur utama HTTPS, lebih aman untuk HP
 const MQTT_CLIENT_ID = 'smartfan_web_' + Math.random().toString(16).slice(2, 10);
 
 const cloudStatus = document.getElementById('cloudStatus');
@@ -400,12 +400,11 @@ window.handlePowerToggle = () => {
     isPowerOn = !isPowerOn;
     updatePowerUI('manual');
 
-    // Kirim via MQTT - Paksa Reconnect jika putus di HP
-    if (!mqttClient.connected) {
-        mqttClient.reconnect();
-    }
-    
-    mqttClient.publish('smartfan/cmd/power', isPowerOn ? 'ON' : 'OFF');
+    // Kirim via MQTT - Kirim 3x biar fiks tembus jaringan HP
+    const cmd = isPowerOn ? 'ON' : 'OFF';
+    mqttClient.publish('smartfan/cmd/power', cmd);
+    setTimeout(() => mqttClient.publish('smartfan/cmd/power', cmd), 200);
+    setTimeout(() => mqttClient.publish('smartfan/cmd/power', cmd), 500);
 
     // Log ke Supabase
     logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
