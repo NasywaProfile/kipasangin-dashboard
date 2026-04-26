@@ -313,7 +313,7 @@ mqttClient.on('message', (topic, message) => {
         syncDeviceStatus('Online');
     }
 
-    // Reset timer Offline setiap kali ada data masuk
+    // Reset timer Offline - Diperlonggar jadi 40 detik untuk HP agar tidak gampang offline
     clearTimeout(deviceTimeout);
     deviceTimeout = setTimeout(async () => {
         if (cloudStatusText.textContent === 'Online') {
@@ -325,14 +325,13 @@ mqttClient.on('message', (topic, message) => {
             await syncDeviceStatus('Offline');
             logSystemError('Koneksi Terputus / Mati Lampu');
         }
-    }, 20000); // Beri HP waktu 20 detik (lebih longgar agar tidak gampang Offline)
+    }, 40000); 
 
     if (topic === 'smartfan/data/temp') {
         handleTempUpdate(parseFloat(data));
 
     } else if (topic === 'smartfan/data/power') {
-        // Jeda diperpendek jadi 4 detik agar sinkronisasi antar perangkat lebih cepat (Real-time)
-        if (Date.now() - lastPowerCommandTime < 4000) return;
+        if (Date.now() - lastPowerCommandTime < 2000) return;
 
         const newState = (data === 'ON');
         if (newState !== isPowerOn) {
@@ -449,5 +448,13 @@ function handleTempUpdate(temp) {
     tempHistory.push(currentTemp);
     updateSparkline();
 }
+
+// Loop Reconnect Otomatis khusus untuk HP (Cek setiap 5 detik)
+setInterval(() => {
+    if (mqttClient && !mqttClient.connected) {
+        console.log("MQTT Putus, menyambung kembali...");
+        mqttClient.reconnect();
+    }
+}, 5000);
 
 init();
