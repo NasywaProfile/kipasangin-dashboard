@@ -313,23 +313,20 @@ mqttClient.on('message', (topic, message) => {
         syncDeviceStatus('Online');
     }
 
-    // Reset timer Offline
-    // JIKA Kipas OFF: Kita beri waktu 3 menit (180 detik) biar nggak gampang Offline
-    // JIKA Kipas ON: Kita beri waktu 40 detik agar tetap sigap
-    const timeoutDuration = isPowerOn ? 40000 : 180000;
-
+    // Reset timer Offline - Kita set ke 20 detik saja biar cepat ketahuan kalau mati
     clearTimeout(deviceTimeout);
     deviceTimeout = setTimeout(async () => {
         if (cloudStatusText.textContent === 'Online') {
+            console.log("⚠️ Timeout terdeteksi! Mengubah status ke Offline...");
             cloudStatus.classList.remove('online');
             cloudStatusText.textContent = 'Offline';
             statusLabel.textContent = 'Standby';
             
             // Sync ke Database - Set Offline (PAKSA)
             await syncDeviceStatus('Offline');
-            logSystemError('Koneksi Terputus / Mati Lampu');
+            await logSystemError('Koneksi Terputus / Mati Lampu');
         }
-    }, timeoutDuration); 
+    }, 20000); 
 
     if (topic === 'smartfan/data/temp') {
         handleTempUpdate(parseFloat(data));
