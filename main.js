@@ -400,11 +400,9 @@ window.handlePowerToggle = () => {
     isPowerOn = !isPowerOn;
     updatePowerUI('manual');
 
-    // Kirim via MQTT - Kirim 3x biar fiks tembus jaringan HP
+    // Kirim via MQTT
     const cmd = isPowerOn ? 'ON' : 'OFF';
-    mqttClient.publish('smartfan/cmd/power', cmd);
-    setTimeout(() => mqttClient.publish('smartfan/cmd/power', cmd), 200);
-    setTimeout(() => mqttClient.publish('smartfan/cmd/power', cmd), 500);
+    mqttClient.publish('smartfan/cmd/power', cmd, { qos: 0 });
 
     // Log ke Supabase
     logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
