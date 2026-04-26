@@ -171,15 +171,18 @@
                         <h3>Device Power</h3>
                         <p id="statusLabel">Standby</p>
                     </div>
-                    <button id="powerSwitch" class="power-toggle off">
-                        <div class="toggle-knob">
-                            <svg class="p-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
-                                <line x1="12" y1="2" x2="12" y2="12" />
-                            </svg>
+                    <label class="power-switch-label">
+                        <input type="checkbox" id="powerSwitch" style="display:none">
+                        <div class="power-toggle-ui">
+                            <div class="toggle-knob">
+                                <svg class="p-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
+                                    <line x1="12" y1="2" x2="12" y2="12" />
+                                </svg>
+                            </div>
                         </div>
-                    </button>
+                    </label>
                 </div>
             </div>
         </section>
@@ -347,7 +350,7 @@
 
     <script src="https://unpkg.com/mqtt@4.3.7/dist/mqtt.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script type="module" src="main.js?v=13"></script>
+    <script type="module" src="main.js?v=14"></script>
 </body>
 
 </html>

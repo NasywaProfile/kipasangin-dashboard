@@ -160,8 +160,10 @@ if (tempDownBtn) tempDownBtn.addEventListener('click', () => {
 });
 
 function updatePowerUI(source = 'manual') {
+    const toggleUI = document.querySelector('.power-toggle-ui');
     if (isPowerOn) {
-        powerSwitch.classList.add('on');
+        if (powerSwitch) powerSwitch.checked = true;
+        if (toggleUI) toggleUI.classList.add('on');
         appContainer.classList.add('active-cool');
         statusLabel.textContent = 'Active Cooling';
         statusLabel.style.color = '#A67347';
@@ -170,14 +172,12 @@ function updatePowerUI(source = 'manual') {
         const title = source === 'auto' ? 'Auto-Cooling' : 'Fan Started';
         addHistory(title, 'on');
         
-        // Memunculkan Notifikasi Push Web
         if (source === 'auto') {
-            fireNotification('⚠️ Suhu Panas - Kipas Menyala', `Kipas Pintar menyala otomatis. Suhu ruangan mencapai ${currentTemp.toFixed(1)}°C (Batas: ${thresholdTemp.toFixed(1)}°C).`);
-        } else {
-            fireNotification('🌬️ Kipas Menyala (Manual)', `Kamu menyalakan kipas secara manual. Suhu saat ini: ${currentTemp.toFixed(1)}°C.`);
+            fireNotification('⚠️ Suhu Panas - Kipas Menyala', `Kipas Pintar menyala otomatis. Suhu ruangan mencapai ${currentTemp.toFixed(1)}°C.`);
         }
     } else {
-        powerSwitch.classList.remove('on');
+        if (powerSwitch) powerSwitch.checked = false;
+        if (toggleUI) toggleUI.classList.remove('on');
         appContainer.classList.remove('active-cool');
         statusLabel.textContent = 'Standby';
         statusLabel.style.color = '#64748B';
@@ -396,21 +396,16 @@ window.handlePowerToggle = () => {
     lastPowerCommandTime = Date.now(); 
     if ("vibrate" in navigator) navigator.vibrate(50);
 
-    // Amankan status: Cek kondisi nyata tombol saat ini
-    const currentlyOn = powerSwitch.classList.contains('on');
-    isPowerOn = !currentlyOn; // Balikkan statusnya
+    isPowerOn = powerSwitch.checked; // Ambil status dari checkbox
     updatePowerUI('manual');
 
-    // Kirim via MQTT - Serangan Kilat (3x dalam 0.2 detik)
     const cmd = isPowerOn ? 'ON' : 'OFF';
     mqttClient.publish('smartfan/cmd/power', cmd); 
-    setTimeout(() => mqttClient.publish('smartfan/cmd/power', cmd), 100);
-    setTimeout(() => mqttClient.publish('smartfan/cmd/power', cmd), 200);
     
     logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
 };
 
-powerSwitch.addEventListener('click', window.handlePowerToggle);
+powerSwitch.addEventListener('change', window.handlePowerToggle);
 
 // ============================================================
 // KIRIM THRESHOLD → MQTT INSTAN

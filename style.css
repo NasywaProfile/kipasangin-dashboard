@@ -287,11 +287,20 @@ body {
 .power-info h3 { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
 .power-info p { font-size: 13px; font-weight: 600; color: var(--text-muted); transition: color 0.3s; }
 
-.power-toggle {
+.power-toggle-ui {
     width: 68px; height: 38px; background: #E2E8F0; border-radius: 20px; border: none; cursor: pointer;
     position: relative; transition: background 0.4s ease;
     z-index: 100 !important; touch-action: manipulation;
 }
+.power-toggle-ui.on { background: #A67347; }
+.power-toggle-ui.on .toggle-knob { transform: translateX(30px); background: #fed7aa; }
+.power-toggle-ui.on .p-icon { stroke: #A67347; }
+
+.power-switch-label {
+    cursor: pointer;
+    display: block;
+}
+
 .toggle-knob {
     width: 30px; height: 30px; background: white; border-radius: 50%; position: absolute; top: 4px; left: 4px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
