@@ -304,27 +304,21 @@ mqttClient.on('message', (topic, message) => {
             addHistory('Kipas Terhubung', 'on', currentTemp);
         }
         
-        // Sync ke Database - Catat Riwayat Online
-        if (!lastDbStatus) {
-            syncDeviceStatus('Online');
-            lastDbStatus = true;
-        }
+        // Sync ke Database - Set Online (PAKSA)
+        syncDeviceStatus('Online');
     }
 
-    // Hitung mundur: Jika selama 6 detik kita sama sekali tidak menerima 
-    // pesan dari ESP32 (entah dicabut kabel / putus WiFi), kembalikan status ke Offline!
+    // Reset timer Offline setiap kali ada data masuk
     clearTimeout(deviceTimeout);
     deviceTimeout = setTimeout(async () => {
         if (cloudStatusText.textContent === 'Online') {
             cloudStatus.classList.remove('online');
             cloudStatusText.textContent = 'Offline';
+            statusLabel.textContent = 'Standby';
             
-            // Sync ke Database - Catat Riwayat Offline & Log Error
-            if (lastDbStatus) {
-                await syncDeviceStatus('Offline');
-                logSystemError('Koneksi Terputus / Mati Lampu');
-                lastDbStatus = false;
-            }
+            // Sync ke Database - Set Offline (PAKSA)
+            await syncDeviceStatus('Offline');
+            logSystemError('Koneksi Terputus / Mati Lampu');
         }
     }, 20000); // Beri HP waktu 20 detik (lebih longgar agar tidak gampang Offline)
 
