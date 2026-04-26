@@ -294,8 +294,9 @@ body {
     width: 30px; height: 30px; background: white; border-radius: 50%; position: absolute; top: 4px; left: 4px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex; justify-content: center; align-items: center;
+    pointer-events: none; /* Sentuhan jari akan menembus ke tombol utama */
 }
-.p-icon { color: #94A3B8; transition: color 0.4s; }
+.p-icon { color: #94A3B8; transition: color 0.4s; pointer-events: none; }
 
 .power-toggle.on { background: var(--accent-color); box-shadow: 0 4px 12px rgba(166, 115, 71, 0.3); }
 .power-toggle.on .toggle-knob { transform: translateX(30px); }
