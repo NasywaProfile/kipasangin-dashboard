@@ -464,13 +464,15 @@ window.sendThreshold = async function(val) {
         await logToSupabase('threshold_change', val);
         addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'settings');
         lastLoggedThreshold = val;
+        
+        // Kasih jeda 100ms agar urutan di DB tidak tertukar
+        await new Promise(resolve => setTimeout(resolve, 100));
     }
 
     // 2. Kemudian baru cek kondisi suhu vs Slider baru (Auto On/Off)
     const shouldBeOn = currentTemp >= val;
     if (shouldBeOn !== isPowerOn) {
         isPowerOn = shouldBeOn;
-        // Tunggu proses Update UI & Log Auto Selesai
         await updatePowerUI('auto'); 
     }
 }
