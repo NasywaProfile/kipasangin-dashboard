@@ -363,21 +363,22 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 window.supabaseClient = supabaseClient; // Agar bisa diakses dari console browser
 
-async function logToSupabase(action) {
+async function logToSupabase(action, val = null) {
     if (!supabaseClient) return;
     
     // PROTEKSI EKSTRA: Jangan izinkan log AUTO masuk kalau kita sedang MANUAL
     if (isManualOverride && action.startsWith('auto_')) {
-        console.log(`🚫 Memblokir log ganda: ${action} diabaikan saat Manual Mode`);
         return;
     }
 
     try {
-        console.log(`📝 Mencatat Aktivitas: ${action}`);
+        // Jika threshold_change, masukkan nilai slider ke kolom temperature agar terekam
+        const recordTemp = (action === 'threshold_change' && val !== null) ? val : currentTemp;
+        
         await supabaseClient.from('activity_log').insert([{
             device_id: 'kipas-01',
             action_type: action,
-            temperature: currentTemp
+            temperature: recordTemp
         }]);
     } catch (e) {
         console.error("Log Error:", e);
@@ -445,7 +446,7 @@ powerSwitch.addEventListener('change', window.handlePowerToggle);
 // ============================================================
 // KIRIM THRESHOLD → MQTT INSTAN
 // ============================================================
-window.sendThreshold = function(val) {
+window.sendThreshold = async function(val) {
     if (!mqttClient.connected) {
         mqttClient.reconnect();
     }
@@ -454,18 +455,19 @@ window.sendThreshold = function(val) {
     // KETIKA SLIDER DIGESER → Kembali ke Mode Otomatis
     isManualOverride = false;
 
-    // LOGIKA INSTAN: Agar HP langsung berubah tanpa nunggu sinyal
+    // LOGIKA INSTAN: Cek kondisi suhu saat ini vs Slider baru
     const shouldBeOn = currentTemp >= val;
     if (shouldBeOn !== isPowerOn) {
         isPowerOn = shouldBeOn;
-        updatePowerUI('auto');
+        // Tunggu proses Update UI & Log Auto Selesai
+        await updatePowerUI('auto'); 
     }
 
-    // Cuma rekam ke database JIKA angkanya benar-benar berubah
+    // Kemudian catat perubahan threshold-nya
     if (val !== lastLoggedThreshold) {
-        logToSupabase('threshold_change');
+        await logToSupabase('threshold_change', val);
         addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'settings');
-        lastLoggedThreshold = val; // Simpan angka baru di memori
+        lastLoggedThreshold = val;
     }
 }
 
