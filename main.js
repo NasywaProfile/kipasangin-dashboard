@@ -335,12 +335,14 @@ mqttClient.on('message', (topic, message) => {
         handleTempUpdate(parseFloat(data));
 
     } else if (topic === 'smartfan/data/power') {
-        if (Date.now() - lastPowerCommandTime < 2000) return;
+        // Jika baru saja ditekan manual, abaikan data balik selama 5 detik biar nggak dobel log
+        if (Date.now() - lastPowerCommandTime < 5000) return;
 
         const newState = (data === 'ON');
         if (newState !== isPowerOn) {
             isPowerOn = newState;
-            updatePowerUI('auto');
+            // Jika sedang mode manual, tetap anggap update ini sebagai manual agar tidak kirim log 'auto' miring
+            updatePowerUI(isManualOverride ? 'manual' : 'auto');
         }
 
     } else if (topic === 'smartfan/data/threshold') {
