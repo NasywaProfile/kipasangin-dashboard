@@ -368,23 +368,25 @@ function logToSupabase(type, extra = {}) {
 async function syncDeviceStatus(statusStr) {
     if (!supabaseClient) return;
     try {
-        // Konversi Tulisan ke Boolean (true jika Online, false jika Offline)
         const statusBool = (statusStr === 'Online');
-        
-        console.log(`Syncing connection: ${statusStr} (${statusBool}) to devices table...`);
+        console.log(`📡 Mengirim ke DB: ${statusStr} (${statusBool})`);
         
         const { error } = await supabaseClient
             .from('devices') 
             .insert([
                 { 
                     device_id: 'kipas_pintar_01', 
-                    status: statusBool 
+                    status: statusBool
                 }
             ]);
         
-        if (error) console.error("Supabase Error:", error.message);
+        if (error) {
+            console.error("Supabase Error:", error.message);
+            alert("Gagal catat ke Database: " + error.message);
+        }
     } catch (e) {
         console.error("Sync Error:", e);
+        alert("Sync Error: " + e.message);
     }
 }
 
