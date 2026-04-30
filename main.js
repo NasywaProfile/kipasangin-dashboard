@@ -382,26 +382,25 @@ async function logToSupabase(action, val = null) {
     }
 }
 
-// Mencatat RIWAYAT status Online/Offline
+// Update status Online/Offline perangkat
 async function syncDeviceStatus(statusStr) {
     if (!supabaseClient) return;
     try {
-        const statusBool = (statusStr === 'Online'); //Online True dan Offline False
-        console.log(`📡 Mencatat Riwayat Koneksi: ${statusStr}`);
+        const statusBool = (statusStr === 'Online');
+        console.log(`📡 Status Koneksi: ${statusStr}`);
 
         const { error } = await supabaseClient
             .from('master_kipas')
-            .insert([
+            .upsert([          // upsert = update jika id sudah ada, insert jika belum
                 {
                     id: 1,
                     keterangan: 'kipas',
                     is_online: statusBool
                 }
-            ]);
+            ], { onConflict: 'id' }); // Kalau id=1 sudah ada → update saja
 
         if (error) {
-            console.error("Supabase Error (Devices):", error.message);
-            alert("DB Devices Gagal: " + error.message);
+            console.error("Supabase Error (master_kipas):", error.message);
         }
     } catch (e) {
         console.error("Sync Error:", e);
