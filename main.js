@@ -511,6 +511,18 @@ const backFromHistoryBtn = document.getElementById('backFromHistoryBtn');
 const refreshHistoryBtn  = document.getElementById('refreshHistoryBtn');
 const activityLogList    = document.getElementById('activityLogList');
 const errorLogList       = document.getElementById('errorLogList');
+const historyDateFilter  = document.getElementById('historyDateFilter');
+const clearDateBtn       = document.getElementById('clearDateBtn');
+
+// Helper untuk filter tanggal
+function getDayRange(dateStr) {
+    if (!dateStr) return null;
+    const start = new Date(dateStr);
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(dateStr);
+    end.setHours(23, 59, 59, 999);
+    return { start: start.toISOString(), end: end.toISOString() };
+}
 
 // Peta action_type → label & icon type
 function getActivityMeta(type) {
@@ -531,11 +543,11 @@ function formatTime(ts) {
 }
 
 function iconSvgFor(type) {
-    if (type === 'on')  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>`;
-    if (type === 'off') return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>`;
-    if (type === 'threshold') return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>`;
-    if (type === 'error') return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
-    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`;
+    if (type === 'on')  return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>`;
+    if (type === 'off') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>`;
+    if (type === 'threshold') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>`;
+    if (type === 'error') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+    return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`;
 }
 
 // Render activity_log
@@ -543,16 +555,19 @@ async function loadActivityLog() {
     activityLogList.innerHTML = `<div class="history-loading"><div class="loading-spinner"></div><p>Memuat data aktivitas...</p></div>`;
     if (!supabaseClient) { activityLogList.innerHTML = `<div class="history-empty"><p>Supabase belum terhubung.</p></div>`; return; }
 
-    const { data, error } = await supabaseClient
-        .from('activity_log')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
+    let query = supabaseClient.from('activity_log').select('*');
+    
+    const range = getDayRange(historyDateFilter.value);
+    if (range) {
+        query = query.gte('created_at', range.start).lte('created_at', range.end);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false }).limit(100);
 
     if (error || !data?.length) {
         activityLogList.innerHTML = `<div class="history-empty">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-            <p>Belum ada riwayat aktivitas.</p></div>`; return;
+            <p>${range ? 'Tidak ada data pada tanggal ini.' : 'Belum ada riwayat aktivitas.'}</p></div>`; return;
     }
 
     activityLogList.innerHTML = '';
@@ -576,16 +591,19 @@ async function loadErrorLog() {
     errorLogList.innerHTML = `<div class="history-loading"><div class="loading-spinner"></div><p>Memuat data error...</p></div>`;
     if (!supabaseClient) { errorLogList.innerHTML = `<div class="history-empty"><p>Supabase belum terhubung.</p></div>`; return; }
 
-    const { data, error } = await supabaseClient
-        .from('error_log')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
+    let query = supabaseClient.from('error_log').select('*');
+    
+    const range = getDayRange(historyDateFilter.value);
+    if (range) {
+        query = query.gte('created_at', range.start).lte('created_at', range.end);
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false }).limit(100);
 
     if (error || !data?.length) {
         errorLogList.innerHTML = `<div class="history-empty">
             <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <p>Tidak ada error yang tercatat. Sistem berjalan normal! ✅</p></div>`; return;
+            <p>${range ? 'Tidak ada error pada tanggal ini.' : 'Tidak ada error yang tercatat. Sistem berjalan normal! ✅'}</p></div>`; return;
     }
 
     errorLogList.innerHTML = '';
@@ -603,7 +621,7 @@ async function loadErrorLog() {
     });
 }
 
-// Buka halaman riwayat
+// Navigasi & Event Listeners
 if (openHistoryBtn) {
     openHistoryBtn.addEventListener('click', () => {
         historyScreen.classList.remove('hidden');
@@ -611,16 +629,32 @@ if (openHistoryBtn) {
     });
 }
 
-// Kembali ke dashboard
 if (backFromHistoryBtn) {
     backFromHistoryBtn.addEventListener('click', () => {
         historyScreen.classList.add('hidden');
     });
 }
 
-// Refresh
 if (refreshHistoryBtn) {
     refreshHistoryBtn.addEventListener('click', () => {
+        const activeTab = document.querySelector('.history-tab.active')?.dataset.tab;
+        if (activeTab === 'error') loadErrorLog();
+        else loadActivityLog();
+    });
+}
+
+// Filter Tanggal
+if (historyDateFilter) {
+    historyDateFilter.addEventListener('change', () => {
+        const activeTab = document.querySelector('.history-tab.active')?.dataset.tab;
+        if (activeTab === 'error') loadErrorLog();
+        else loadActivityLog();
+    });
+}
+
+if (clearDateBtn) {
+    clearDateBtn.addEventListener('click', () => {
+        historyDateFilter.value = '';
         const activeTab = document.querySelector('.history-tab.active')?.dataset.tab;
         if (activeTab === 'error') loadErrorLog();
         else loadActivityLog();
