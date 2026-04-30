@@ -1,10 +1,11 @@
 // =====================================================
-// Smart Fan IoT - HYBRID (MQTT Real-time + Firebase Logging)
-// 
+// Smart Fan IoT - HYBRID (MQTT Real-time + Supabase Logging)
+//
 // Install di Library Manager:
-// 1. MQTT by Joel Gaehwiler
-// 2. DHT sensor library by Adafruit
-// 
+// 1. WiFiManager by tzapu
+// 2. MQTT by Joel Gaehwiler
+// 3. DHT sensor library by Adafruit
+//
 // WiFi + HTTPClient sudah bawaan ESP32 (tidak perlu install)
 // =====================================================
 
@@ -112,7 +113,7 @@ void logToSupabase(String type, float temp, float threshold) {
   http.addHeader("Content-Type", "application/json");
   http.addHeader("Prefer", "return=minimal");
 
-  String payload = "{\"type\": \"" + type + "\", \"temp\": " + String(temp, 1) + ", \"threshold\": " + String(threshold, 1) + "}";
+  String payload = "{\"device_id\": 1, \"action_type\": \"" + type + "\", \"temperature\": " + String(temp, 1) + "}";
   http.POST(payload);
   http.end();
 }

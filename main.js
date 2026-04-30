@@ -30,7 +30,7 @@ let sessionActive = false;
 let thresholdTemp = 32.0;
 let lastLoggedThreshold = 32.0; // Tambahan untuk memori threshold sebelumnya
 let tempHistory = [24.5, 24.5, 24.5, 24.5, 24.5];
-let lastDbStatus = false; 
+let lastDbStatus = false;
 let lastPowerCommandTime = 0; // Kunci agar status tidak balik-balik sendiri saat diklik
 
 // --- Initialize ---
@@ -171,7 +171,7 @@ function updatePowerUI(source = 'manual') {
 
         const title = source === 'auto' ? 'Auto-Cooling' : 'Fan Started';
         addHistory(title, 'on');
-        
+
         if (source === 'auto') {
             logToSupabase('auto_on');
             fireNotification('⚠️ Suhu Panas - Kipas Menyala', `Kipas Pintar menyala otomatis. Suhu ruangan mencapai ${currentTemp.toFixed(1)}°C.`);
@@ -308,7 +308,7 @@ mqttClient.on('message', (topic, message) => {
         if (historyList && historyList.children.length === 0) {
             addHistory('Kipas Terhubung', 'on', currentTemp);
         }
-        
+
         // Sync ke Database - Set Online (PAKSA)
         syncDeviceStatus('Online');
     }
@@ -321,12 +321,12 @@ mqttClient.on('message', (topic, message) => {
             cloudStatus.classList.remove('online');
             cloudStatusText.textContent = 'Offline';
             statusLabel.textContent = 'Standby';
-            
+
             // Sync ke Database - Set Offline (PAKSA)
             await syncDeviceStatus('Offline');
             await logSystemError('Koneksi Terputus / Mati Lampu');
         }
-    }, 5000); 
+    }, 5000);
 
     if (topic === 'smartfan/data/temp') {
         handleTempUpdate(parseFloat(data));
@@ -353,7 +353,7 @@ mqttClient.on('message', (topic, message) => {
 });
 
 // ============================================================
-// SUPABASE - LOGGING RIWAYAT (background, non-blocking)
+// SUPABASE 
 // ============================================================
 const supabaseUrl = 'https://tddbbqwksbkqcfpdpjuc.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkZGJicXdrc2JrcWNmcGRwanVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTAyMjMsImV4cCI6MjA5MTgyNjIyM30.jEUYXFH3JGhHnBnr2b65T8Ldj6j69EV2msTiRZxPeS8';
@@ -361,9 +361,9 @@ const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 window.supabaseClient = supabaseClient; // Agar bisa diakses dari console browser
 
 async function logToSupabase(action, val = null) {
-    if (!supabaseClient) return;
-    
-    // PROTEKSI EKSTRA: Jangan izinkan log AUTO masuk kalau kita sedang MANUAL
+    if (!supabaseClient) return; // Terhubung Ke DB
+
+    // Jika Manual ON akan Blok Auto On
     if (isManualOverride && action.startsWith('auto_')) {
         return;
     }
@@ -371,9 +371,9 @@ async function logToSupabase(action, val = null) {
     try {
         // Jika threshold_change, masukkan nilai slider ke kolom temperature agar terekam
         const recordTemp = (action === 'threshold_change' && val !== null) ? val : currentTemp;
-        
+
         await supabaseClient.from('activity_log').insert([{
-            device_id: 'kipas-01',
+            device_id: 1,
             action_type: action,
             temperature: recordTemp
         }]);
@@ -382,22 +382,23 @@ async function logToSupabase(action, val = null) {
     }
 }
 
-// Fungsi Baru: Mencatat RIWAYAT status Online/Offline (Nambah terus ke bawah)
+// Mencatat RIWAYAT status Online/Offline
 async function syncDeviceStatus(statusStr) {
     if (!supabaseClient) return;
     try {
-        const statusBool = (statusStr === 'Online');
+        const statusBool = (statusStr === 'Online'); //Online True dan Offline False
         console.log(`📡 Mencatat Riwayat Koneksi: ${statusStr}`);
-        
+
         const { error } = await supabaseClient
-            .from('devices') 
+            .from('master_kipas')
             .insert([
-                { 
-                    device_name: 'kipas-01', 
-                    is_online: statusBool 
+                {
+                    id: 1,
+                    keterangan: 'kipas',
+                    is_online: statusBool
                 }
             ]);
-        
+
         if (error) {
             console.error("Supabase Error (Devices):", error.message);
             alert("DB Devices Gagal: " + error.message);
@@ -407,40 +408,40 @@ async function syncDeviceStatus(statusStr) {
     }
 }
 
-// Fungsi Baru: Mencatat Error otomatis ke Tabel Error Log
+// Mencatat Error otomatis ke Tabel Error Log
 async function logSystemError(msg) {
     if (!supabaseClient) return;
     try {
-        const { error } = await supabaseClient.from('error_log').insert([{ 
-            device_id: 'kipas-01', 
-            error_msg: msg 
+        const { error } = await supabaseClient.from('error_log').insert([{
+            device_id: 1,
+            error_msg: msg
         }]);
-        
+
         if (error) {
             console.error("Supabase Error (Error Log):", error.message);
             alert("DB Error Log Gagal: " + error.message);
         }
-    } catch(e) {}
+    } catch (e) { }
 }
 
-let isManualOverride = false; // Flag untuk mode Manual vs Auto
+let isManualOverride = false;
 
 // ============================================================
 // TOMBOL POWER → PUBLISH MQTT INSTAN + LOG FIREBASE
 // ============================================================
 window.handlePowerToggle = () => {
-    lastPowerCommandTime = Date.now(); 
+    lastPowerCommandTime = Date.now();
     if ("vibrate" in navigator) navigator.vibrate(50);
 
     // KETIKA TOMBOL DITEKAN → Masuk Mode Manual
-    isManualOverride = true; 
+    isManualOverride = true;
 
     isPowerOn = powerSwitch.checked; // Ambil status dari checkbox
     updatePowerUI('manual');
 
     const cmd = isPowerOn ? 'ON' : 'OFF';
-    mqttClient.publish('smartfan/cmd/power', cmd); 
-    
+    mqttClient.publish('smartfan/cmd/power', cmd);
+
     // Log ke Supabase tanpa mengganggu tampilan
     logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
 };
@@ -450,12 +451,12 @@ powerSwitch.addEventListener('change', window.handlePowerToggle);
 // ============================================================
 // KIRIM THRESHOLD → MQTT INSTAN
 // ============================================================
-window.sendThreshold = async function(val) {
+window.sendThreshold = async function (val) {
     if (!mqttClient.connected) {
         mqttClient.reconnect();
     }
     mqttClient.publish('smartfan/cmd/threshold', val.toFixed(1));
-    
+
     // KETIKA SLIDER DIGESER → Kembali ke Mode Otomatis
     isManualOverride = false;
 
@@ -464,7 +465,7 @@ window.sendThreshold = async function(val) {
         await logToSupabase('threshold_change', val);
         addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'settings');
         lastLoggedThreshold = val;
-        
+
         // Kasih jeda 100ms agar urutan di DB tidak tertukar
         await new Promise(resolve => setTimeout(resolve, 100));
     }
@@ -473,7 +474,7 @@ window.sendThreshold = async function(val) {
     const shouldBeOn = currentTemp >= val;
     if (shouldBeOn !== isPowerOn) {
         isPowerOn = shouldBeOn;
-        await updatePowerUI('auto'); 
+        await updatePowerUI('auto');
     }
 }
 
