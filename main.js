@@ -382,29 +382,11 @@ async function logToSupabase(action, val = null) {
     }
 }
 
-// Update status Online/Offline perangkat
+// Sinkronisasi status koneksi ke UI (Hanya lokal, tidak simpan ke DB)
 async function syncDeviceStatus(statusStr) {
-    if (!supabaseClient) return;
-    try {
-        const statusBool = (statusStr === 'Online');
-        console.log(`📡 Status Koneksi: ${statusStr}`);
-
-        const { error } = await supabaseClient
-            .from('master_kipas')
-            .upsert([          // upsert = update jika id sudah ada, insert jika belum
-                {
-                    id: 1,
-                    keterangan: 'kipas',
-                    is_online: statusBool
-                }
-            ], { onConflict: 'id' }); // Kalau id=1 sudah ada → update saja
-
-        if (error) {
-            console.error("Supabase Error (master_kipas):", error.message);
-        }
-    } catch (e) {
-        console.error("Sync Error:", e);
-    }
+    console.log(`📡 Status Koneksi: ${statusStr}`);
+    // Status Online/Offline sekarang hanya tampil di UI Dashboard
+    // Tidak lagi dikirim ke Supabase master_kipas agar DB lebih ringan
 }
 
 // Mencatat Error otomatis ke Tabel Error Log
