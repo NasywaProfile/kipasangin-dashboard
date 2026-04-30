@@ -502,4 +502,142 @@ setInterval(() => {
     }
 }, 5000);
 
+// ============================================================
+// HALAMAN RIWAYAT — Navigasi & Fetch dari Supabase
+// ============================================================
+const historyScreen      = document.getElementById('historyScreen');
+const openHistoryBtn     = document.getElementById('openHistoryBtn');
+const backFromHistoryBtn = document.getElementById('backFromHistoryBtn');
+const refreshHistoryBtn  = document.getElementById('refreshHistoryBtn');
+const activityLogList    = document.getElementById('activityLogList');
+const errorLogList       = document.getElementById('errorLogList');
+
+// Peta action_type → label & icon type
+function getActivityMeta(type) {
+    const map = {
+        manual_on:       { label: 'Kipas Dinyalakan (Manual)',   icon: 'on'        },
+        manual_off:      { label: 'Kipas Dimatikan (Manual)',    icon: 'off'       },
+        auto_on:         { label: 'Kipas Menyala (Otomatis)',    icon: 'auto'      },
+        auto_off:        { label: 'Kipas Mati (Otomatis)',       icon: 'auto'      },
+        threshold_change:{ label: 'Target Suhu Diubah',         icon: 'threshold' },
+    };
+    return map[type] || { label: type, icon: 'auto' };
+}
+
+function formatTime(ts) {
+    if (!ts) return '-';
+    const d = new Date(ts);
+    return d.toLocaleString('id-ID', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+}
+
+function iconSvgFor(type) {
+    if (type === 'on')  return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>`;
+    if (type === 'off') return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>`;
+    if (type === 'threshold') return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>`;
+    if (type === 'error') return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+    return `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`;
+}
+
+// Render activity_log
+async function loadActivityLog() {
+    activityLogList.innerHTML = `<div class="history-loading"><div class="loading-spinner"></div><p>Memuat data aktivitas...</p></div>`;
+    if (!supabaseClient) { activityLogList.innerHTML = `<div class="history-empty"><p>Supabase belum terhubung.</p></div>`; return; }
+
+    const { data, error } = await supabaseClient
+        .from('activity_log')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+    if (error || !data?.length) {
+        activityLogList.innerHTML = `<div class="history-empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+            <p>Belum ada riwayat aktivitas.</p></div>`; return;
+    }
+
+    activityLogList.innerHTML = '';
+    data.forEach(row => {
+        const meta = getActivityMeta(row.action_type);
+        const div = document.createElement('div');
+        div.className = 'db-row';
+        div.innerHTML = `
+            <div class="db-row-icon type-${meta.icon}">${iconSvgFor(meta.icon)}</div>
+            <div class="db-row-info">
+                <h5>${meta.label}</h5>
+                <p>${row.temperature != null ? row.temperature + '°C' : '—'} · Device #${row.device_id ?? 1}</p>
+            </div>
+            <div class="db-row-time">${formatTime(row.created_at)}</div>`;
+        activityLogList.appendChild(div);
+    });
+}
+
+// Render error_log
+async function loadErrorLog() {
+    errorLogList.innerHTML = `<div class="history-loading"><div class="loading-spinner"></div><p>Memuat data error...</p></div>`;
+    if (!supabaseClient) { errorLogList.innerHTML = `<div class="history-empty"><p>Supabase belum terhubung.</p></div>`; return; }
+
+    const { data, error } = await supabaseClient
+        .from('error_log')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+    if (error || !data?.length) {
+        errorLogList.innerHTML = `<div class="history-empty">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <p>Tidak ada error yang tercatat. Sistem berjalan normal! ✅</p></div>`; return;
+    }
+
+    errorLogList.innerHTML = '';
+    data.forEach(row => {
+        const div = document.createElement('div');
+        div.className = 'db-row';
+        div.innerHTML = `
+            <div class="db-row-icon type-error">${iconSvgFor('error')}</div>
+            <div class="db-row-info">
+                <h5>${row.error_msg || 'Error tidak diketahui'}</h5>
+                <p>Device #${row.device_id ?? 1}</p>
+            </div>
+            <div class="db-row-time">${formatTime(row.created_at)}</div>`;
+        errorLogList.appendChild(div);
+    });
+}
+
+// Buka halaman riwayat
+if (openHistoryBtn) {
+    openHistoryBtn.addEventListener('click', () => {
+        historyScreen.classList.remove('hidden');
+        loadActivityLog();
+    });
+}
+
+// Kembali ke dashboard
+if (backFromHistoryBtn) {
+    backFromHistoryBtn.addEventListener('click', () => {
+        historyScreen.classList.add('hidden');
+    });
+}
+
+// Refresh
+if (refreshHistoryBtn) {
+    refreshHistoryBtn.addEventListener('click', () => {
+        const activeTab = document.querySelector('.history-tab.active')?.dataset.tab;
+        if (activeTab === 'error') loadErrorLog();
+        else loadActivityLog();
+    });
+}
+
+// Tab switching
+document.querySelectorAll('.history-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.history-tab-content').forEach(t => t.classList.remove('active'));
+        btn.classList.add('active');
+        const tab = btn.dataset.tab;
+        document.getElementById(`tab${tab.charAt(0).toUpperCase() + tab.slice(1)}`).classList.add('active');
+        if (tab === 'activity') loadActivityLog();
+        else loadErrorLog();
+    });
+});
+
 init();

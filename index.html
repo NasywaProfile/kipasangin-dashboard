@@ -276,9 +276,85 @@
                     </div>
                 </section>
 
+                <!-- 4. Riwayat Button -->
+                <section class="panel-section">
+                    <button id="openHistoryBtn" class="riwayat-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                        </svg>
+                        Lihat Riwayat Lengkap
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </button>
+                </section>
+
             </div>
         </div>
     </div>
+
+    <!-- ===================== HALAMAN RIWAYAT ===================== -->
+    <div id="historyScreen" class="history-screen hidden">
+        <div class="history-page-card">
+
+            <!-- Header -->
+            <div class="history-page-header">
+                <button id="backFromHistoryBtn" class="back-btn" aria-label="Kembali">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6"/>
+                    </svg>
+                </button>
+                <div>
+                    <h2 class="history-page-title">Riwayat <span>Sistem</span></h2>
+                    <p class="history-page-sub">Data tersimpan dari database Supabase</p>
+                </div>
+                <button id="refreshHistoryBtn" class="refresh-btn" title="Refresh data">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="history-tabs">
+                <button class="history-tab active" data-tab="activity">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                    </svg>
+                    Aktivitas
+                </button>
+                <button class="history-tab" data-tab="error">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                    </svg>
+                    Error Log
+                </button>
+            </div>
+
+            <!-- Activity Log Tab -->
+            <div id="tabActivity" class="history-tab-content active">
+                <div id="activityLogList" class="history-db-list">
+                    <div class="history-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Memuat data...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Log Tab -->
+            <div id="tabError" class="history-tab-content">
+                <div id="errorLogList" class="history-db-list">
+                    <div class="history-loading">
+                        <div class="loading-spinner"></div>
+                        <p>Memuat data...</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
 
     <!-- New Tutorial Screen - Split Layout -->
     <div id="tutorialScreen" class="hidden"

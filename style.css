@@ -514,6 +514,157 @@ body {
 .act-time { font-size: 11px; font-weight: 800; color: #CBD5E1; text-align: right; }
 
 /* =============================================
+   RIWAYAT BUTTON (di dashboard)
+   ============================================= */
+.riwayat-btn {
+    width: 100%; display: flex; align-items: center; gap: 10px;
+    padding: 14px 18px; border-radius: 16px;
+    background: white; border: 1.5px solid var(--border-soft);
+    color: var(--text-muted); font-size: 13px; font-weight: 600;
+    font-family: 'Outfit', sans-serif; cursor: pointer;
+    transition: all 0.25s ease; box-shadow: var(--shadow-sm);
+}
+.riwayat-btn:hover {
+    background: var(--accent-light); border-color: var(--accent-color);
+    color: var(--accent-color); transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(166,115,71,0.12);
+}
+
+/* =============================================
+   HALAMAN RIWAYAT — FULL SCREEN
+   ============================================= */
+.history-screen {
+    position: fixed; inset: 0; z-index: 50;
+    background: var(--bg-color); display: flex;
+    align-items: center; justify-content: center;
+    padding: 20px; overflow-y: auto;
+    animation: fadeInUp 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.history-page-card {
+    width: 100%; max-width: 680px;
+    background: white; border-radius: 32px;
+    box-shadow: var(--shadow-lg); overflow: hidden;
+    border: 1px solid var(--border-soft);
+    display: flex; flex-direction: column;
+    min-height: min(90vh, 700px);
+}
+
+/* Header */
+.history-page-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 24px 28px; border-bottom: 1px solid var(--border-soft);
+    background: white; flex-shrink: 0;
+}
+.history-page-title {
+    font-size: 22px; font-weight: 800; color: var(--text-main); margin: 0;
+}
+.history-page-title span { color: var(--accent-color); }
+.history-page-sub {
+    font-size: 11px; color: var(--text-muted); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px; margin: 3px 0 0;
+}
+.refresh-btn {
+    margin-left: auto; width: 38px; height: 38px; border-radius: 12px;
+    background: var(--accent-light); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--accent-color); transition: all 0.2s; flex-shrink: 0;
+}
+.refresh-btn:hover { background: var(--accent-color); color: white; transform: rotate(90deg); }
+
+/* Tabs */
+.history-tabs {
+    display: flex; gap: 4px; padding: 12px 28px;
+    border-bottom: 1px solid var(--border-soft);
+    background: #F9F9FB; flex-shrink: 0;
+}
+.history-tab {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 18px; border-radius: 10px; border: none;
+    font-size: 13px; font-weight: 600; font-family: 'Outfit', sans-serif;
+    cursor: pointer; transition: all 0.2s; color: var(--text-muted);
+    background: transparent;
+}
+.history-tab.active {
+    background: white; color: var(--accent-color);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    border: 1px solid var(--border-soft);
+}
+.history-tab:not(.active):hover { background: white; color: var(--text-main); }
+
+/* Tab Content */
+.history-tab-content { display: none; flex: 1; overflow: hidden; }
+.history-tab-content.active { display: flex; flex-direction: column; }
+
+.history-db-list {
+    flex: 1; overflow-y: auto; padding: 20px 28px;
+    display: flex; flex-direction: column; gap: 10px;
+}
+.history-db-list::-webkit-scrollbar { width: 4px; }
+.history-db-list::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
+
+/* Row Item */
+.db-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px; border-radius: 16px;
+    background: #F9F9FB; border: 1px solid transparent;
+    transition: all 0.2s;
+}
+.db-row:hover { background: white; border-color: var(--border-soft); transform: translateX(3px); }
+
+.db-row-icon {
+    width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+}
+.db-row-icon.type-on  { background: #ECFDF5; color: #10B981; }
+.db-row-icon.type-off { background: #FEF2F2; color: #F43F5E; }
+.db-row-icon.type-auto { background: var(--accent-light); color: var(--accent-color); }
+.db-row-icon.type-threshold { background: #EEF2FF; color: #6366F1; }
+.db-row-icon.type-error { background: #FFF7ED; color: #EA580C; }
+
+.db-row-info { flex: 1; min-width: 0; }
+.db-row-info h5 { font-size: 13px; font-weight: 700; color: var(--text-main); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.db-row-info p  { font-size: 11px; color: var(--text-muted); font-weight: 500; margin: 2px 0 0; }
+
+.db-row-time { font-size: 10px; font-weight: 700; color: #CBD5E1; text-align: right; flex-shrink: 0; }
+
+/* Loading & Empty State */
+.history-loading {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 12px; padding: 60px 20px;
+    color: var(--text-muted); font-size: 13px; font-weight: 500;
+}
+.loading-spinner {
+    width: 28px; height: 28px; border: 3px solid var(--border-soft);
+    border-top-color: var(--accent-color); border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.history-empty {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 10px; padding: 60px 20px;
+    color: var(--text-muted); font-size: 13px; text-align: center;
+}
+.history-empty svg { opacity: 0.3; }
+
+/* Responsive history page */
+@media (max-width: 600px) {
+    .history-screen { padding: 12px; align-items: flex-start; }
+    .history-page-card { border-radius: 24px; min-height: calc(100dvh - 24px); }
+    .history-page-header { padding: 18px 20px; }
+    .history-page-title { font-size: 18px; }
+    .history-tabs { padding: 10px 20px; }
+    .history-db-list { padding: 16px 20px; }
+}
+
+
+
+/* =============================================
    RESPONSIVE SYSTEM - ALL SCREEN SIZES
    ============================================= */
 
