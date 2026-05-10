@@ -1,0 +1,25 @@
+{
+    "version": 2,
+    "framework": null,
+    "functions": {
+        "api/index.php": {
+            "runtime": "vercel-php@0.7.1"
+        }
+    },
+    "routes": [
+        {
+            "src": "/(css|js|images|favicon.ico)/(.*)",
+            "dest": "public/$1/$2"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "/api/index.php"
+        }
+    ],
+    "env": {
+        "APP_ENV": "production",
+        "APP_DEBUG": "true",
+        "APP_URL": "https://smartfankel1.vercel.app",
+        "APP_KEY": "base64:7B5mS6n8hG8Z9V4p1j3Q5w7x9y0z1a2b3c4d5e6f7g8="
+    }
+}
