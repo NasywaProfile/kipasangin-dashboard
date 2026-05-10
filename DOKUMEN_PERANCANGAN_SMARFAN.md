@@ -1,6 +1,6 @@
-# Perancangan API, Integrasi, dan Sub-Sistem Smart Fan (Smarfan)
+# Perancangan API, Integrasi, dan Sub-Sistem Smart Fan (Smarfan) — Laravel Edition
 
-Dokumen ini merinci arsitektur sistem, desain API, dan strategi integrasi untuk proyek IoT Kipas Pintar.
+Dokumen ini merinci arsitektur sistem, desain API, dan strategi integrasi untuk proyek IoT Kipas Pintar yang telah dimigrasi ke framework **Laravel 13**.
 
 ---
 
@@ -14,25 +14,27 @@ Sistem Smarfan dibagi menjadi lima sub-sistem utama:
 - **Logika**: Mengatur kipas secara otomatis berdasarkan threshold suhu atau menerima perintah manual.
 - **Konektivitas**: WiFiManager untuk konfigurasi WiFi dinamis dan MQTT untuk komunikasi real-time.
 
-### B. Backend & Database (XAMPP — MySQL / phpMyAdmin)
+### B. Backend & Database (Laravel + MySQL)
+- **Framework**: Laravel 13 (MVC Architecture).
 - **Penyimpanan Data**: MySQL yang dikelola via phpMyAdmin (XAMPP lokal).
-- **Tabel Utama**:
-  - `master_kipas`: Data identitas perangkat (Statis).
+- **Tabel Utama (Migrations)**:
+  - `master_kipas`: Data identitas perangkat.
   - `activity_log`: Riwayat aktivitas kipas (Manual/Auto On/Off).
   - `error_log`: Catatan kesalahan sistem.
-- **API**: REST API kustom melalui `api.php` (PHP + MySQLi).
-- **Schema**: Tersedia di file `db_kipasangin.sql` — import via phpMyAdmin.
+- **API**: REST API yang dikelola melalui `FanApiController`.
+- **ORM**: Eloquent untuk interaksi database yang aman dan efisien.
 
 ### C. Broker MQTT (HiveMQ)
 - **Fungsi**: Jalur komunikasi dua arah antara Web Dashboard dan ESP32 dengan latensi sangat rendah (< 200ms).
 - **Metode**: Publish/Subscribe via WebSocket Secure (`wss://broker.hivemq.com:8884/mqtt`).
 
-### D. Frontend Dashboard (Web App)
-- **Teknologi**: Vanilla HTML5, CSS3 (Premium Glassmorphism), dan JavaScript (ES Modules).
-- **Fungsi**: Visualisasi suhu real-time, kontrol manual, pengaturan threshold, dan tampilan riwayat aktivitas.
+### D. Frontend Dashboard (Blade & Vanilla JS)
+- **Teknologi**: Laravel Blade, CSS3 (Premium Glassmorphism), dan JavaScript (ES Modules).
+- **Asset Management**: File statis disimpan di folder `public/`.
+- **Fungsi**: Visualisasi suhu real-time, kontrol manual, pengaturan threshold, dan tampilan riwayat aktivitas dari database.
 
 ### E. Infrastruktur & Deployment
-- **XAMPP**: Web server lokal (Apache + MySQL) untuk menjalankan `api.php`.
+- **XAMPP**: Web server lokal (Apache + MySQL).
 - **GitHub**: Repositori kode sumber dan manajemen versi.
 
 ---
@@ -50,18 +52,18 @@ Sistem Smarfan dibagi menjadi lima sub-sistem utama:
 | `smartfan/cmd/threshold` | Web → ESP32 | `Float` | Mengatur ambang batas suhu otomatis. |
 | `smartfan/cmd/status` | Web → ESP32 | `request` | Meminta ESP32 mengirim ulang seluruh data. |
 
-### B. REST API Lokal (`api.php`)
+### B. REST API Laravel (`/api/...`)
 
-**Base URL**: `http://localhost/kipasangin/api.php`
+**Base URL**: `http://localhost/kipasangin/public/api`
 
-| Method | Parameter | Fungsi |
-|--------|-----------|--------|
-| `GET` | `?table=master_kipas` | Ambil semua data perangkat |
-| `GET` | `?table=activity_log&date=YYYY-MM-DD` | Riwayat aktivitas (opsional filter tanggal) |
-| `GET` | `?table=error_log&date=YYYY-MM-DD` | Log error (opsional filter tanggal) |
-| `POST` | `?table=activity_log` | Catat aksi baru (body JSON) |
-| `POST` | `?table=error_log` | Catat error baru (body JSON) |
-| `PUT` | `?table=master_kipas` | Update status/suhu perangkat |
+| Method | Endpoint | Fungsi |
+|--------|----------|--------|
+| `GET` | `/master-kipas` | Ambil semua data perangkat |
+| `GET` | `/activity-log` | Riwayat aktivitas (filter `?date=` opsional) |
+| `GET` | `/error-log` | Log error (filter `?date=` opsional) |
+| `POST` | `/activity-log` | Catat aksi baru (membutuhkan CSRF/API Token) |
+| `POST` | `/error-log` | Catat error baru |
+| `PUT` | `/master-kipas/{id}` | Update status/suhu perangkat |
 
 ---
 
@@ -71,7 +73,7 @@ Sistem Smarfan dibagi menjadi lima sub-sistem utama:
 1. User menekan tombol **Power** di Dashboard.
 2. Dashboard melakukan `publish` ke topik `smartfan/cmd/power`.
 3. ESP32 menerima pesan, mengubah status Relay, dan mengirim balik konfirmasi ke `smartfan/data/power`.
-4. Dashboard mencatat aksi tersebut ke `activity_log` via `api.php`.
+4. Dashboard mencatat aksi tersebut ke `activity_log` melalui endpoint API Laravel.
 
 ### Alur Kontrol Otomatis
 1. Sensor DHT11 membaca suhu setiap 2 detik.
@@ -82,28 +84,36 @@ Sistem Smarfan dibagi menjadi lima sub-sistem utama:
 ### Alur Monitoring Koneksi (Heartbeat)
 1. Dashboard memantau aktivitas pesan MQTT.
 2. Jika dalam 5 detik tidak ada pesan masuk dari ESP32, Dashboard otomatis menampilkan status **Offline** pada UI.
-3. Kejadian disconnect dicatat ke `error_log` via `api.php`.
+3. Kejadian disconnect dicatat ke `error_log` via API Laravel.
 
 ---
 
-## 4. Struktur File Proyek
+## 4. Struktur Folder (Laravel)
 
 ```
 kipasangin/
-├── index.html            # UI Dashboard utama
-├── style.css             # Stylesheet (Glassmorphism)
-├── main.js               # Logic: MQTT + API calls
-├── api.php               # REST API backend (PHP + MySQL)
-├── db_kipasangin.sql     # Schema database — import ke phpMyAdmin
-├── arduino_code.ino      # Firmware ESP32
-├── vidsunset.png         # Gambar background welcome screen
-└── .gitignore
+├── app/
+│   ├── Http/Controllers/
+│   │   ├── DashboardController.php   # Render View
+│   │   └── FanApiController.php      # Logika API
+│   └── Models/                       # Eloquent Models
+├── database/
+│   └── migrations/                   # Skema Database
+├── public/
+│   ├── css/style.css                 # Aset CSS
+│   ├── js/main.js                    # Aset JS (MQTT & API)
+│   └── images/vidsunset.png          # Aset Gambar
+├── resources/views/
+│   └── dashboard.blade.php           # Template Blade Dashboard
+├── routes/
+│   ├── web.php                       # Routing Web
+│   └── api.php                       # Routing API
+└── arduino_code.ino                  # Firmware ESP32
 ```
 
 ---
 
 ## 5. Keamanan & Optimasi
-- **Non-Blocking Logic**: ESP32 menggunakan logika asinkron agar proses pengiriman data tidak mengganggu pembacaan suhu.
-- **Hysteresis**: Penerapan jeda suhu (0.2°C) untuk mencegah kerusakan komponen relay akibat perubahan suhu yang fluktuatif di ambang batas.
-- **Manual Override**: Mode manual mencegah otomasi menimpa perintah pengguna secara tidak sengaja.
+- **CSRF Protection**: Dashboard menggunakan token CSRF untuk permintaan POST/PUT ke API.
+- **Validation**: Laravel memvalidasi semua input data sebelum masuk ke database.
 - **Modern Responsive Design**: Antarmuka dashboard dapat menyesuaikan diri dengan berbagai ukuran layar (Desktop, Tablet, dan Mobile).
