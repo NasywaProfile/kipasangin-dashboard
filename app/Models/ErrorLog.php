@@ -13,7 +13,6 @@ class ErrorLog extends Model
 
     protected $fillable = [
         'device_id',
-        'error_code',
         'error_msg',
         'severity',
     ];

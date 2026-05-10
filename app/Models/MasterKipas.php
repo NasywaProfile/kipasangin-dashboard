@@ -12,16 +12,13 @@ class MasterKipas extends Model
     protected $fillable = [
         'device_id',
         'nama_kipas',
-        'lokasi',
         'status',
         'suhu',
-        'kecepatan',
         'ip_address',
     ];
 
     protected $casts = [
-        'suhu'      => 'decimal:2',
-        'kecepatan' => 'integer',
+        'suhu' => 'decimal:2',
     ];
 
     public function activityLogs(): HasMany

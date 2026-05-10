@@ -13,11 +13,9 @@ class MasterKipasSeeder extends Seeder
         $fan = MasterKipas::firstOrCreate(
             ['device_id' => 'FAN-001'],
             [
-                'nama_kipas' => 'Kipas Ruang Tengah',
-                'lokasi'     => 'Ruang Tengah Lt.1',
+                'nama_kipas' => 'Smart Fan',
                 'status'     => 'OFF',
                 'suhu'       => 24.50,
-                'kecepatan'  => 0,
                 'ip_address' => '192.168.1.100',
             ]
         );

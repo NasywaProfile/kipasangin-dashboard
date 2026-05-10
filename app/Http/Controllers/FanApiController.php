@@ -25,14 +25,13 @@ class FanApiController extends Controller
 
     // ──────────────────────────────────────────────────────────
     //  POST /api/master-kipas
-    //  Body: { device_id, nama_kipas, lokasi?, ip_address? }
+    //  Body: { device_id, nama_kipas, ip_address? }
     // ──────────────────────────────────────────────────────────
     public function storeDevice(Request $request): JsonResponse
     {
         $data = $request->validate([
             'device_id'  => 'required|string|max:50',
             'nama_kipas' => 'required|string|max:100',
-            'lokasi'     => 'nullable|string|max:150',
             'ip_address' => 'nullable|string|max:45',
         ]);
 
@@ -46,7 +45,7 @@ class FanApiController extends Controller
 
     // ──────────────────────────────────────────────────────────
     //  PUT /api/master-kipas/{id}
-    //  Body: { status?, suhu?, kecepatan? }
+    //  Body: { status?, suhu? }
     // ──────────────────────────────────────────────────────────
     public function updateDevice(Request $request, int $id): JsonResponse
     {
@@ -55,13 +54,12 @@ class FanApiController extends Controller
         $data = $request->validate([
             'status'     => 'nullable|in:ON,OFF,AUTO',
             'suhu'       => 'nullable|numeric',
-            'kecepatan'  => 'nullable|integer|between:0,100',
             'ip_address' => 'nullable|string|max:45',
         ]);
 
         $device->update(array_filter($data, fn($v) => !is_null($v)));
 
-        return response()->json(['status' => 'success', 'affected' => 1]);
+        return response()->json(['status' => 'success', affected => 1]);
     }
 
     // ──────────────────────────────────────────────────────────
@@ -144,13 +142,14 @@ class FanApiController extends Controller
 
     // ──────────────────────────────────────────────────────────
     //  POST /api/error-log
-    //  Body: { device_id, error_msg, error_code?, severity? }
+    //  Body: { device_id, error_msg, severity? }
     // ──────────────────────────────────────────────────────────
     public function storeError(Request $request): JsonResponse
     {
+        Log::info('POST /api/error-log triggered', $request->all());
+
         $data = $request->validate([
             'device_id'  => 'required|integer|exists:master_kipas,id',
-            'error_code' => 'nullable|string|max:30',
             'error_msg'  => 'required|string',
             'severity'   => 'nullable|in:INFO,WARNING,ERROR,CRITICAL',
         ]);

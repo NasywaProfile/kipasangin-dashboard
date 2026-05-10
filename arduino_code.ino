@@ -25,7 +25,7 @@ const int  mqtt_port   = 1883; // Plain TCP, TANPA SSL = super cepat!
 
 // --- KONFIGURASI LOCAL SERVER (XAMPP) ---
 // Ganti [IP_LAPTOP] dengan IP Laptop Anda (misal: 192.168.1.10)
-const char* local_server_url = "http://[IP_LAPTOP]/kipasangin/api.php?table=activity_log";
+const char* local_server_url = "http://[IP_LAPTOP]/kipasangin/public/api/activity-log";
 
 // --- KONFIGURASI HARDWARE ---
 #define DHTPIN  33
@@ -39,7 +39,7 @@ const int relayPin = 18;
 
 // --- State ---
 bool  isPowerOn    = false;
-bool  manualOverride = false;
+bool  manualOverride = true; // Mulai dalam mode manual agar tidak langsung ON saat baru nyala
 float currentTemp  = 24.5;
 float thresholdTemp = 32.0;
 float hysteresis   = 0.2; // Diperkecil supaya bereaksi lebih cepat
@@ -91,11 +91,22 @@ void messageReceived(String &topic, String &payload) {
       Serial.println("Threshold: " + String(thresholdTemp, 1));
     }
   }
+  else if (topic == "smartfan/cmd/mode") {
+    if (payload == "AUTO") {
+      manualOverride = false;
+      Serial.println("Mode: AUTO");
+    } else {
+      manualOverride = true;
+      Serial.println("Mode: MANUAL");
+    }
+    mqttClient.publish("smartfan/data/mode", manualOverride ? "MANUAL" : "AUTO", false, 1);
+  }
   else if (topic == "smartfan/cmd/status") {
     // Dashboard request status saat pertama connect
     mqttClient.publish("smartfan/data/power", isPowerOn ? "ON" : "OFF");
     mqttClient.publish("smartfan/data/temp",  String(currentTemp, 1));
-    mqttClient.publish("smartfan/data/threshold", String(thresholdTemp, 1));
+    mqttClient.publish("smartfan/data/threshold", String(currentTemp, 1)); // Pakai currentTemp sebagai default temp target
+    mqttClient.publish("smartfan/data/mode", manualOverride ? "MANUAL" : "AUTO");
   }
 }
 
@@ -159,6 +170,7 @@ void connectAll() {
   // Umumkan status awal ke dashboard
   mqttClient.publish("smartfan/data/power", isPowerOn ? "ON" : "OFF", false, 1);
   mqttClient.publish("smartfan/data/threshold", String(thresholdTemp, 1), false, 1);
+  mqttClient.publish("smartfan/data/mode", manualOverride ? "MANUAL" : "AUTO", false, 1);
 }
 
 // =====================================================

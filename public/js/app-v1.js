@@ -20,6 +20,9 @@ const thresholdInput = document.getElementById('thresholdInput');
 const tempUpBtn = document.getElementById('tempUp');
 const tempDownBtn = document.getElementById('tempDown');
 
+const autoModeSwitch = document.getElementById('autoModeSwitch');
+const autoModeLabel = document.getElementById('autoModeLabel');
+
 // --- Cloud State ---
 
 
@@ -28,6 +31,7 @@ let isPowerOn = false;
 let currentTemp = 24.5;
 let sessionActive = false;
 let thresholdTemp = 32.0;
+let isAutoMode = false; // Status mode otomatis
 let lastLoggedThreshold = 32.0; // Tambahan untuk memori threshold sebelumnya
 let tempHistory = [24.5, 24.5, 24.5, 24.5, 24.5];
 let lastDbStatus = false;
@@ -194,6 +198,25 @@ function updatePowerUI(source = 'manual') {
     }
 }
 
+function updateAutoModeUI() {
+    const toggleUI = document.querySelector('.auto-ui');
+    if (isAutoMode) {
+        if (autoModeSwitch) autoModeSwitch.checked = true;
+        if (toggleUI) toggleUI.classList.add('on');
+        if (autoModeLabel) {
+            autoModeLabel.textContent = 'Automatic';
+            autoModeLabel.style.color = '#3B82F6'; // Blue for auto
+        }
+    } else {
+        if (autoModeSwitch) autoModeSwitch.checked = false;
+        if (toggleUI) toggleUI.classList.remove('on');
+        if (autoModeLabel) {
+            autoModeLabel.textContent = 'Manual';
+            autoModeLabel.style.color = '#64748B';
+        }
+    }
+}
+
 function addHistory(title, type, temp = null) {
     console.log("Debug: Adding history item:", title, type, temp);
     const now = new Date();
@@ -226,6 +249,12 @@ function addHistory(title, type, temp = null) {
     `;
 
     historyList.prepend(item);
+    
+    // Limit to 3 items only in dashboard view
+    while (historyList.children.length > 3) {
+        historyList.lastElementChild.remove();
+    }
+
     if (historyCountLabel) historyCountLabel.textContent = historyList.children.length;
 }
 
@@ -243,7 +272,7 @@ async function loadInitialHistory() {
 
         if (data && data.length > 0) {
             historyList.innerHTML = ''; // Bersihkan loader
-            const latest = data.slice(0, 5);
+            const latest = data.slice(0, 3); // Ambil 3 teratas saja
             // Reverse agar yang paling baru ada di atas (karena addHistory pakai prepend)
             latest.reverse().forEach(row => {
                 const meta = getActivityMeta(row.action_type);
@@ -379,6 +408,9 @@ mqttClient.on('message', (topic, message) => {
             if (thresholdInput) thresholdInput.value = t.toFixed(1);
             if (thresholdSlider) thresholdSlider.value = t;
         }
+    } else if (topic === 'smartfan/data/mode') {
+        isAutoMode = (data === 'AUTO');
+        updateAutoModeUI();
     }
 });
 
@@ -427,21 +459,33 @@ async function syncDeviceStatus(statusStr) {
 
 // Mencatat Error otomatis ke Tabel Error Log
 async function logSystemError(msg) {
+    console.log(`[Debug] Mencoba mencatat error ke database: ${msg}`);
     try {
         const apiBase = window.API_BASE || '/api';
-        await fetch(`${apiBase}/error-log`, {
+        const url = `${apiBase}/error-log`;
+        
+        const res = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': window.CSRF_TOKEN || ''
             },
             body: JSON.stringify({
-                device_id: 1,
-                error_msg: msg
+                device_id: 1, // Sesuai ID di database
+                error_msg: msg,
+                severity: 'CRITICAL'
             })
         });
+
+        if (res.ok) {
+            console.log("✅ Error log berhasil tersimpan di database.");
+        } else {
+            const errData = await res.json();
+            console.error("❌ Gagal simpan error log:", errData);
+        }
     } catch (e) {
-        console.error("Local Error Log Gagal:", e);
+        console.error("❌ Network Error saat simpan error log:", e);
     }
 }
 
@@ -468,6 +512,27 @@ window.handlePowerToggle = () => {
 };
 
 powerSwitch.addEventListener('change', window.handlePowerToggle);
+
+// ============================================================
+// TOMBOL AUTO MODE → PUBLISH MQTT
+// ============================================================
+window.handleAutoModeToggle = () => {
+    isAutoMode = autoModeSwitch.checked;
+    updateAutoModeUI();
+    
+    const cmd = isAutoMode ? 'AUTO' : 'MANUAL';
+    mqttClient.publish('smartfan/cmd/mode', cmd);
+    
+    if (isAutoMode) {
+        addHistory('Mode Otomatis Aktif', 'settings');
+        // Trigger evaluasi suhu segera
+        handleTempUpdate(currentTemp);
+    } else {
+        addHistory('Mode Manual Aktif', 'settings');
+    }
+};
+
+if (autoModeSwitch) autoModeSwitch.addEventListener('change', window.handleAutoModeToggle);
 
 // ============================================================
 // KIRIM THRESHOLD → MQTT INSTAN
@@ -506,8 +571,8 @@ function handleTempUpdate(temp) {
     tempHistory.push(currentTemp);
     updateSparkline();
 
-    // HANYA CEK OTOMATIS JIKA TIDAK SEDANG DALAM MODE MANUAL
-    if (!isManualOverride) {
+    // HANYA CEK OTOMATIS JIKA MODE AUTO AKTIF
+    if (isAutoMode) {
         const shouldBeOn = currentTemp >= thresholdTemp;
         if (shouldBeOn !== isPowerOn) {
             isPowerOn = shouldBeOn;
@@ -654,17 +719,34 @@ if (openHistoryBtn) {
 
 if (backFromHistoryBtn) {
     backFromHistoryBtn.addEventListener('click', () => {
-        historyScreen.classList.add('hidden');
+        historyScreen.classList.add('closing');
+        setTimeout(() => {
+            historyScreen.classList.add('hidden');
+            historyScreen.classList.remove('closing');
+        }, 500);
     });
 }
 
-if (refreshHistoryBtn) {
-    refreshHistoryBtn.addEventListener('click', () => {
-        const activeTab = document.querySelector('.history-tab.active')?.dataset.tab;
-        if (activeTab === 'error') loadErrorLog();
-        else loadActivityLog();
+// Tab Switching Logic (Lovable Style)
+document.querySelectorAll('.history-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const target = btn.dataset.tab;
+        
+        // Update UI Tabs
+        document.querySelectorAll('.history-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Update Content
+        document.querySelectorAll('.history-tab-content').forEach(c => c.classList.remove('active'));
+        if (target === 'activity') {
+            document.getElementById('tabActivity').classList.add('active');
+            loadActivityLog();
+        } else {
+            document.getElementById('tabError').classList.add('active');
+            loadErrorLog();
+        }
     });
-}
+});
 
 // Filter Tanggal
 if (historyDateFilter) {

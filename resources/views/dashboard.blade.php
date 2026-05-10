@@ -81,7 +81,7 @@
 
         <!-- Typography / Content -->
         <div class="welcome-text">
-            <h1>Smart Fan<br>Experience</h1>
+            <h1>Smart Fan<br><span>Experience</span></h1>
             <p class="welcome-subtitle">Seamless comfort for your living space</p>
         </div>
 
@@ -120,23 +120,21 @@
         <!-- Left Panel: Integrated Fan & Power -->
         <section class="dashboard-visuals">
             <header class="visual-header">
-                <button id="backBtn" class="back-btn" aria-label="Go Back">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                        stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m15 18-6-6 6-6" />
-                    </svg>
-                </button>
-                <div class="titles">
-                    <div class="title-row">
-                        <h1>Smart<span>Fan</span></h1>
-                        <div id="cloudStatus" class="cloud-status">
-                            <span class="cloud-dot"></span>
-                            <span>Offline</span>
-                        </div>
+                <div class="header-left">
+                    <button id="backBtn" class="back-btn" aria-label="Go Back">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m15 18-6-6 6-6" />
+                        </svg>
+                    </button>
+                    <div class="titles">
+                        <h1>Smart Fan</h1>
                     </div>
-                    <div class="sub-header">
-                        <p>Control Device</p>
-                    </div>
+                </div>
+
+                <div id="cloudStatus" class="cloud-status">
+                    <span class="cloud-dot"></span>
+                    <span>Offline</span>
                 </div>
             </header>
 
@@ -154,6 +152,7 @@
 
             <!-- Modern Power Control -->
             <div class="power-control-wrapper">
+                <!-- Power Toggle -->
                 <div class="power-card">
                     <div class="power-info">
                         <h3>Device Power</h3>
@@ -167,6 +166,25 @@
                                     stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
                                     <line x1="12" y1="2" x2="12" y2="12" />
+                                </svg>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Auto Mode Toggle -->
+                <div class="power-card">
+                    <div class="power-info">
+                        <h3>Auto Mode</h3>
+                        <p id="autoModeLabel">Manual</p>
+                    </div>
+                    <label class="power-switch-label">
+                        <input type="checkbox" id="autoModeSwitch" style="display:none">
+                        <div class="power-toggle-ui auto-ui">
+                            <div class="toggle-knob">
+                                <svg class="p-icon" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M2 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M12 22v-4"/><path d="m19.07 19.07-2.83-2.83"/><path d="M22 12h-4"/><path d="m19.07 4.93-2.83 2.83"/><circle cx="12" cy="12" r="4"/>
                                 </svg>
                             </div>
                         </div>
@@ -285,47 +303,41 @@
 
             <!-- Header -->
             <div class="history-page-header">
-                <button id="backFromHistoryBtn" class="back-btn" aria-label="Kembali">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m15 18-6-6 6-6"/>
-                    </svg>
-                </button>
-                <div class="header-main-info">
+                <div class="header-top-row">
+                    <button id="backFromHistoryBtn" class="back-btn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="m15 18-6-6 6-6"/>
+                        </svg>
+                    </button>
                     <h2 class="history-page-title">Riwayat <span>Sistem</span></h2>
-                    <p class="history-page-sub">Database Local (MySQL via Laravel)</p>
+                    
+                    <div class="date-filter-wrapper-pill">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        <input type="date" id="historyDateFilter" class="date-input">
+                        <button id="clearDateBtn" class="clear-btn-pill">Reset</button>
+                    </div>
                 </div>
 
-                <!-- Date Filter -->
-                <div class="date-filter-box">
-                    <input type="date" id="historyDateFilter" class="date-input">
-                    <button id="clearDateBtn" class="clear-date-btn" title="Clear filter">✕</button>
+                <!-- Tab Switcher (Lovable Style) -->
+                <div class="history-nav-tabs">
+                    <button class="history-tab active" data-tab="activity">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                        Aktivitas
+                    </button>
+                    <button class="history-tab" data-tab="error">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        Error Log
+                    </button>
                 </div>
-
-                <button id="refreshHistoryBtn" class="refresh-btn" title="Refresh data">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
-                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
-                    </svg>
-                </button>
             </div>
 
-            <!-- Tab Navigation -->
-            <div class="history-tabs">
-                <button class="history-tab active" data-tab="activity">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                    </svg>
-                    Aktivitas
-                </button>
-                <button class="history-tab" data-tab="error">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-                    </svg>
-                    Error Log
-                </button>
-            </div>
-
-            <!-- Activity Log Tab -->
+            <!-- Tab Content -->
             <div id="tabActivity" class="history-tab-content active">
                 <div id="activityLogList" class="history-db-list">
                     <div class="history-loading">
@@ -335,7 +347,6 @@
                 </div>
             </div>
 
-            <!-- Error Log Tab -->
             <div id="tabError" class="history-tab-content">
                 <div id="errorLogList" class="history-db-list">
                     <div class="history-loading">
