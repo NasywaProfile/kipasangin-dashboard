@@ -8,6 +8,10 @@
     },
     "routes": [
         {
+            "src": "/test",
+            "dest": "/api/test.php"
+        },
+        {
             "src": "/(css|js|images|favicon.ico)/(.*)",
             "dest": "public/$1/$2"
         },
