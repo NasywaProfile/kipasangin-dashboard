@@ -44,6 +44,8 @@ function enterDashboard() {
     if ("Notification" in window && Notification.permission !== "granted") {
         Notification.requestPermission();
     }
+    
+
 
     welcomeScreen.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     welcomeScreen.style.opacity = '0';
@@ -193,6 +195,7 @@ function updatePowerUI(source = 'manual') {
 }
 
 function addHistory(title, type, temp = null) {
+    console.log("Debug: Adding history item:", title, type, temp);
     const now = new Date();
     const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const tempToShow = temp !== null ? temp : currentTemp;
@@ -230,20 +233,27 @@ function addHistory(title, type, temp = null) {
 async function loadInitialHistory() {
     try {
         const apiBase = window.API_BASE || '/api';
+        console.log("Debug: Fetching initial history from", `${apiBase}/activity-log`);
+        
         const response = await fetch(`${apiBase}/activity-log`);
+        if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
+        
         const data = await response.json();
+        console.log("Debug: Received history data:", data);
 
         if (data && data.length > 0) {
-            historyList.innerHTML = ''; // Bersihkan loader/dummy
-            // Ambil maksimal 5 saja untuk dashboard ringkas
+            historyList.innerHTML = ''; // Bersihkan loader
             const latest = data.slice(0, 5);
+            // Reverse agar yang paling baru ada di atas (karena addHistory pakai prepend)
             latest.reverse().forEach(row => {
                 const meta = getActivityMeta(row.action_type);
                 addHistory(meta.label, meta.icon, parseFloat(row.temperature));
             });
+        } else {
+            console.log("Debug: History data is empty");
         }
     } catch (e) {
-        console.error("Load Initial History Error:", e);
+        console.error("Critical: loadInitialHistory Failed:", e);
     }
 }
 

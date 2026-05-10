@@ -409,9 +409,10 @@
     </div>
 
     <script>
-        // Tentukan API Base secara dinamis agar aman di XAMPP subfolder
-        window.API_BASE = window.location.origin + window.location.pathname.replace(/\/$/, "").replace(/\/index\.php$/, "") + "/api";
+        // Gunakan URL Laravel asli untuk API Base
+        window.API_BASE = "{{ url('api') }}";
         window.CSRF_TOKEN = "{{ csrf_token() }}";
+        console.log("Debug: API_BASE is", window.API_BASE);
     </script>
     <script src="https://unpkg.com/mqtt@4.3.7/dist/mqtt.min.js"></script>
     <script type="module" src="{{ asset('js/main.js') }}"></script>
