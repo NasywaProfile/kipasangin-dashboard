@@ -489,8 +489,13 @@ body {
     .activity-scroll-list { max-height: 400px; overflow-y: visible; } /* Allow natural scroll in mobile context */
 
     /* History Page Mobile */
-    .history-screen { padding: 0; }
-    .history-page-card { border-radius: 0; height: 100vh; border: none; }
+    .history-screen { padding: 10px; }
+    .history-page-card { 
+        border-radius: 32px; 
+        height: calc(100vh - 20px); 
+        border: 1.5px solid #E2E8F0;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
     .history-page-header { padding: 20px; }
     .header-top-row { flex-direction: column; align-items: flex-start; gap: 15px; }
     .date-filter-wrapper-pill { width: 100%; margin-left: 0; justify-content: space-between; }
