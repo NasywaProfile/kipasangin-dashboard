@@ -55,9 +55,8 @@ function enterDashboard() {
         appContainer.style.animation = 'dashboardEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
         sessionActive = true;
 
-        if (historyList.children.length === 0) {
-            addHistory('System Online', 'on', 24.5);
-        }
+        // Ambil riwayat terbaru dari MySQL saat masuk
+        loadInitialHistory();
     }, 600);
 }
 
@@ -225,6 +224,27 @@ function addHistory(title, type, temp = null) {
 
     historyList.prepend(item);
     if (historyCountLabel) historyCountLabel.textContent = historyList.children.length;
+}
+
+// Fetch 5 riwayat terbaru dari MySQL untuk Dashboard Utama
+async function loadInitialHistory() {
+    try {
+        const apiBase = window.API_BASE || '/api';
+        const response = await fetch(`${apiBase}/activity-log`);
+        const data = await response.json();
+
+        if (data && data.length > 0) {
+            historyList.innerHTML = ''; // Bersihkan loader/dummy
+            // Ambil maksimal 5 saja untuk dashboard ringkas
+            const latest = data.slice(0, 5);
+            latest.reverse().forEach(row => {
+                const meta = getActivityMeta(row.action_type);
+                addHistory(meta.label, meta.icon, parseFloat(row.temperature));
+            });
+        }
+    } catch (e) {
+        console.error("Load Initial History Error:", e);
+    }
 }
 
 function updateSparkline() {
