@@ -9,7 +9,11 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
-        $devices = MasterKipas::all();
+        try {
+            $devices = MasterKipas::all();
+        } catch (\Exception $e) {
+            $devices = collect([]);
+        }
         return view('dashboard', compact('devices'));
     }
 }
