@@ -20,6 +20,19 @@
         "APP_ENV": "production",
         "APP_DEBUG": "true",
         "APP_URL": "https://smartfankel1.vercel.app",
-        "APP_KEY": "base64:7B5mS6n8hG8Z9V4p1j3Q5w7x9y0z1a2b3c4d5e6f7g8="
+        "APP_KEY": "base64:7B5mS6n8hG8Z9V4p1j3Q5w7x9y0z1a2b3c4d5e6f7g8=",
+        "APP_CONFIG_CACHE": "/tmp/config.php",
+        "APP_EVENTS_CACHE": "/tmp/events.php",
+        "APP_PACKAGES_CACHE": "/tmp/packages.php",
+        "APP_ROUTES_CACHE": "/tmp/routes.php",
+        "VIEW_COMPILED_PATH": "/tmp",
+        "SESSION_DRIVER": "array",
+        "LOG_CHANNEL": "stderr",
+        "DB_CONNECTION": "mysql",
+        "DB_HOST": "127.0.0.1",
+        "DB_PORT": "3306",
+        "DB_DATABASE": "kipasangin",
+        "DB_USERNAME": "root",
+        "DB_PASSWORD": ""
     }
 }
