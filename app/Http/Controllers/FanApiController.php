@@ -8,11 +8,16 @@ use App\Models\MasterKipas;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+use Illuminate\Support\Facades\Log;
+
 class FanApiController extends Controller
 {
-    // ──────────────────────────────────────────────────────────
-    //  GET /api/master-kipas
-    // ──────────────────────────────────────────────────────────
+    public function __construct()
+    {
+        Log::info('API Request: ' . request()->method() . ' ' . request()->fullUrl(), [
+            'data' => request()->all()
+        ]);
+    }
     public function indexDevices(): JsonResponse
     {
         return response()->json(MasterKipas::all());
@@ -85,7 +90,7 @@ class FanApiController extends Controller
     public function storeActivity(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'device_id'   => 'required|integer|exists:master_kipas,id',
+            'device_id'   => 'required', // Bisa integer ID atau string device_id (FAN-001)
             'action_type' => 'required|string|max:50',
             'temperature' => 'nullable|numeric',
             'keterangan'  => 'nullable|string',
@@ -95,7 +100,13 @@ class FanApiController extends Controller
 
         // Sync status di master_kipas
         $actionType = strtoupper($data['action_type']);
+        
+        // Coba cari device (bisa ID atau device_id string)
         $device = MasterKipas::find($data['device_id']);
+        if (!$device) {
+            $device = MasterKipas::where('device_id', $data['device_id'])->first();
+        }
+
         if ($device) {
             $updates = [];
             if (in_array($actionType, ['ON', 'OFF', 'AUTO', 'MANUAL_ON', 'MANUAL_OFF', 'AUTO_ON', 'AUTO_OFF'])) {

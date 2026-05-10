@@ -386,7 +386,7 @@ async function logToLocal(action, val = null) {
         const recordTemp = (action === 'threshold_change' && val !== null) ? val : currentTemp;
         const apiBase = window.API_BASE || '/api';
 
-        await fetch(`${apiBase}/activity-log`, {
+        const res = await fetch(`${apiBase}/activity-log`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -398,8 +398,13 @@ async function logToLocal(action, val = null) {
                 temperature: recordTemp
             })
         });
+
+        if (!res.ok) {
+            const errText = await res.text();
+            console.error(`API Error (${res.status}):`, errText);
+        }
     } catch (e) {
-        console.error("Local Log Error:", e);
+        console.error("Local Log Network Error:", e);
     }
 }
 

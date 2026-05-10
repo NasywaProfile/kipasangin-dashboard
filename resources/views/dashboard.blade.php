@@ -406,8 +406,8 @@
     </div>
 
     <script>
-        // Expose Laravel API base URL ke JavaScript
-        window.API_BASE = "{{ url('/api') }}";
+        // Tentukan API Base secara dinamis agar aman di XAMPP subfolder
+        window.API_BASE = window.location.origin + window.location.pathname.replace(/\/$/, "").replace(/\/index\.php$/, "") + "/api";
         window.CSRF_TOKEN = "{{ csrf_token() }}";
     </script>
     <script src="https://unpkg.com/mqtt@4.3.7/dist/mqtt.min.js"></script>
