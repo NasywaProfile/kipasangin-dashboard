@@ -1,0 +1,151 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\ActivityLog;
+use App\Models\ErrorLog;
+use App\Models\MasterKipas;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+
+class FanApiController extends Controller
+{
+    // ──────────────────────────────────────────────────────────
+    //  GET /api/master-kipas
+    // ──────────────────────────────────────────────────────────
+    public function indexDevices(): JsonResponse
+    {
+        return response()->json(MasterKipas::all());
+    }
+
+    // ──────────────────────────────────────────────────────────
+    //  POST /api/master-kipas
+    //  Body: { device_id, nama_kipas, lokasi?, ip_address? }
+    // ──────────────────────────────────────────────────────────
+    public function storeDevice(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'device_id'  => 'required|string|max:50',
+            'nama_kipas' => 'required|string|max:100',
+            'lokasi'     => 'nullable|string|max:150',
+            'ip_address' => 'nullable|string|max:45',
+        ]);
+
+        $device = MasterKipas::updateOrCreate(
+            ['device_id' => $data['device_id']],
+            $data
+        );
+
+        return response()->json(['status' => 'success', 'id' => $device->id], 201);
+    }
+
+    // ──────────────────────────────────────────────────────────
+    //  PUT /api/master-kipas/{id}
+    //  Body: { status?, suhu?, kecepatan? }
+    // ──────────────────────────────────────────────────────────
+    public function updateDevice(Request $request, int $id): JsonResponse
+    {
+        $device = MasterKipas::findOrFail($id);
+
+        $data = $request->validate([
+            'status'     => 'nullable|in:ON,OFF,AUTO',
+            'suhu'       => 'nullable|numeric',
+            'kecepatan'  => 'nullable|integer|between:0,100',
+            'ip_address' => 'nullable|string|max:45',
+        ]);
+
+        $device->update(array_filter($data, fn($v) => !is_null($v)));
+
+        return response()->json(['status' => 'success', 'affected' => 1]);
+    }
+
+    // ──────────────────────────────────────────────────────────
+    //  GET /api/activity-log?date=YYYY-MM-DD&device_id=1
+    // ──────────────────────────────────────────────────────────
+    public function indexActivity(Request $request): JsonResponse
+    {
+        $query = ActivityLog::with('device:id,device_id,nama_kipas')
+            ->latest('created_at')
+            ->limit(200);
+
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+        if ($request->filled('device_id')) {
+            $query->where('device_id', $request->integer('device_id'));
+        }
+
+        return response()->json($query->get());
+    }
+
+    // ──────────────────────────────────────────────────────────
+    //  POST /api/activity-log
+    //  Body: { device_id, action_type, temperature?, keterangan? }
+    // ──────────────────────────────────────────────────────────
+    public function storeActivity(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'device_id'   => 'required|integer|exists:master_kipas,id',
+            'action_type' => 'required|string|max:50',
+            'temperature' => 'nullable|numeric',
+            'keterangan'  => 'nullable|string',
+        ]);
+
+        $log = ActivityLog::create($data);
+
+        // Sync status di master_kipas
+        $actionType = strtoupper($data['action_type']);
+        $device = MasterKipas::find($data['device_id']);
+        if ($device) {
+            $updates = [];
+            if (in_array($actionType, ['ON', 'OFF', 'AUTO', 'MANUAL_ON', 'MANUAL_OFF', 'AUTO_ON', 'AUTO_OFF'])) {
+                $updates['status'] = str_contains($actionType, 'ON') ? 'ON' : 'OFF';
+            }
+            if (!is_null($data['temperature'] ?? null)) {
+                $updates['suhu'] = $data['temperature'];
+            }
+            if ($updates) {
+                $device->update($updates);
+            }
+        }
+
+        return response()->json(['status' => 'success', 'id' => $log->id], 201);
+    }
+
+    // ──────────────────────────────────────────────────────────
+    //  GET /api/error-log?date=YYYY-MM-DD&device_id=1
+    // ──────────────────────────────────────────────────────────
+    public function indexErrors(Request $request): JsonResponse
+    {
+        $query = ErrorLog::with('device:id,device_id,nama_kipas')
+            ->latest('created_at')
+            ->limit(200);
+
+        if ($request->filled('date')) {
+            $query->whereDate('created_at', $request->date);
+        }
+        if ($request->filled('device_id')) {
+            $query->where('device_id', $request->integer('device_id'));
+        }
+
+        return response()->json($query->get());
+    }
+
+    // ──────────────────────────────────────────────────────────
+    //  POST /api/error-log
+    //  Body: { device_id, error_msg, error_code?, severity? }
+    // ──────────────────────────────────────────────────────────
+    public function storeError(Request $request): JsonResponse
+    {
+        $data = $request->validate([
+            'device_id'  => 'required|integer|exists:master_kipas,id',
+            'error_code' => 'nullable|string|max:30',
+            'error_msg'  => 'required|string',
+            'severity'   => 'nullable|in:INFO,WARNING,ERROR,CRITICAL',
+        ]);
+
+        $log = ErrorLog::create($data);
+
+        return response()->json(['status' => 'success', 'id' => $log->id], 201);
+    }
+}
