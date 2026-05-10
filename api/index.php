@@ -13,5 +13,20 @@ foreach ($paths as $path) {
         mkdir("/tmp/{$path}", 0755, true);
     }
 }
+// Additional fix for the root storage path in tmp
+if (!is_dir("/tmp/storage/framework/views")) {
+    mkdir("/tmp/storage/framework/cache", 0755, true);
+    mkdir("/tmp/storage/framework/sessions", 0755, true);
+    mkdir("/tmp/storage/framework/views", 0755, true);
+}
 
-require __DIR__ . '/../public/index.php';
+// Register the Composer autoloader...
+require __DIR__.'/../vendor/autoload.php';
+
+// Bootstrap Laravel and handle the request...
+$app = require_once __DIR__.'/../bootstrap/app.php';
+
+// Rebind paths for Vercel
+$app->useStoragePath('/tmp/storage');
+
+$app->handleRequest(Illuminate\Http\Request::capture());
