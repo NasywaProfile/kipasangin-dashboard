@@ -1,5 +1,5 @@
 // =====================================================
-// Smart Fan IoT - HYBRID (MQTT Real-time + Supabase Logging)
+// Smart Fan IoT - HYBRID (MQTT Real-time + MySQL Logging)
 //
 // Install di Library Manager:
 // 1. WiFiManager by tzapu
@@ -23,9 +23,9 @@
 const char mqtt_host[] = "broker.hivemq.com";
 const int  mqtt_port   = 1883; // Plain TCP, TANPA SSL = super cepat!
 
-// --- KONFIGURASI SUPABASE ---
-#define SUPABASE_URL "https://tddbbqwksbkqcfpdpjuc.supabase.co"
-#define SUPABASE_ANON_KEY "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkZGJicXdrc2JrcWNmcGRwanVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTAyMjMsImV4cCI6MjA5MTgyNjIyM30.jEUYXFH3JGhHnBnr2b65T8Ldj6j69EV2msTiRZxPeS8"
+// --- KONFIGURASI LOCAL SERVER (XAMPP) ---
+// Ganti [IP_LAPTOP] dengan IP Laptop Anda (misal: 192.168.1.10)
+const char* local_server_url = "http://[IP_LAPTOP]/kipasangin/api.php?table=activity_log";
 
 // --- KONFIGURASI HARDWARE ---
 #define DHTPIN  33
@@ -66,7 +66,7 @@ void setFan(bool state, String source) {
   // Jika triggernya dari sensor suhu (otomatis), log ke database.
   // Kalau dari manual, dashboard udah nge-log, jadi ngga perlu dobel.
   if (source == "auto") {
-    logToSupabase(isPowerOn ? "auto_on" : "auto_off", currentTemp, thresholdTemp);
+    logToLocal(isPowerOn ? "auto_on" : "auto_off", currentTemp);
   }
 }
 
@@ -100,21 +100,23 @@ void messageReceived(String &topic, String &payload) {
 }
 
 // =====================================================
-// SUPABASE LOG (background, non-blocking waktu)
+// LOCAL LOG (background, non-blocking waktu)
 // =====================================================
-void logToSupabase(String type, float temp, float threshold) {
+void logToLocal(String type, float temp) {
   if (WiFi.status() != WL_CONNECTED) return;
   HTTPClient http;
   
-  String url = String(SUPABASE_URL) + "/rest/v1/activity_log";
-  http.begin(url);
-  http.addHeader("apikey", SUPABASE_ANON_KEY);
-  http.addHeader("Authorization", "Bearer " + String(SUPABASE_ANON_KEY));
+  http.begin(local_server_url);
   http.addHeader("Content-Type", "application/json");
-  http.addHeader("Prefer", "return=minimal");
 
   String payload = "{\"device_id\": 1, \"action_type\": \"" + type + "\", \"temperature\": " + String(temp, 1) + "}";
-  http.POST(payload);
+  int httpResponseCode = http.POST(payload);
+  
+  if (httpResponseCode > 0) {
+    Serial.println("Log Success: " + String(httpResponseCode));
+  } else {
+    Serial.println("Log Error: " + String(httpResponseCode));
+  }
   http.end();
 }
 

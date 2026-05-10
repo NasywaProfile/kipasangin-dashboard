@@ -173,7 +173,7 @@ function updatePowerUI(source = 'manual') {
         addHistory(title, 'on');
 
         if (source === 'auto') {
-            logToSupabase('auto_on');
+            logToLocal('auto_on');
             fireNotification('⚠️ Suhu Panas - Kipas Menyala', `Kipas Pintar menyala otomatis. Suhu ruangan mencapai ${currentTemp.toFixed(1)}°C.`);
         }
     } else {
@@ -188,7 +188,7 @@ function updatePowerUI(source = 'manual') {
         addHistory(title, 'off');
 
         if (source === 'auto') {
-            logToSupabase('auto_off');
+            logToLocal('auto_off');
         }
     }
 }
@@ -353,32 +353,29 @@ mqttClient.on('message', (topic, message) => {
 });
 
 // ============================================================
-// SUPABASE 
+// LOCAL BACKEND (PHP & MySQL)
 // ============================================================
-const supabaseUrl = 'https://tddbbqwksbkqcfpdpjuc.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRkZGJicXdrc2JrcWNmcGRwanVjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNTAyMjMsImV4cCI6MjA5MTgyNjIyM30.jEUYXFH3JGhHnBnr2b65T8Ldj6j69EV2msTiRZxPeS8';
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-window.supabaseClient = supabaseClient; // Agar bisa diakses dari console browser
 
-async function logToSupabase(action, val = null) {
-    if (!supabaseClient) return; // Terhubung Ke DB
-
+async function logToLocal(action, val = null) {
     // Jika Manual ON akan Blok Auto On
     if (isManualOverride && action.startsWith('auto_')) {
         return;
     }
 
     try {
-        // Jika threshold_change, masukkan nilai slider ke kolom temperature agar terekam
         const recordTemp = (action === 'threshold_change' && val !== null) ? val : currentTemp;
 
-        await supabaseClient.from('activity_log').insert([{
-            device_id: 1,
-            action_type: action,
-            temperature: recordTemp
-        }]);
+        await fetch('api.php?table=activity_log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                device_id: 1,
+                action_type: action,
+                temperature: recordTemp
+            })
+        });
     } catch (e) {
-        console.error("Log Error:", e);
+        console.error("Local Log Error:", e);
     }
 }
 
@@ -386,29 +383,29 @@ async function logToSupabase(action, val = null) {
 async function syncDeviceStatus(statusStr) {
     console.log(`📡 Status Koneksi: ${statusStr}`);
     // Status Online/Offline sekarang hanya tampil di UI Dashboard
-    // Tidak lagi dikirim ke Supabase master_kipas agar DB lebih ringan
+    // Tidak lagi dikirim ke database master_kipas agar DB lebih ringan
 }
 
 // Mencatat Error otomatis ke Tabel Error Log
 async function logSystemError(msg) {
-    if (!supabaseClient) return;
     try {
-        const { error } = await supabaseClient.from('error_log').insert([{
-            device_id: 1,
-            error_msg: msg
-        }]);
-
-        if (error) {
-            console.error("Supabase Error (Error Log):", error.message);
-            alert("DB Error Log Gagal: " + error.message);
-        }
-    } catch (e) { }
+        await fetch('api.php?table=error_log', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                device_id: 1,
+                error_msg: msg
+            })
+        });
+    } catch (e) {
+        console.error("Local Error Log Gagal:", e);
+    }
 }
 
 let isManualOverride = false;
 
 // ============================================================
-// TOMBOL POWER → PUBLISH MQTT INSTAN + LOG FIREBASE
+// TOMBOL POWER → PUBLISH MQTT INSTAN + LOG LOCAL
 // ============================================================
 window.handlePowerToggle = () => {
     lastPowerCommandTime = Date.now();
@@ -423,8 +420,8 @@ window.handlePowerToggle = () => {
     const cmd = isPowerOn ? 'ON' : 'OFF';
     mqttClient.publish('smartfan/cmd/power', cmd);
 
-    // Log ke Supabase tanpa mengganggu tampilan
-    logToSupabase(isPowerOn ? 'manual_on' : 'manual_off');
+    // Log ke Local tanpa mengganggu tampilan
+    logToLocal(isPowerOn ? 'manual_on' : 'manual_off');
 };
 
 powerSwitch.addEventListener('change', window.handlePowerToggle);
@@ -443,7 +440,7 @@ window.sendThreshold = async function (val) {
 
     // 1. Catat perubahan threshold DULU
     if (val !== lastLoggedThreshold) {
-        await logToSupabase('threshold_change', val);
+        await logToLocal('threshold_change', val);
         addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'settings');
         lastLoggedThreshold = val;
 
@@ -485,7 +482,7 @@ setInterval(() => {
 }, 5000);
 
 // ============================================================
-// HALAMAN RIWAYAT — Navigasi & Fetch dari Supabase
+// HALAMAN RIWAYAT — Navigasi & Fetch dari Database Lokal
 // ============================================================
 const historyScreen      = document.getElementById('historyScreen');
 const openHistoryBtn     = document.getElementById('openHistoryBtn');
@@ -496,15 +493,6 @@ const errorLogList       = document.getElementById('errorLogList');
 const historyDateFilter  = document.getElementById('historyDateFilter');
 const clearDateBtn       = document.getElementById('clearDateBtn');
 
-// Helper untuk filter tanggal
-function getDayRange(dateStr) {
-    if (!dateStr) return null;
-    const start = new Date(dateStr);
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(dateStr);
-    end.setHours(23, 59, 59, 999);
-    return { start: start.toISOString(), end: end.toISOString() };
-}
 
 // Peta action_type → label & icon type
 function getActivityMeta(type) {
@@ -535,72 +523,80 @@ function iconSvgFor(type) {
 // Render activity_log
 async function loadActivityLog() {
     activityLogList.innerHTML = `<div class="history-loading"><div class="loading-spinner"></div><p>Memuat data aktivitas...</p></div>`;
-    if (!supabaseClient) { activityLogList.innerHTML = `<div class="history-empty"><p>Supabase belum terhubung.</p></div>`; return; }
-
-    let query = supabaseClient.from('activity_log').select('*');
     
-    const range = getDayRange(historyDateFilter.value);
-    if (range) {
-        query = query.gte('created_at', range.start).lte('created_at', range.end);
+    try {
+        let url = 'api.php?table=activity_log';
+        if (historyDateFilter.value) {
+            url += `&date=${historyDateFilter.value}`;
+        }
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!data || data.length === 0 || data.error) {
+            activityLogList.innerHTML = `<div class="history-empty">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
+                <p>${historyDateFilter.value ? 'Tidak ada data pada tanggal ini.' : 'Belum ada riwayat aktivitas.'}</p></div>`; 
+            return;
+        }
+
+        activityLogList.innerHTML = '';
+        data.forEach(row => {
+            const meta = getActivityMeta(row.action_type);
+            const div = document.createElement('div');
+            div.className = 'db-row';
+            div.innerHTML = `
+                <div class="db-row-icon type-${meta.icon}">${iconSvgFor(meta.icon)}</div>
+                <div class="db-row-info">
+                    <h5>${meta.label}</h5>
+                    <p>${row.temperature != null ? row.temperature + '°C' : '—'} · Device #${row.device_id ?? 1}</p>
+                </div>
+                <div class="db-row-time">${formatTime(row.created_at)}</div>`;
+            activityLogList.appendChild(div);
+        });
+    } catch (e) {
+        console.error("Fetch Activity Error:", e);
+        activityLogList.innerHTML = `<div class="history-empty"><p>Gagal mengambil data dari server lokal.</p></div>`;
     }
-
-    const { data, error } = await query.order('created_at', { ascending: false }).limit(100);
-
-    if (error || !data?.length) {
-        activityLogList.innerHTML = `<div class="history-empty">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>
-            <p>${range ? 'Tidak ada data pada tanggal ini.' : 'Belum ada riwayat aktivitas.'}</p></div>`; return;
-    }
-
-    activityLogList.innerHTML = '';
-    data.forEach(row => {
-        const meta = getActivityMeta(row.action_type);
-        const div = document.createElement('div');
-        div.className = 'db-row';
-        div.innerHTML = `
-            <div class="db-row-icon type-${meta.icon}">${iconSvgFor(meta.icon)}</div>
-            <div class="db-row-info">
-                <h5>${meta.label}</h5>
-                <p>${row.temperature != null ? row.temperature + '°C' : '—'} · Device #${row.device_id ?? 1}</p>
-            </div>
-            <div class="db-row-time">${formatTime(row.created_at)}</div>`;
-        activityLogList.appendChild(div);
-    });
 }
 
 // Render error_log
 async function loadErrorLog() {
     errorLogList.innerHTML = `<div class="history-loading"><div class="loading-spinner"></div><p>Memuat data error...</p></div>`;
-    if (!supabaseClient) { errorLogList.innerHTML = `<div class="history-empty"><p>Supabase belum terhubung.</p></div>`; return; }
-
-    let query = supabaseClient.from('error_log').select('*');
     
-    const range = getDayRange(historyDateFilter.value);
-    if (range) {
-        query = query.gte('created_at', range.start).lte('created_at', range.end);
+    try {
+        let url = 'api.php?table=error_log';
+        if (historyDateFilter.value) {
+            url += `&date=${historyDateFilter.value}`;
+        }
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        if (!data || data.length === 0 || data.error) {
+            errorLogList.innerHTML = `<div class="history-empty">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <p>${historyDateFilter.value ? 'Tidak ada error pada tanggal ini.' : 'Tidak ada error yang tercatat. Sistem berjalan normal! ✅'}</p></div>`; 
+            return;
+        }
+
+        errorLogList.innerHTML = '';
+        data.forEach(row => {
+            const div = document.createElement('div');
+            div.className = 'db-row';
+            div.innerHTML = `
+                <div class="db-row-icon type-error">${iconSvgFor('error')}</div>
+                <div class="db-row-info">
+                    <h5>${row.error_msg || 'Error tidak diketahui'}</h5>
+                    <p>Device #${row.device_id ?? 1}</p>
+                </div>
+                <div class="db-row-time">${formatTime(row.created_at)}</div>`;
+            errorLogList.appendChild(div);
+        });
+    } catch (e) {
+        console.error("Fetch Error Log Error:", e);
+        errorLogList.innerHTML = `<div class="history-empty"><p>Gagal mengambil data error dari server lokal.</p></div>`;
     }
-
-    const { data, error } = await query.order('created_at', { ascending: false }).limit(100);
-
-    if (error || !data?.length) {
-        errorLogList.innerHTML = `<div class="history-empty">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <p>${range ? 'Tidak ada error pada tanggal ini.' : 'Tidak ada error yang tercatat. Sistem berjalan normal! ✅'}</p></div>`; return;
-    }
-
-    errorLogList.innerHTML = '';
-    data.forEach(row => {
-        const div = document.createElement('div');
-        div.className = 'db-row';
-        div.innerHTML = `
-            <div class="db-row-icon type-error">${iconSvgFor('error')}</div>
-            <div class="db-row-info">
-                <h5>${row.error_msg || 'Error tidak diketahui'}</h5>
-                <p>Device #${row.device_id ?? 1}</p>
-            </div>
-            <div class="db-row-time">${formatTime(row.created_at)}</div>`;
-        errorLogList.appendChild(div);
-    });
 }
 
 // Navigasi & Event Listeners
