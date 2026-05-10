@@ -19,10 +19,9 @@ Sistem Smarfan dibagi menjadi lima sub-sistem utama:
 - **Penyimpanan Data**: MySQL yang dikelola via phpMyAdmin (XAMPP lokal).
 - **Tabel Utama (Migrations)**:
   - `master_kipas`: Data identitas perangkat.
-  - `activity_log`: Riwayat aktivitas kipas (Manual/Auto On/Off).
+  - `activity_log`: Riwayat aktivitas kipas.
   - `error_log`: Catatan kesalahan sistem.
 - **API**: REST API yang dikelola melalui `FanApiController`.
-- **ORM**: Eloquent untuk interaksi database yang aman dan efisien.
 
 ### C. Broker MQTT (HiveMQ)
 - **Fungsi**: Jalur komunikasi dua arah antara Web Dashboard dan ESP32 dengan latensi sangat rendah (< 200ms).
