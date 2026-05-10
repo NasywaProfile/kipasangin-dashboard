@@ -4,7 +4,9 @@ $paths = [
     'storage/framework/cache',
     'storage/framework/sessions',
     'storage/framework/views',
-    'storage/logs'
+    'storage/framework/testing',
+    'storage/logs',
+    'bootstrap/cache'
 ];
 foreach ($paths as $path) {
     if (!is_dir("/tmp/{$path}")) {
