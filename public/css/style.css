@@ -492,11 +492,13 @@ body {
     
     /* App Container Mobile */
     .app-container { 
-        grid-template-columns: 1fr; height: auto; 
+        grid-template-columns: 1fr; height: 100%; overflow: hidden;
         border-radius: 32px; width: 100%; 
         max-width: 600px; margin: 0 auto;
         box-shadow: 0 15px 40px rgba(0,0,0,0.08);
     }
+    .dashboard-left { height: 50%; overflow-y: auto; }
+    .dashboard-right { height: 50%; border-left: none; border-top: 1.5px solid #E2E8F0; overflow-y: auto; }
     
     /* Left Panel Mobile */
     .dashboard-visuals { 
