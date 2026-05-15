@@ -104,9 +104,10 @@ if (thresholdSlider) {
     thresholdSlider.addEventListener('input', () => {
         thresholdTemp = parseFloat(thresholdSlider.value);
         if (thresholdInput) thresholdInput.value = thresholdTemp;
-        // Update display value in badge
-        const thresholdValue = document.getElementById('thresholdValue');
-        if (thresholdValue) thresholdValue.textContent = thresholdTemp.toFixed(1);
+    });
+
+    thresholdSlider.addEventListener('change', () => {
+        sendThreshold(thresholdTemp);
     });
 }
 
@@ -118,8 +119,6 @@ if (thresholdInput) {
             if (val > 45) val = 45;
             thresholdTemp = val;
             if (thresholdSlider) thresholdSlider.value = thresholdTemp;
-            const thresholdValue = document.getElementById('thresholdValue');
-            if (thresholdValue) thresholdValue.textContent = thresholdTemp.toFixed(1);
         }
     });
 
@@ -142,20 +141,12 @@ if (thresholdInput) {
     });
 }
 
-    const thresholdArrow = document.querySelector('.control-arrow');
-    if (thresholdArrow) {
-        thresholdArrow.addEventListener('click', () => {
-            const val = parseFloat(thresholdSlider.value);
-            sendThreshold(val);
-            
-            // Visual feedback
-            thresholdArrow.style.transform = 'translateX(5px)';
-            setTimeout(() => thresholdArrow.style.transform = 'translateX(0)', 200);
-            
-            // Show notification for feedback
-            fireNotification('✅ Threshold Diaktifkan', `Target suhu berhasil diset ke ${val.toFixed(1)}°C`);
-        });
-    }
+const sendThresholdBtn = document.getElementById('sendThresholdBtn');
+if (sendThresholdBtn) {
+    sendThresholdBtn.addEventListener('click', () => {
+        sendThreshold(thresholdTemp);
+    });
+}
 
 
 
@@ -259,8 +250,8 @@ function addHistory(title, type, temp = null) {
 
     historyList.prepend(item);
     
-    // Limit to 2 items only in dashboard view (Latest on top)
-    while (historyList.children.length > 2) {
+    // Limit to 3 items only in dashboard view
+    while (historyList.children.length > 3) {
         historyList.lastElementChild.remove();
     }
 
@@ -281,7 +272,7 @@ async function loadInitialHistory() {
 
         if (data && data.length > 0) {
             historyList.innerHTML = ''; // Bersihkan loader
-            const latest = data.slice(0, 2); // Ambil 2 teratas saja
+            const latest = data.slice(0, 3); // Ambil 3 teratas saja
             // Reverse agar yang paling baru ada di atas (karena addHistory pakai prepend)
             latest.reverse().forEach(row => {
                 const meta = getActivityMeta(row.action_type);
