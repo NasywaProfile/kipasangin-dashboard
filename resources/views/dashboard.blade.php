@@ -335,14 +335,13 @@
                             </div>
                             <div class="auto-badge">
                                 <input type="number" id="thresholdInput" value="32" min="20" max="45" step="0.1">
-                                <div class="temp-badge">
-                                    <span id="thresholdValue">32</span> <span class="unit">°C</span>
-                                    <button id="applyThresholdBtn" class="apply-btn">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="9 18 15 12 9 6"></polyline>
-                                        </svg>
-                                    </button>
-                                </div>
+                                <span class="badge-unit">°C</span>
+                                <button id="sendThresholdBtn" class="mini-send-btn" title="Update Threshold">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </button>
                             </div>
                         </div>
 
@@ -413,9 +412,12 @@
                     </button>
                     <h2 class="history-page-title">Riwayat <span>Sistem</span></h2>
                     
-                    <div class="date-filter">
-                        <input type="text" id="dateFilter" placeholder="Contoh: 15/05/2026" readonly>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <div class="date-filter-wrapper-pill">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                        </svg>
+                        <input type="date" id="historyDateFilter" class="date-input">
+                        <button id="clearDateBtn" class="clear-btn-pill">Reset</button>
                     </div>
                 </div>
 

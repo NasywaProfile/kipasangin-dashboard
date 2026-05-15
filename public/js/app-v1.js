@@ -142,15 +142,20 @@ if (thresholdInput) {
     });
 }
 
-const applyThresholdBtn = document.getElementById('applyThresholdBtn');
-if (applyThresholdBtn) {
-    applyThresholdBtn.addEventListener('click', () => {
-        sendThreshold(thresholdTemp);
-        // Tambahkan feedback visual sederhana
-        applyThresholdBtn.style.transform = 'scale(0.9)';
-        setTimeout(() => applyThresholdBtn.style.transform = 'scale(1)', 100);
-    });
-}
+    const thresholdArrow = document.querySelector('.control-arrow');
+    if (thresholdArrow) {
+        thresholdArrow.addEventListener('click', () => {
+            const val = parseFloat(thresholdSlider.value);
+            sendThreshold(val);
+            
+            // Visual feedback
+            thresholdArrow.style.transform = 'translateX(5px)';
+            setTimeout(() => thresholdArrow.style.transform = 'translateX(0)', 200);
+            
+            // Show notification for feedback
+            fireNotification('✅ Threshold Diaktifkan', `Target suhu berhasil diset ke ${val.toFixed(1)}°C`);
+        });
+    }
 
 
 
@@ -254,7 +259,7 @@ function addHistory(title, type, temp = null) {
 
     historyList.prepend(item);
     
-    // Limit to 2 items only in dashboard view
+    // Limit to 2 items only in dashboard view (Latest on top)
     while (historyList.children.length > 2) {
         historyList.lastElementChild.remove();
     }
