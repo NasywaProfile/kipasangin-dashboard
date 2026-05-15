@@ -82,7 +82,9 @@
             background: #FFFFFF;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            justify-content: flex-start;
+            overflow-y: auto;
+            scrollbar-width: thin;
         }
 
         /* Judul Instruksi di Tengah */
@@ -295,109 +297,107 @@
         </section>
 
         <div class="dashboard-content modern-light">
-            <!-- Right Panel Sections -->
-            <div class="side-panel-wrapper">
-
-                <!-- 1. Environment Stats -->
-                <section class="panel-section environment-entry">
-                    <div class="section-tag">Environment</div>
-                    <div class="main-stats-card">
-                        <div class="stats-icon-box">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
-                            </svg>
-                        </div>
-                        <div class="stats-main-info">
-                            <p>Room Temperature</p>
-                            <div class="stats-value-row">
-                                <span id="tempValue">24.5</span><span class="unit-label">°C</span>
-                            </div>
-                        </div>
-                        <div class="stats-trend">
-                            <svg viewBox="0 0 100 30" class="main-sparkline">
-                                <path d="M0 15 L 25 15 L 50 15 L 75 15 L 100 15" fill="none" stroke="#A67347"
-                                    stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
-                                    id="tempSparkline" />
-                            </svg>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- 2. Automation Control -->
-                <section class="panel-section automation-entry">
-                    <div class="section-tag">Automation Settings</div>
-                    <div class="automation-card">
-                        <div class="auto-header">
-                            <div class="auto-title">
-                                <h4>Temp Threshold</h4>
-                                <p>Fan auto-activates at this temperature</p>
-                            </div>
-                            <div class="auto-badge">
-                                <input type="number" id="thresholdInput" value="32" min="20" max="45" step="0.1">
-                                <div class="temp-badge">
-                                    <span id="thresholdValue">32</span> <span class="unit">°C</span>
-                                    <button id="applyThresholdBtn" class="apply-btn">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="9 18 15 12 9 6"></polyline>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="auto-control-box">
-                            <div class="stepper-btn" id="tempDown">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                                    <line x1="5" y1="12" x2="19" y2="12" />
+            <div class="dashboard-right">
+                <div class="right-content-scroll">
+                    <!-- 1. Environment Stats -->
+                    <section class="panel-section environment-entry">
+                        <div class="section-tag">Environment</div>
+                        <div class="main-stats-card">
+                            <div class="stats-icon-box">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z" />
                                 </svg>
                             </div>
-                            <div class="slider-track-box">
-                                <input type="range" id="thresholdSlider" min="20" max="45" step="0.1" value="32"
-                                    class="premium-slider">
-                                <div class="slider-marks">
-                                    <span>20°</span>
-                                    <span>32°</span>
-                                    <span>45°</span>
+                            <div class="stats-main-info">
+                                <p>Room Temperature</p>
+                                <div class="stats-value-row">
+                                    <span id="tempValue">24.5</span><span class="unit-label">°C</span>
                                 </div>
                             </div>
-                            <div class="stepper-btn" id="tempUp">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                                    <line x1="12" y1="5" x2="12" y2="19" />
-                                    <line x1="5" y1="12" x2="19" y2="12" />
+                            <div class="stats-trend">
+                                <svg viewBox="0 0 100 30" class="main-sparkline">
+                                    <path d="M0 15 L 25 15 L 50 15 L 75 15 L 100 15" fill="none" stroke="#A67347"
+                                        stroke-width="3" stroke-linecap="round" stroke-linejoin="round"
+                                        id="tempSparkline" />
                                 </svg>
                             </div>
                         </div>
-                    </div>
-                </section>
+                    </section>
 
-                <!-- 3. Recent Activity -->
-                <section class="panel-section history-entry">
-                    <div class="history-header-row">
-                        <div class="section-tag">Recent Activity</div>
-                        <div class="history-count-pill" id="historyCount">0</div>
-                    </div>
-                    <div class="activity-scroll-list" id="historyList">
-                        <!-- Activity items go here -->
-                    </div>
-                </section>
+                    <!-- 2. Automation Control -->
+                    <section class="panel-section automation-entry">
+                        <div class="section-tag">Automation Settings</div>
+                        <div class="automation-card">
+                            <div class="auto-header">
+                                <div class="auto-title">
+                                    <h4>Temp Threshold</h4>
+                                    <p>Fan auto-activates at this temperature</p>
+                                </div>
+                                <div class="auto-badge">
+                                    <input type="number" id="thresholdInput" value="32" min="20" max="45" step="0.1">
+                                    <div class="temp-badge">
+                                        <span id="thresholdValue">32</span> <span class="unit">°C</span>
+                                        <button id="applyThresholdBtn" class="apply-btn">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="9 18 15 12 9 6"></polyline>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
 
-                <!-- 4. Riwayat Button -->
-                <section class="panel-section">
-                    <button id="openHistoryBtn" class="riwayat-btn">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-                        </svg>
-                        Lihat Riwayat Lengkap
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto">
-                            <polyline points="9 18 15 12 9 6"/>
-                        </svg>
-                    </button>
-                </section>
+                            <div class="auto-control-box">
+                                <div class="stepper-btn" id="tempDown">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg>
+                                </div>
+                                <div class="slider-track-box">
+                                    <input type="range" id="thresholdSlider" min="20" max="45" step="0.1" value="32"
+                                        class="premium-slider">
+                                    <div class="slider-marks">
+                                        <span>20°</span>
+                                        <span>32°</span>
+                                        <span>45°</span>
+                                    </div>
+                                </div>
+                                <div class="stepper-btn" id="tempUp">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                                        <line x1="12" y1="5" x2="12" y2="19" />
+                                        <line x1="5" y1="12" x2="19" y2="12" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
 
+                    <!-- 3. Recent Activity -->
+                    <section class="panel-section history-entry">
+                        <div class="history-header-row">
+                            <div class="section-tag">Recent Activity</div>
+                            <div class="history-count-pill" id="historyCount">0</div>
+                        </div>
+                        <div class="activity-scroll-list" id="historyList">
+                            <!-- Activity items go here -->
+                        </div>
+                    </section>
+
+                    <!-- 4. Riwayat Button -->
+                    <section class="panel-section">
+                        <button id="openHistoryBtn" class="riwayat-btn">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                            </svg>
+                            Lihat Riwayat Lengkap
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto">
+                                <polyline points="9 18 15 12 9 6"/>
+                            </svg>
+                        </button>
+                    </section>
+                </div>
             </div>
         </div>
-    </div>
 
     <!-- ===================== HALAMAN RIWAYAT ===================== -->
     <div id="historyScreen" class="history-screen hidden">
@@ -459,8 +459,7 @@
     </div>
 
     <!-- Tutorial Screen - Setup WiFi -->
-    <div id="tutorialScreen" class="hidden"
-        style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 10px; box-sizing: border-box; opacity: 0;">
+    <div id="tutorialScreen" class="history-screen hidden" style="opacity: 0; z-index: 2100;">
 
         <div class="split-tutorial">
             <div class="tutorial-left">
