@@ -201,7 +201,7 @@
 
             <!-- Setup WiFi Button -->
             <div style="margin-top: 25px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; width: 100%;">
-                <button id="openTutorialBtn"
+                <button id="openTutorialBtnWelcome"
                     style="color: rgba(255,255,255,0.85); background: transparent; border: none; text-decoration: none; font-size: 0.9rem; font-weight: 400; cursor: pointer; padding: 5px; transition: color 0.3s; font-family: 'Outfit', sans-serif;">
                     Belum konfigurasi WiFi? <span style="text-decoration: underline;">Sambungkan dulu</span>
                 </button>
@@ -292,6 +292,11 @@
                             </div>
                         </div>
                     </label>
+                </div>
+                <div id="openTutorialBtnDashboard" style="margin-top: 15px; text-align: center;">
+                    <button class="open-tutorial-link" style="background:none; border:none; color:var(--text-muted); text-decoration:underline; font-size:12px; cursor:pointer;">
+                        Butuh bantuan setup WiFi?
+                    </button>
                 </div>
             </div>
         </section>

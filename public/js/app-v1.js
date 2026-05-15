@@ -80,10 +80,23 @@ backBtn.addEventListener('click', () => {
 });
 
 // --- Tutorial Screen Logic ---
-if (openTutorialBtn) openTutorialBtn.addEventListener('click', () => {
-    welcomeScreen.classList.add('hidden');
-    tutorialScreen.classList.remove('hidden');
-    tutorialScreen.style.animation = 'dashboardEnter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+const openTutorialBtns = [
+    document.getElementById('openTutorialBtnWelcome'),
+    document.getElementById('openTutorialBtnDashboard')
+];
+
+openTutorialBtns.forEach(btn => {
+    if (btn) {
+        btn.addEventListener('click', () => {
+            // Jika diklik dari welcome screen, sembunyikan welcome
+            if (welcomeScreen && !welcomeScreen.classList.contains('hidden')) {
+                welcomeScreen.classList.add('hidden');
+            }
+            tutorialScreen.classList.remove('hidden');
+            tutorialScreen.style.opacity = '1';
+            tutorialScreen.style.animation = 'dashboardEnter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+        });
+    }
 });
 
 const closeTutorialBtns = document.querySelectorAll('.closeTutorialBtn');
