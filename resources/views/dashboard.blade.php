@@ -15,14 +15,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <style>
-        /* Minimalist Setup WiFi Guide */
+        /* Premium & Styled Setup WiFi Guide */
         .split-tutorial {
             display: flex;
             width: 100%;
             height: 100%;
             background: #FFFFFF;
             border-radius: 40px;
-            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.12);
             overflow: hidden;
             margin: auto;
             border: 1.5px solid #E2E8F0;
@@ -31,41 +31,49 @@
         .tutorial-left {
             flex: 1;
             padding: 60px;
-            background: #F8FAFC; /* Light Greyish Blue */
+            background: linear-gradient(165deg, #f8fafc 0%, #f1f5f9 100%);
             color: #1E293B;
             display: flex;
             flex-direction: column;
             justify-content: center;
             border-right: 1px solid #E2E8F0;
+            position: relative;
+        }
+
+        /* Aksen Dekorasi agar tidak terlalu minimalis */
+        .tutorial-left::after {
+            content: '';
+            position: absolute;
+            bottom: -50px; left: -50px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(30, 41, 59, 0.03) 0%, transparent 70%);
+            pointer-events: none;
         }
 
         .tutorial-left h2 {
-            font-size: 2rem !important;
+            font-size: 2.2rem !important;
             font-weight: 800 !important;
             color: #1E293B;
-            margin-bottom: 20px !important;
+            margin-bottom: 15px !important;
+            letter-spacing: -1px;
         }
 
-        /* Kotak Penting (Minimalis) */
         .important-box {
-            background: #FEF2F2 !important; /* Soft Red Tint */
-            border: 1px solid #FEE2E2 !important;
-            padding: 20px !important;
-            border-radius: 20px !important;
+            background: #FFFFFF !important;
+            border: 1px solid #E2E8F0 !important;
+            padding: 25px !important;
+            border-radius: 24px !important;
             margin-top: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.03);
         }
 
         .important-box h3 {
-            font-size: 1rem !important;
-            color: #B91C1C !important;
-            margin-bottom: 5px !important;
-            font-weight: 700 !important;
-        }
-
-        .important-box p {
-            font-size: 0.9rem !important;
-            color: #7F1D1D !important;
-            line-height: 1.5 !important;
+            font-size: 0.95rem !important;
+            color: #EF4444 !important;
+            margin-bottom: 8px !important;
+            font-weight: 800 !important;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .tutorial-right {
@@ -74,63 +82,89 @@
             background: #FFFFFF;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
-            overflow-y: auto;
+            justify-content: center;
         }
 
+        /* Judul Instruksi di Tengah */
         .tutorial-right h4 {
-            color: #64748B;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-size: 0.85rem;
-            margin-bottom: 25px;
+            color: #1E293B;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 40px;
+            position: relative;
         }
 
-        /* List Minimalis */
+        .tutorial-right h4::after {
+            content: '';
+            position: absolute;
+            bottom: -10px; left: 50%;
+            transform: translateX(-50%);
+            width: 40px; height: 3px;
+            background: #1E293B;
+            border-radius: 10px;
+        }
+
+        /* Penomoran Bergaya (Badge) */
         .tutorial-right ol {
+            counter-reset: setup-steps;
             list-style: none;
             padding: 0;
             margin-bottom: 40px;
         }
 
         .tutorial-right ol li {
-            margin-bottom: 18px;
-            color: #334155;
-            font-weight: 500;
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            font-size: 1rem;
+            counter-increment: setup-steps;
+            position: relative;
+            padding-left: 55px;
+            margin-bottom: 25px;
+            color: #475569;
+            font-weight: 600;
+            font-size: 1.05rem;
+            line-height: 1.5;
         }
 
-        .tutorial-right ol li b { color: #1E293B; }
+        .tutorial-right ol li::before {
+            content: counter(setup-steps);
+            position: absolute;
+            left: 0; top: -2px;
+            width: 36px; height: 36px;
+            background: #1E293B;
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 10px rgba(30, 41, 59, 0.2);
+        }
 
-        /* Tombol Setup (Mirip Tombol Back) */
         .setup-btn {
             display: block;
             text-align: center;
             color: #fff !important;
-            background: #1E293B !important; /* Sama dengan Back Button */
-            padding: 18px 25px;
-            border-radius: 16px;
+            background: #1E293B !important;
+            padding: 20px;
+            border-radius: 20px;
             text-decoration: none;
             font-weight: 700;
-            font-size: 1rem;
-            transition: 0.3s;
-            box-shadow: 0 4px 12px rgba(30, 41, 59, 0.15);
+            font-size: 1.1rem;
+            transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow: 0 15px 30px rgba(30, 41, 59, 0.2);
         }
 
         .setup-btn:hover {
             background: #0F172A !important;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(30, 41, 59, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(30, 41, 59, 0.25);
         }
 
         .d-none { display: none !important; }
 
         @media screen and (max-width: 900px) {
             .split-tutorial { flex-direction: column; height: 100%; border-radius: 0; }
-            .tutorial-left, .tutorial-right { padding: 40px 25px; flex: none; }
+            .tutorial-left, .tutorial-right { padding: 40px 30px; flex: none; }
             .tutorial-left { border-right: none; border-bottom: 1px solid #E2E8F0; }
         }
     </style>
@@ -432,15 +466,16 @@
 
         <div class="split-tutorial">
             <div class="tutorial-left">
-                <h2 style="margin: 0; font-size: 1.8rem; font-weight: 800;">Panduan Setup WiFi</h2>
-                <p style="font-size: 1rem; line-height: 1.6; color: #64748B; margin-top: 10px;">
-                    Hubungkan Kipas Pintar ke jaringan internet Anda dengan beberapa langkah mudah.
+                <h2>Panduan Setup WiFi</h2>
+                <p style="font-size: 1.1rem; line-height: 1.6; color: #64748B;">
+                    Hubungkan Kipas Pintar ke jaringan internet Anda untuk kontrol jarak jauh yang lancar.
                 </p>
 
-                <!-- Box Penting Minimalis -->
                 <div class="important-box">
                     <h3>⚠️ Penting</h3>
-                    <p>Saat memindahkan koneksi WiFi, <b>jangan menutup atau me-refresh</b> halaman web ini sampai proses selesai.</p>
+                    <p style="color: #475569; margin: 0; font-size: 0.95rem;">
+                        Saat memproses koneksi WiFi, <b>mohon jangan menutup</b> layar ini agar konfigurasi tersimpan dengan benar.
+                    </p>
                 </div>
             </div>
 
@@ -450,18 +485,18 @@
                 
                 <h4>Instruksi Setup</h4>
                 <ol>
-                    <li>Buka <b>Pengaturan WiFi</b> di HP Anda.</li>
+                    <li>Buka Pengaturan WiFi di HP Anda.</li>
                     <li>Hubungkan ke WiFi <b>Setup_Kipas_Pintar</b>.</li>
-                    <li>Setelah tersambung, kembali ke halaman ini.</li>
-                    <li>Klik tombol di bawah untuk membuka panel setup:</li>
+                    <li>Kembali ke halaman dashboard ini.</li>
+                    <li>Klik tombol di bawah untuk konfigurasi:</li>
                 </ol>
 
                 <a href="http://192.168.4.1" target="_blank" class="setup-btn">
                     Buka Pengaturan Setup
                 </a>
 
-                <p style="margin-top: 30px; font-size: 0.85rem; color: #94A3B8; line-height: 1.5;">
-                    *Setelah menyimpan password di panel setup, kipas akan otomatis restart dan terhubung ke internet.
+                <p style="margin-top: 35px; font-size: 0.85rem; color: #94A3B8; text-align: center;">
+                    *Kipas akan restart otomatis setelah password disimpan.
                 </p>
             </div>
         </div>
