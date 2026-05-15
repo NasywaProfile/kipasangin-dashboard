@@ -105,10 +105,6 @@ if (thresholdSlider) {
         thresholdTemp = parseFloat(thresholdSlider.value);
         if (thresholdInput) thresholdInput.value = thresholdTemp;
     });
-
-    thresholdSlider.addEventListener('change', () => {
-        sendThreshold(thresholdTemp);
-    });
 }
 
 if (thresholdInput) {
