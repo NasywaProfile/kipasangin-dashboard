@@ -104,10 +104,9 @@ if (thresholdSlider) {
     thresholdSlider.addEventListener('input', () => {
         thresholdTemp = parseFloat(thresholdSlider.value);
         if (thresholdInput) thresholdInput.value = thresholdTemp;
-    });
-
-    thresholdSlider.addEventListener('change', () => {
-        sendThreshold(thresholdTemp);
+        // Update display value in badge
+        const thresholdValue = document.getElementById('thresholdValue');
+        if (thresholdValue) thresholdValue.textContent = thresholdTemp.toFixed(1);
     });
 }
 
@@ -119,6 +118,8 @@ if (thresholdInput) {
             if (val > 45) val = 45;
             thresholdTemp = val;
             if (thresholdSlider) thresholdSlider.value = thresholdTemp;
+            const thresholdValue = document.getElementById('thresholdValue');
+            if (thresholdValue) thresholdValue.textContent = thresholdTemp.toFixed(1);
         }
     });
 
@@ -141,10 +142,13 @@ if (thresholdInput) {
     });
 }
 
-const sendThresholdBtn = document.getElementById('sendThresholdBtn');
-if (sendThresholdBtn) {
-    sendThresholdBtn.addEventListener('click', () => {
+const applyThresholdBtn = document.getElementById('applyThresholdBtn');
+if (applyThresholdBtn) {
+    applyThresholdBtn.addEventListener('click', () => {
         sendThreshold(thresholdTemp);
+        // Tambahkan feedback visual sederhana
+        applyThresholdBtn.style.transform = 'scale(0.9)';
+        setTimeout(() => applyThresholdBtn.style.transform = 'scale(1)', 100);
     });
 }
 
@@ -250,8 +254,8 @@ function addHistory(title, type, temp = null) {
 
     historyList.prepend(item);
     
-    // Limit to 3 items only in dashboard view
-    while (historyList.children.length > 3) {
+    // Limit to 2 items only in dashboard view
+    while (historyList.children.length > 2) {
         historyList.lastElementChild.remove();
     }
 
@@ -272,7 +276,7 @@ async function loadInitialHistory() {
 
         if (data && data.length > 0) {
             historyList.innerHTML = ''; // Bersihkan loader
-            const latest = data.slice(0, 3); // Ambil 3 teratas saja
+            const latest = data.slice(0, 2); // Ambil 2 teratas saja
             // Reverse agar yang paling baru ada di atas (karena addHistory pakai prepend)
             latest.reverse().forEach(row => {
                 const meta = getActivityMeta(row.action_type);
