@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ActivityLog;
-use App\Models\ErrorLog;
 use App\Models\MasterKipas;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -68,6 +67,7 @@ class FanApiController extends Controller
     public function indexActivity(Request $request): JsonResponse
     {
         $query = ActivityLog::with('device:id,device_id,nama_kipas')
+            ->where('action_type', '!=', 'ERROR')
             ->latest('created_at')
             ->limit(200);
 
@@ -126,7 +126,8 @@ class FanApiController extends Controller
     // ──────────────────────────────────────────────────────────
     public function indexErrors(Request $request): JsonResponse
     {
-        $query = ErrorLog::with('device:id,device_id,nama_kipas')
+        $query = ActivityLog::with('device:id,device_id,nama_kipas')
+            ->where('action_type', 'ERROR')
             ->latest('created_at')
             ->limit(200);
 
@@ -137,7 +138,13 @@ class FanApiController extends Controller
             $query->where('device_id', $request->integer('device_id'));
         }
 
-        return response()->json($query->get());
+        // Kita map keterangan ke error_msg agar JS tidak pecah
+        $logs = $query->get()->map(function($log) {
+            $log->error_msg = $log->keterangan;
+            return $log;
+        });
+
+        return response()->json($logs);
     }
 
     // ──────────────────────────────────────────────────────────
@@ -146,15 +153,25 @@ class FanApiController extends Controller
     // ──────────────────────────────────────────────────────────
     public function storeError(Request $request): JsonResponse
     {
-        Log::info('POST /api/error-log triggered', $request->all());
+        Log::info('POST /api/error-log triggered (merged to activity)', $request->all());
 
         $data = $request->validate([
-            'device_id'  => 'required|integer|exists:master_kipas,id',
+            'device_id'  => 'required',
             'error_msg'  => 'required|string',
-            'severity'   => 'nullable|in:INFO,WARNING,ERROR,CRITICAL',
+            'severity'   => 'nullable|string',
         ]);
 
-        $log = ErrorLog::create($data);
+        // Coba cari device (bisa ID atau device_id string)
+        $device = MasterKipas::find($data['device_id']);
+        if (!$device) {
+            $device = MasterKipas::where('device_id', $data['device_id'])->first();
+        }
+
+        $log = ActivityLog::create([
+            'device_id'   => $device ? $device->id : $data['device_id'],
+            'action_type' => 'ERROR',
+            'keterangan'  => $data['error_msg'],
+        ]);
 
         return response()->json(['status' => 'success', 'id' => $log->id], 201);
     }

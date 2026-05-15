@@ -25,9 +25,4 @@ class MasterKipas extends Model
     {
         return $this->hasMany(ActivityLog::class, 'device_id');
     }
-
-    public function errorLogs(): HasMany
-    {
-        return $this->hasMany(ErrorLog::class, 'device_id');
-    }
 }

@@ -18,19 +18,17 @@
         .split-tutorial {
             display: flex;
             width: 100%;
-            max-width: 1000px;
-            height: 90vh;
-            max-height: 700px;
+            height: 100%;
             background: #FFFFFF;
             border-radius: 40px;
-            box-shadow: 0 25px 50px -12px rgba(166, 115, 71, 0.15);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.1);
             overflow: hidden;
             margin: auto;
-            border: 1px solid white;
+            border: 1.5px solid #E2E8F0;
         }
 
         .tutorial-left {
-            flex: 1.1;
+            flex: 1.2;
             padding: 40px;
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             color: white;
@@ -40,7 +38,7 @@
         }
 
         .tutorial-right {
-            flex: 1.2;
+            flex: 1;
             padding: 40px;
             background: #F9F9FB;
             display: flex;
@@ -361,7 +359,7 @@
 
     <!-- Tutorial Screen - Setup WiFi -->
     <div id="tutorialScreen" class="hidden"
-        style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(250, 247, 242, 0.9); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; box-sizing: border-box; opacity: 0;">
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(250, 247, 242, 0.9); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 10px; box-sizing: border-box; opacity: 0;">
 
         <div class="split-tutorial">
             <!-- Left Side (Dark) -->
