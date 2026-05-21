@@ -278,18 +278,18 @@ body {
 .auto-badge {
     background: #F8F9FA; padding: 4px 12px; border-radius: 12px;
     display: flex; align-items: center; gap: 6px; border: 1px solid var(--border-soft);
-    position: relative;
 }
 #thresholdInput {
-    background: transparent; border: none; width: 72px; text-align: left;
+    background: transparent; border: none; width: 60px; text-align: center;
     font-weight: 800; font-size: 16px; color: var(--secondary); outline: none;
-    padding-right: 32px;
+    -moz-appearance: textfield; /* Firefox */
 }
-.badge-unit {
-    position: absolute;
-    left: 42px;
-    pointer-events: none;
-    font-weight: 800; font-size: 16px; color: var(--secondary);
+
+/* Chrome, Safari, Edge, Opera */
+#thresholdInput::-webkit-outer-spin-button,
+#thresholdInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 .mini-send-btn {
     background: var(--secondary); border: none; color: white;
