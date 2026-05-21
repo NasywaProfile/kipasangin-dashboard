@@ -31,6 +31,7 @@ let isPowerOn = false;
 let currentTemp = 24.5;
 let sessionActive = false;
 let thresholdTemp = 32.0;
+let activeThresholdTemp = 32.0; // Tambahan untuk memisahkan threshold yang diedit dan yang aktif
 let isAutoMode = false; // Status mode otomatis
 let lastLoggedThreshold = 32.0; // Tambahan untuk memori threshold sebelumnya
 let tempHistory = [24.5, 24.5, 24.5, 24.5, 24.5];
@@ -401,6 +402,7 @@ mqttClient.on('message', (topic, message) => {
         const t = parseFloat(data);
         if (!isNaN(t)) {
             thresholdTemp = t;
+            activeThresholdTemp = t;
             if (thresholdInput) thresholdInput.value = t.toFixed(1);
             if (thresholdSlider) thresholdSlider.value = t;
         }
@@ -545,6 +547,8 @@ window.sendThreshold = async function (val) {
     }
     mqttClient.publish('smartfan/cmd/threshold', val.toFixed(1));
 
+    activeThresholdTemp = val; // Set active threshold immediately on submit
+
     // 1. Catat perubahan threshold DULU
     if (val !== lastLoggedThreshold) {
         await logToLocal('threshold_change', val);
@@ -575,7 +579,7 @@ function handleTempUpdate(temp) {
 
     // HANYA CEK OTOMATIS JIKA MODE AUTO AKTIF
     if (isAutoMode) {
-        const shouldBeOn = currentTemp >= thresholdTemp;
+        const shouldBeOn = currentTemp >= activeThresholdTemp;
         if (shouldBeOn !== isPowerOn) {
             isPowerOn = shouldBeOn;
             updatePowerUI('auto');
