@@ -116,10 +116,17 @@ void messageReceived(String &topic, String &payload) {
 // =====================================================
 void logToLocal(String type, float temp) {
   if (WiFi.status() != WL_CONNECTED) return;
+  
+  // Safety Check: Jangan kirim HTTP jika URL masih berupa placeholder [IP_LAPTOP]
+  if (strstr(local_server_url, "[IP_LAPTOP]") != NULL) {
+    Serial.println("Skipping logToLocal: local_server_url still contains placeholder [IP_LAPTOP]");
+    return;
+  }
+
   HTTPClient http;
   
-  http.begin(net, local_server_url); // Mulai client HTTP
-  http.setTimeout(1500); // Set timeout 1.5 detik agar tidak freeze jika local IP mati/tidak terjangkau!
+  http.begin(local_server_url); // Gunakan internal client agar tidak menabrak socket MQTT net!
+  http.setTimeout(1500); // Set timeout 1.5 detik
   http.addHeader("Content-Type", "application/json");
 
   String payload = "{\"device_id\": 1, \"action_type\": \"" + type + "\", \"temperature\": " + String(temp, 1) + "}";
