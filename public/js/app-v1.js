@@ -105,11 +105,6 @@ if (thresholdSlider) {
         thresholdTemp = parseFloat(thresholdSlider.value);
         if (thresholdInput) thresholdInput.value = thresholdTemp;
     });
-
-    thresholdSlider.addEventListener('change', () => {
-        thresholdTemp = parseFloat(thresholdSlider.value);
-        sendThreshold(thresholdTemp);
-    });
 }
 
 if (thresholdInput) {
@@ -131,7 +126,6 @@ if (thresholdInput) {
         thresholdTemp = val;
         thresholdInput.value = thresholdTemp;
         if (thresholdSlider) thresholdSlider.value = thresholdTemp;
-        sendThreshold(thresholdTemp);
     });
 
     // Handle Enter Key
