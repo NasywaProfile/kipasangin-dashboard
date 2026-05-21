@@ -243,7 +243,9 @@ body {
     background: white; overflow: hidden; /* Prevent global scroll */
 }
 .side-panel-wrapper {
-    display: flex; flex-direction: column; height: 100%; gap: 18px; /* Reduced gap further */
+    display: flex; flex-direction: column; 
+    flex: 1; min-height: 0;
+    gap: 18px; /* Reduced gap further */
 }
 
 .section-tag { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1.5px; margin-bottom: 8px; }
