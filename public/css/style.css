@@ -112,13 +112,13 @@ body {
 /* --- Left Panel --- */
 .dashboard-visuals {
     background: linear-gradient(145deg, #F8F9FA 0%, #F1F3F5 100%);
-    padding: 40px; display: flex; flex-direction: column;
+    padding: 30px 40px; display: flex; flex-direction: column;
     border-right: 1px solid var(--border-soft); position: relative;
 }
 
 .visual-header { 
     display: flex; align-items: center; justify-content: space-between; 
-    margin-bottom: 40px; width: 100%;
+    margin-bottom: 24px; width: 100%;
 }
 .header-left { display: flex; align-items: center; gap: 15px; }
 
@@ -147,7 +147,7 @@ body {
 /* Fan Viz - Re-aligned & Improved */
 .fan-display {
     flex: 1; display: flex; justify-content: center; align-items: center;
-    position: relative; margin-bottom: 40px;
+    position: relative; margin-bottom: 24px;
 }
 .fan-glow {
     position: absolute; width: 300px; height: 300px;
@@ -239,13 +239,13 @@ body {
 
 /* --- Right Panel --- */
 .dashboard-content {
-    padding: 40px; display: flex; flex-direction: column;
+    padding: 30px 40px; display: flex; flex-direction: column;
     background: white; overflow: hidden; /* Prevent global scroll */
 }
 .side-panel-wrapper {
     display: flex; flex-direction: column; 
     flex: 1; min-height: 0;
-    gap: 18px; /* Reduced gap further */
+    gap: 12px; /* Reduced gap further */
 }
 
 .section-tag { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1.5px; margin-bottom: 8px; }
