@@ -545,9 +545,6 @@ window.sendThreshold = async function (val) {
     }
     mqttClient.publish('smartfan/cmd/threshold', val.toFixed(1));
 
-    // KETIKA SLIDER DIGESER → Kembali ke Mode Otomatis
-    isManualOverride = false;
-
     // 1. Catat perubahan threshold DULU
     if (val !== lastLoggedThreshold) {
         await logToLocal('threshold_change', val);
@@ -558,11 +555,13 @@ window.sendThreshold = async function (val) {
         await new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    // 2. Kemudian baru cek kondisi suhu vs Slider baru (Auto On/Off)
-    const shouldBeOn = currentTemp >= val;
-    if (shouldBeOn !== isPowerOn) {
-        isPowerOn = shouldBeOn;
-        await updatePowerUI('auto');
+    // 2. Cek kondisi suhu vs Slider baru HANYA jika mode AUTO sedang aktif!
+    if (isAutoMode) {
+        const shouldBeOn = currentTemp >= val;
+        if (shouldBeOn !== isPowerOn) {
+            isPowerOn = shouldBeOn;
+            await updatePowerUI('auto');
+        }
     }
 }
 

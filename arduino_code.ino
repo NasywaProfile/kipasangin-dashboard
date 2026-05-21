@@ -89,7 +89,6 @@ void messageReceived(String &topic, String &payload) {
     float val = payload.toFloat();
     if (val > 0) {
       thresholdTemp = val;
-      manualOverride = false; // kembalikan ke mode otomatis
       Serial.println("Threshold: " + String(thresholdTemp, 1));
     }
   }
