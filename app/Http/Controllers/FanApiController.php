@@ -67,18 +67,18 @@ class FanApiController extends Controller
     public function indexActivity(Request $request): JsonResponse
     {
         $query = ActivityLog::with('device:id,device_id,nama_kipas')
-            ->where('action_type', '!=', 'ERROR')
-            ->latest('created_at')
-            ->limit(200);
+            ->where('action_type', '!=', 'ERROR');
 
         if ($request->filled('date')) {
-            $query->whereDate('created_at', $request->date);
+            $query->whereDate('created_at', $request->input('date'));
         }
         if ($request->filled('device_id')) {
             $query->where('device_id', $request->integer('device_id'));
         }
 
-        return response()->json($query->get());
+        $logs = $query->latest('created_at')->limit(200)->get();
+
+        return response()->json($logs);
     }
 
     // ──────────────────────────────────────────────────────────
@@ -127,19 +127,17 @@ class FanApiController extends Controller
     public function indexErrors(Request $request): JsonResponse
     {
         $query = ActivityLog::with('device:id,device_id,nama_kipas')
-            ->where('action_type', 'ERROR')
-            ->latest('created_at')
-            ->limit(200);
+            ->where('action_type', 'ERROR');
 
         if ($request->filled('date')) {
-            $query->whereDate('created_at', $request->date);
+            $query->whereDate('created_at', $request->input('date'));
         }
         if ($request->filled('device_id')) {
             $query->where('device_id', $request->integer('device_id'));
         }
 
         // Kita map keterangan ke error_msg agar JS tidak pecah
-        $logs = $query->get()->map(function($log) {
+        $logs = $query->latest('created_at')->limit(200)->get()->map(function($log) {
             $log->error_msg = $log->keterangan;
             return $log;
         });
