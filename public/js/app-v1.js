@@ -555,8 +555,9 @@ window.sendThreshold = async function (val) {
         await new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    // 2. Cek kondisi suhu vs Slider baru HANYA jika mode AUTO sedang aktif!
+    // 2. Kemudian baru cek kondisi suhu vs Slider baru hanya jika MODE AUTO AKTIF
     if (isAutoMode) {
+        isManualOverride = false;
         const shouldBeOn = currentTemp >= val;
         if (shouldBeOn !== isPowerOn) {
             isPowerOn = shouldBeOn;
