@@ -368,11 +368,11 @@ mqttClient.on('message', (topic, message) => {
         syncDeviceStatus('Online');
     }
 
-    // Reset timer Offline - Kita set ke 5 detik biar super instan ketahuan kalau mati
+    // Reset timer Offline - Kita set ke 15 detik agar aman dari fluktuasi sensor/jaringan
     clearTimeout(deviceTimeout);
     deviceTimeout = setTimeout(async () => {
         if (cloudStatusText.textContent === 'Online') {
-            console.log("⚠️ Timeout super instan! Mengubah status ke Offline...");
+            console.log("⚠️ Koneksi timeout! Mengubah status ke Offline...");
             cloudStatus.classList.remove('online');
             cloudStatusText.textContent = 'Offline';
             statusLabel.textContent = 'Standby';
@@ -381,7 +381,7 @@ mqttClient.on('message', (topic, message) => {
             await syncDeviceStatus('Offline');
             await logSystemError('Koneksi Terputus / Mati Lampu');
         }
-    }, 5000);
+    }, 15000);
 
     if (topic === 'smartfan/data/temp') {
         handleTempUpdate(parseFloat(data));
