@@ -107,9 +107,6 @@ function evaluatePowerRealtime() {
         if (shouldBeOn !== isPowerOn) {
             isPowerOn = shouldBeOn;
             updatePowerUI('auto');
-            // Publish status power langsung ke MQTT agar ESP32 bereaksi instan!
-            const cmd = isPowerOn ? 'ON' : 'OFF';
-            mqttClient.publish('smartfan/cmd/power', cmd);
         }
     }
 }
