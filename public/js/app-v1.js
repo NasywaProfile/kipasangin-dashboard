@@ -31,6 +31,7 @@ let isPowerOn = false;
 let currentTemp = 24.5;
 let sessionActive = false;
 let thresholdTemp = 32.0;
+let activeThresholdTemp = 32.0; // Tambahan untuk memisahkan threshold yang diedit dan yang aktif
 let isAutoMode = false; // Status mode otomatis
 let lastLoggedThreshold = 32.0; // Tambahan untuk memori threshold sebelumnya
 let tempHistory = [24.5, 24.5, 24.5, 24.5, 24.5];
@@ -99,35 +100,11 @@ closeTutorialBtns.forEach(btn => {
 
 
 
-let thresholdDebounceTimeout;
-
-function evaluatePowerRealtime() {
-    if (isAutoMode) {
-        const shouldBeOn = currentTemp >= thresholdTemp;
-        if (shouldBeOn !== isPowerOn) {
-            isPowerOn = shouldBeOn;
-            updatePowerUI('auto');
-        }
-    }
-}
-
-function triggerThresholdUpdate(val) {
-    // 1. Evaluasi saklar daya secara instan di UI dan MQTT
-    evaluatePowerRealtime();
-
-    // 2. Debounce pengiriman threshold ke perangkat dan pencatatan ke database (500ms)
-    clearTimeout(thresholdDebounceTimeout);
-    thresholdDebounceTimeout = setTimeout(() => {
-        sendThreshold(val);
-    }, 500);
-}
-
 // --- Automation Logic ---
 if (thresholdSlider) {
     thresholdSlider.addEventListener('input', () => {
         thresholdTemp = parseFloat(thresholdSlider.value);
         if (thresholdInput) thresholdInput.value = thresholdTemp;
-        triggerThresholdUpdate(thresholdTemp);
     });
 }
 
@@ -139,7 +116,6 @@ if (thresholdInput) {
             if (val > 45) val = 45;
             thresholdTemp = val;
             if (thresholdSlider) thresholdSlider.value = thresholdTemp;
-            triggerThresholdUpdate(thresholdTemp);
         }
     });
 
@@ -151,14 +127,12 @@ if (thresholdInput) {
         thresholdTemp = val;
         thresholdInput.value = thresholdTemp;
         if (thresholdSlider) thresholdSlider.value = thresholdTemp;
-        triggerThresholdUpdate(thresholdTemp);
     });
 
     // Handle Enter Key
     thresholdInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             thresholdInput.blur();
-            clearTimeout(thresholdDebounceTimeout);
             sendThreshold(thresholdTemp);
         }
     });
@@ -167,7 +141,6 @@ if (thresholdInput) {
 const sendThresholdBtn = document.getElementById('sendThresholdBtn');
 if (sendThresholdBtn) {
     sendThresholdBtn.addEventListener('click', () => {
-        clearTimeout(thresholdDebounceTimeout);
         sendThreshold(thresholdTemp);
     });
 }
@@ -429,6 +402,7 @@ mqttClient.on('message', (topic, message) => {
         const t = parseFloat(data);
         if (!isNaN(t)) {
             thresholdTemp = t;
+            activeThresholdTemp = t;
             if (thresholdInput) thresholdInput.value = t.toFixed(1);
             if (thresholdSlider) thresholdSlider.value = t;
         }
@@ -573,6 +547,8 @@ window.sendThreshold = async function (val) {
     }
     mqttClient.publish('smartfan/cmd/threshold', val.toFixed(1));
 
+    activeThresholdTemp = val; // Set active threshold immediately on submit
+
     // 1. Catat perubahan threshold DULU
     if (val !== lastLoggedThreshold) {
         await logToLocal('threshold_change', val);
@@ -603,7 +579,7 @@ function handleTempUpdate(temp) {
 
     // HANYA CEK OTOMATIS JIKA MODE AUTO AKTIF
     if (isAutoMode) {
-        const shouldBeOn = currentTemp >= thresholdTemp;
+        const shouldBeOn = currentTemp >= activeThresholdTemp;
         if (shouldBeOn !== isPowerOn) {
             isPowerOn = shouldBeOn;
             updatePowerUI('auto');
