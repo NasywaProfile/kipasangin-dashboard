@@ -78,6 +78,8 @@ void messageReceived(String &topic, String &payload) {
 
   if (topic == "smartfan/cmd/power") {
     manualOverride = true;
+    // Sinkronkan mode manual ke dashboard secara real-time
+    mqttClient.publish("smartfan/data/mode", "MANUAL", false, 1);
     bool newState = (payload == "ON");
     if (newState != isPowerOn) {
       setFan(newState, "manual"); // ⚡ RELAY NYALA/MATI INSTAN DI SINI
@@ -105,7 +107,7 @@ void messageReceived(String &topic, String &payload) {
     // Dashboard request status saat pertama connect
     mqttClient.publish("smartfan/data/power", isPowerOn ? "ON" : "OFF");
     mqttClient.publish("smartfan/data/temp",  String(currentTemp, 1));
-    mqttClient.publish("smartfan/data/threshold", String(currentTemp, 1)); // Pakai currentTemp sebagai default temp target
+    mqttClient.publish("smartfan/data/threshold", String(thresholdTemp, 1)); // FIX: Gunakan thresholdTemp asli
     mqttClient.publish("smartfan/data/mode", manualOverride ? "MANUAL" : "AUTO");
   }
 }
@@ -117,7 +119,8 @@ void logToLocal(String type, float temp) {
   if (WiFi.status() != WL_CONNECTED) return;
   HTTPClient http;
   
-  http.begin(local_server_url);
+  http.begin(net, local_server_url); // Mulai client HTTP
+  http.setTimeout(1500); // Set timeout 1.5 detik agar tidak freeze jika local IP mati/tidak terjangkau!
   http.addHeader("Content-Type", "application/json");
 
   String payload = "{\"device_id\": 1, \"action_type\": \"" + type + "\", \"temperature\": " + String(temp, 1) + "}";

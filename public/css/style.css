@@ -30,7 +30,7 @@ body {
     color: var(--text-main);
     height: 100vh;
     display: flex; justify-content: center; align-items: center;
-    padding: 15px; /* Perfect symmetry for the dashboard frame */
+    padding: 24px; /* Perfect, equal symmetry on all sides */
     overflow: hidden;
 }
 
@@ -112,7 +112,7 @@ body {
 /* --- Left Panel --- */
 .dashboard-visuals {
     background: linear-gradient(145deg, #F8F9FA 0%, #F1F3F5 100%);
-    padding: 45px; display: flex; flex-direction: column;
+    padding: 40px; display: flex; flex-direction: column;
     border-right: 1px solid var(--border-soft); position: relative;
 }
 
@@ -387,7 +387,7 @@ body {
     position: fixed; inset: 0; z-index: 2000;
     background: var(--bg-color);
     display: flex; justify-content: center; align-items: center;
-    padding: 10px; animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 24px; animation: slideUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
@@ -488,7 +488,7 @@ body {
 
 /* Responsive System Optimized */
 @media screen and (max-width: 900px) {
-    body { padding: 10px; align-items: flex-start; overflow-y: auto; min-height: 100dvh; }
+    body { padding: 16px; align-items: flex-start; overflow-y: auto; min-height: 100dvh; }
     
     /* App Container Mobile */
     .app-container { 
@@ -501,7 +501,7 @@ body {
     /* Left Panel Mobile */
     .dashboard-visuals { 
         border-right: none; border-bottom: 1px solid var(--border-soft); 
-        padding: 30px 25px; 
+        padding: 24px; 
     }
     .visual-header { margin-bottom: 30px; }
     .titles h1 { font-size: 20px; }
@@ -511,15 +511,15 @@ body {
     .fan-display { min-height: 220px; margin-bottom: 30px; }
 
     /* Right Panel Mobile */
-    .dashboard-content { padding: 30px 20px; overflow: visible; }
+    .dashboard-content { padding: 24px; overflow: visible; }
     .side-panel-wrapper { height: auto; gap: 25px; }
     .activity-scroll-list { max-height: 400px; overflow-y: visible; } /* Allow natural scroll in mobile context */
 
     /* History Page Mobile */
-    .history-screen { padding: 10px; }
+    .history-screen { padding: 16px; }
     .history-page-card { 
         border-radius: 32px; 
-        height: calc(100vh - 20px); 
+        height: calc(100vh - 32px); 
         border: 1.5px solid #E2E8F0;
         box-shadow: 0 15px 40px rgba(0,0,0,0.1);
     }

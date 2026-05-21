@@ -496,6 +496,10 @@ window.handlePowerToggle = () => {
 
     // KETIKA TOMBOL DITEKAN → Masuk Mode Manual
     isManualOverride = true;
+    isAutoMode = false;
+    if (autoModeSwitch) autoModeSwitch.checked = false;
+    updateAutoModeUI();
+    mqttClient.publish('smartfan/cmd/mode', 'MANUAL');
 
     isPowerOn = powerSwitch.checked; // Ambil status dari checkbox
     updatePowerUI('manual');
@@ -520,10 +524,12 @@ window.handleAutoModeToggle = () => {
     mqttClient.publish('smartfan/cmd/mode', cmd);
     
     if (isAutoMode) {
+        isManualOverride = false; // Reset manual override since auto is now active
         addHistory('Mode Otomatis Aktif', 'settings');
         // Trigger evaluasi suhu segera
         handleTempUpdate(currentTemp);
     } else {
+        isManualOverride = true; // Manual override is active when Auto is turned off
         addHistory('Mode Manual Aktif', 'settings');
     }
 };
