@@ -222,6 +222,8 @@ void loop() {
 
       // Publish suhu via MQTT (real-time ke dashboard)
       mqttClient.publish("smartfan/data/temp", String(currentTemp, 1), false, 0);
+    } else {
+      Serial.println("⚠️ Error: Sensor DHT11 tidak terbaca (NaN)! Periksa kabel jumper Anda.");
     }
   }
 
