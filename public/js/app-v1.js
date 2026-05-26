@@ -506,7 +506,7 @@ window.handlePowerToggle = () => {
     updateAutoModeUI();
     mqttClient.publish('smartfan/cmd/mode', 'MANUAL');
 
-    isPowerOn = powerSwitch.checked; // Ambil status dari checkbox
+    isPowerOn = !isPowerOn; // Toggle status secara langsung untuk stabilitas di HP/Mobile
     updatePowerUI('manual');
 
     const cmd = isPowerOn ? 'ON' : 'OFF';
@@ -523,7 +523,7 @@ powerSwitch.addEventListener('change', window.handlePowerToggle);
 // ============================================================
 window.handleAutoModeToggle = () => {
     lastModeCommandTime = Date.now(); // Cegah state mode lama me-revert
-    isAutoMode = autoModeSwitch.checked;
+    isAutoMode = !isAutoMode; // Toggle status secara langsung untuk stabilitas di HP/Mobile
     updateAutoModeUI();
     
     const cmd = isAutoMode ? 'AUTO' : 'MANUAL';
