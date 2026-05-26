@@ -198,6 +198,7 @@ function updatePowerUI(source = 'manual') {
 
 function updateAutoModeUI() {
     const toggleUI = document.querySelector('.auto-ui');
+    const powerToggleUI = document.querySelector('.power-toggle-ui');
     if (isAutoMode) {
         if (autoModeSwitch) autoModeSwitch.checked = true;
         if (toggleUI) toggleUI.classList.add('on');
@@ -205,12 +206,26 @@ function updateAutoModeUI() {
             autoModeLabel.textContent = 'Automatic';
             autoModeLabel.style.color = '#3B82F6'; // Blue for auto
         }
+        // Disable power switch in Auto Mode
+        if (powerSwitch) powerSwitch.disabled = true;
+        if (powerToggleUI) {
+            powerToggleUI.style.opacity = '0.6';
+            powerToggleUI.style.cursor = 'not-allowed';
+            powerToggleUI.style.pointerEvents = 'none';
+        }
     } else {
         if (autoModeSwitch) autoModeSwitch.checked = false;
         if (toggleUI) toggleUI.classList.remove('on');
         if (autoModeLabel) {
             autoModeLabel.textContent = 'Manual';
             autoModeLabel.style.color = '#64748B';
+        }
+        // Enable power switch in Manual Mode
+        if (powerSwitch) powerSwitch.disabled = false;
+        if (powerToggleUI) {
+            powerToggleUI.style.opacity = '1';
+            powerToggleUI.style.cursor = 'pointer';
+            powerToggleUI.style.pointerEvents = 'auto';
         }
     }
 }
@@ -495,6 +510,10 @@ let isManualOverride = false;
 // TOMBOL POWER → PUBLISH MQTT INSTAN + LOG LOCAL
 // ============================================================
 window.handlePowerToggle = () => {
+    if (isAutoMode) {
+        if (powerSwitch) powerSwitch.checked = isPowerOn;
+        return;
+    }
     lastPowerCommandTime = Date.now();
     lastModeCommandTime = Date.now(); // Cegah state mode lama me-revert state
     if ("vibrate" in navigator) navigator.vibrate(50);
