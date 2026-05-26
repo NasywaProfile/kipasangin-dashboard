@@ -230,10 +230,20 @@ function updateAutoModeUI() {
     }
 }
 
-function addHistory(title, type, temp = null) {
-    console.log("Debug: Adding history item:", title, type, temp);
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+function addHistory(title, type, temp = null, timestamp = null) {
+    console.log("Debug: Adding history item:", title, type, temp, timestamp);
+    const dateObj = timestamp ? new Date(timestamp) : new Date();
+    
+    // Format WIB Indonesia seperti di halaman Riwayat Lengkap (format: 26 Mei, 15:43)
+    const timeStr = dateObj.toLocaleString('id-ID', { 
+        day: '2-digit', 
+        month: 'short', 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'Asia/Jakarta'
+    }).replace(/\./g, ':'); // Ganti "." khas id-ID menjadi ":" untuk format jam modern
+
     const tempToShow = temp !== null ? temp : currentTemp;
 
     let iconSvg = '';
@@ -289,7 +299,7 @@ async function loadInitialHistory() {
             // Reverse agar yang paling baru ada di atas (karena addHistory pakai prepend)
             latest.reverse().forEach(row => {
                 const meta = getActivityMeta(row.action_type);
-                addHistory(meta.label, meta.icon, parseFloat(row.temperature));
+                addHistory(meta.label, meta.icon, parseFloat(row.temperature), row.created_at);
             });
         } else {
             console.log("Debug: History data is empty");
