@@ -37,6 +37,7 @@ let lastLoggedThreshold = 32.0; // Tambahan untuk memori threshold sebelumnya
 let tempHistory = [24.5, 24.5, 24.5, 24.5, 24.5];
 let lastDbStatus = false;
 let lastPowerCommandTime = 0; // Kunci agar status tidak balik-balik sendiri saat diklik
+let lastModeCommandTime = 0; // Kunci untuk debounce auto mode update
 
 // --- Initialize ---
 function init() {
@@ -407,6 +408,7 @@ mqttClient.on('message', (topic, message) => {
             if (thresholdSlider) thresholdSlider.value = t;
         }
     } else if (topic === 'smartfan/data/mode') {
+        if (Date.now() - lastModeCommandTime < 5000) return; // Abaikan pesan lama jika baru saja diubah manual
         isAutoMode = (data === 'AUTO');
         updateAutoModeUI();
     }
@@ -494,6 +496,7 @@ let isManualOverride = false;
 // ============================================================
 window.handlePowerToggle = () => {
     lastPowerCommandTime = Date.now();
+    lastModeCommandTime = Date.now(); // Cegah state mode lama me-revert state
     if ("vibrate" in navigator) navigator.vibrate(50);
 
     // KETIKA TOMBOL DITEKAN → Masuk Mode Manual
@@ -519,6 +522,7 @@ powerSwitch.addEventListener('change', window.handlePowerToggle);
 // TOMBOL AUTO MODE → PUBLISH MQTT
 // ============================================================
 window.handleAutoModeToggle = () => {
+    lastModeCommandTime = Date.now(); // Cegah state mode lama me-revert
     isAutoMode = autoModeSwitch.checked;
     updateAutoModeUI();
     
