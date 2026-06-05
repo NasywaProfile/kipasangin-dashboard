@@ -155,7 +155,7 @@
         </div>
 
         <!-- Elegant Glass Button -->
-        <div class="start-btn-wrapper" style="flex-direction: column; align-items: center; gap: 0;">
+        <div class="start-btn-wrapper">
             <a href="{{ Auth::check() ? route('dashboard') : route('login') }}" class="glass-start-btn" style="text-decoration: none;">
                 <span>Start Experience</span>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -164,83 +164,8 @@
                     <polyline points="12 5 19 12 12 19"></polyline>
                 </svg>
             </a>
-
-            <!-- Setup WiFi Link (Triggers Modal Guide) -->
-            <button id="openTutorialBtn" style="background: transparent; border: none; outline: none; margin-top: 25px; color: rgba(255,255,255,0.75); text-decoration: underline; font-size: 0.9rem; font-weight: 400; cursor: pointer; transition: color 0.3s; font-family: 'Outfit', sans-serif;">
-                Belum konfigurasi WiFi? Sambungkan dulu
-            </button>
         </div>
 
     </div>
-
-    <!-- Tutorial Screen - Setup WiFi Modal -->
-    <div id="tutorialScreen" class="hidden"
-        style="position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); display: flex; align-items: center; justify-content: center; z-index: 5000; padding: 10px; box-sizing: border-box; opacity: 0;">
-
-        <div class="split-tutorial">
-            <div class="tutorial-left">
-                <h2>Panduan<br>Setup WiFi</h2>
-                <p style="font-size: 1.1rem; line-height: 1.6; color: #64748B; margin-top: 10px;">
-                    Ikuti instruksi di sebelah kanan untuk menghubungkan kipas ke internet.
-                </p>
-
-                <div class="important-box">
-                    <h3>⚠️ Penting</h3>
-                    <p style="margin: 0; color: #475569; font-size: 0.95rem; line-height: 1.6;">
-                        Pastikan Anda <b>tidak menutup atau me-refresh</b> halaman ini hingga proses konfigurasi pada perangkat selesai.
-                    </p>
-                </div>
-            </div>
-
-            <div class="tutorial-right">
-                <button class="closeTutorialBtn"
-                    style="position: absolute; top: 25px; right: 25px; background: #1E293B; border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2); transition: 0.3s;">
-                    ✕
-                </button>
-                
-                <h4>Instruksi Setup</h4>
-                
-                <ol>
-                    <li>Buka <b>Pengaturan WiFi</b> di HP Anda.</li>
-                    <li>Hubungkan ke WiFi <b>Setup_Kipas_Pintar</b>.</li>
-                    <li>Setelah tersambung, kembali ke halaman ini.</li>
-                    <li>Klik tombol di bawah ini untuk memulai:</li>
-                </ol>
-
-                <a href="http://192.168.4.1" target="_blank" class="setup-btn">
-                    Buka Pengaturan Setup
-                </a>
-
-                <div style="margin-top: auto; padding-top: 30px; text-align: center;">
-                    <p style="font-size: 0.85rem; color: #94A3B8;">Kipas akan otomatis restart setelah password disimpan.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const openTutorialBtn = document.getElementById('openTutorialBtn');
-        const tutorialScreen = document.getElementById('tutorialScreen');
-        const closeTutorialBtns = document.querySelectorAll('.closeTutorialBtn');
-
-        if (openTutorialBtn && tutorialScreen) {
-            openTutorialBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                tutorialScreen.classList.remove('hidden');
-                tutorialScreen.style.animation = 'dashboardEnter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
-            });
-        }
-
-        closeTutorialBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (tutorialScreen) {
-                    tutorialScreen.style.animation = 'dashboardExit 0.5s ease forwards';
-                    setTimeout(() => {
-                        tutorialScreen.classList.add('hidden');
-                    }, 500);
-                }
-            });
-        });
-    </script>
 </body>
 </html>
