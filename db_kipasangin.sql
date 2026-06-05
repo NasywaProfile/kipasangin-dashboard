@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 26, 2026 at 10:50 AM
+-- Generation Time: Jun 05, 2026 at 10:43 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -643,7 +643,36 @@ INSERT INTO `activity_log` (`id`, `device_id`, `action_type`, `temperature`, `ke
 (605, 1, 'manual_off', 27.10, NULL, '2026-05-26 08:42:40'),
 (606, 1, 'threshold_change', 22.90, NULL, '2026-05-26 08:46:01'),
 (607, 1, 'auto_on', 24.50, NULL, '2026-05-26 08:46:01'),
-(608, 1, 'manual_off', 24.50, NULL, '2026-05-26 08:46:04');
+(608, 1, 'manual_off', 24.50, NULL, '2026-05-26 08:46:04'),
+(609, 1, 'ERROR', NULL, 'Koneksi Terputus / Mati Lampu', '2026-05-26 09:11:22'),
+(610, 1, 'manual_on', 31.80, NULL, '2026-06-05 08:33:47'),
+(611, 1, 'manual_off', 31.90, NULL, '2026-06-05 08:33:50'),
+(612, 1, 'threshold_change', 24.10, NULL, '2026-06-05 08:33:57'),
+(613, 1, 'auto_on', 31.30, NULL, '2026-06-05 08:33:58'),
+(614, 1, 'threshold_change', 39.30, NULL, '2026-06-05 08:34:00'),
+(615, 1, 'auto_off', 31.30, NULL, '2026-06-05 08:34:01'),
+(616, 1, 'threshold_change', 22.50, NULL, '2026-06-05 08:34:05'),
+(617, 1, 'auto_on', 31.60, NULL, '2026-06-05 08:34:05'),
+(618, 1, 'threshold_change', 41.40, NULL, '2026-06-05 08:34:11'),
+(619, 1, 'auto_off', 31.40, NULL, '2026-06-05 08:34:12'),
+(620, 1, 'ERROR', NULL, 'Koneksi Terputus / Mati Lampu', '2026-06-05 08:36:23'),
+(621, 1, 'ERROR', NULL, 'Koneksi Terputus / Mati Lampu', '2026-06-05 08:40:31'),
+(622, 1, 'ERROR', NULL, 'Koneksi Terputus / Mati Lampu', '2026-06-05 08:41:59');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `error_log`
+--
+
+CREATE TABLE `error_log` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `device_id` bigint(20) UNSIGNED NOT NULL,
+  `error_code` varchar(30) DEFAULT NULL COMMENT 'Kode error singkat',
+  `error_msg` text NOT NULL COMMENT 'Pesan error lengkap',
+  `severity` enum('INFO','WARNING','ERROR','CRITICAL') NOT NULL DEFAULT 'ERROR',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -667,7 +696,7 @@ CREATE TABLE `master_kipas` (
 --
 
 INSERT INTO `master_kipas` (`id`, `device_id`, `nama_kipas`, `status`, `suhu`, `ip_address`, `created_at`, `updated_at`) VALUES
-(1, 'FAN-001', 'Smart Fan', 'OFF', 24.50, '192.168.1.100', '2026-05-10 00:17:33', '2026-05-26 08:46:04');
+(1, 'FAN-001', 'Smart Fan', 'OFF', 31.40, '192.168.1.100', '2026-05-10 00:17:33', '2026-06-05 08:34:12');
 
 -- --------------------------------------------------------
 
@@ -688,7 +717,30 @@ CREATE TABLE `migrations` (
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (1, '2025_01_01_000010_create_master_kipas_table', 1),
 (2, '2025_01_01_000011_create_activity_log_table', 1),
-(4, '2026_05_10_074450_simplify_database_schema', 2);
+(4, '2026_05_10_074450_simplify_database_schema', 2),
+(5, '2025_01_01_000012_create_error_log_table', 3),
+(6, '2026_06_05_144630_create_users_table', 3);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `users`
+--
+
+CREATE TABLE `users` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `username` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `users`
+--
+
+INSERT INTO `users` (`id`, `username`, `password`, `created_at`, `updated_at`) VALUES
+(1, 'nasywa', '$2y$12$TkX5X70L57.vL4snF1QaLOne735oBAKIF6sZtkW83alL20stck8X.', '2026-06-05 07:52:31', '2026-06-05 07:52:31');
 
 --
 -- Indexes for dumped tables
@@ -700,6 +752,13 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 ALTER TABLE `activity_log`
   ADD PRIMARY KEY (`id`),
   ADD KEY `activity_log_device_id_foreign` (`device_id`);
+
+--
+-- Indexes for table `error_log`
+--
+ALTER TABLE `error_log`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `error_log_device_id_foreign` (`device_id`);
 
 --
 -- Indexes for table `master_kipas`
@@ -715,6 +774,13 @@ ALTER TABLE `migrations`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `users`
+--
+ALTER TABLE `users`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `users_username_unique` (`username`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -722,7 +788,13 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT for table `activity_log`
 --
 ALTER TABLE `activity_log`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=609;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=623;
+
+--
+-- AUTO_INCREMENT for table `error_log`
+--
+ALTER TABLE `error_log`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `master_kipas`
@@ -734,7 +806,13 @@ ALTER TABLE `master_kipas`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `users`
+--
+ALTER TABLE `users`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Constraints for dumped tables
@@ -745,6 +823,12 @@ ALTER TABLE `migrations`
 --
 ALTER TABLE `activity_log`
   ADD CONSTRAINT `activity_log_device_id_foreign` FOREIGN KEY (`device_id`) REFERENCES `master_kipas` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `error_log`
+--
+ALTER TABLE `error_log`
+  ADD CONSTRAINT `error_log_device_id_foreign` FOREIGN KEY (`device_id`) REFERENCES `master_kipas` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
