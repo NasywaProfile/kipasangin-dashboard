@@ -22,3 +22,8 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 
 // Dashboard protected by auth middleware
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware('auth');
+
+// Wifi Setup Guide Page
+Route::get('/wifi-setup', function () {
+    return view('wifi-setup');
+})->name('wifi-setup')->middleware('auth');
