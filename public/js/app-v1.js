@@ -321,7 +321,7 @@ function fireNotification(title, body) {
 // ============================================================
 // MQTT - REAL-TIME PERINTAH (< 200ms)
 // ============================================================
-const MQTT_BROKER = 'wss://broker.hivemq.com:8884/mqtt';
+const MQTT_BROKER = 'ws://broker.hivemq.com:8000/mqtt';
 const MQTT_CLIENT_ID = 'SF_' + Math.random().toString(10).slice(2, 6); // ID lebih pendek biar disukai HP
 
 const cloudStatus = document.getElementById('cloudStatus');
