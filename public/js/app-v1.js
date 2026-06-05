@@ -343,7 +343,8 @@ mqttClient.on('connect', () => {
     // Tunggu sampai ada data beneran dari Kipas Pintar.
     cloudStatus.classList.remove('online');
     cloudStatusText.textContent = 'Offline';
-    console.log('Dashboard Terhubung ke Server. Menunggu Kipas...');
+    console.log('✅ Connected to MQTT Broker:', MQTT_BROKER);
+    console.log('Dashboard Terhubung ke Server. Menunggu data dari Kipas...');
 
     // Subscribe ke data dari Arduino
     mqttClient.subscribe('smartfan/data/#');
@@ -356,15 +357,17 @@ mqttClient.on('connect', () => {
 mqttClient.on('offline', () => {
     cloudStatus.classList.remove('online');
     cloudStatusText.textContent = 'Offline';
+    console.warn('⚠️ MQTT Connection Offline/Disconnected');
 });
 
 mqttClient.on('error', (err) => {
-    console.error('MQTT error:', err);
+    console.error('❌ MQTT error:', err);
 });
 
 // Terima data dari Arduino via MQTT
 mqttClient.on('message', (topic, message) => {
     const data = message.toString().trim();
+    console.log('📩 MQTT Msg Received:', topic, '->', data);
 
     // 🌟 LOGIKA HEARTBEAT/REAL-TIME 🌟
     // Karena ESP32 mengirim suhu setiap 2 detik, artinya selama kita

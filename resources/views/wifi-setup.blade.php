@@ -194,6 +194,7 @@
             box-shadow: 0 4px 12px rgba(30, 41, 59, 0.2);
             text-decoration: none;
             transition: all 0.3s ease;
+            z-index: 100;
         }
 
         .close-btn:hover {
