@@ -174,45 +174,8 @@
 </head>
 
 <body>
-    <!-- Single Card Video Home Screen -->
-    <div id="welcomeScreen" class="welcome-container">
-
-        <!-- Background Image -->
-        <img src="{{ asset('images/vidsunset.png') }}" class="welcome-video" alt="Living Room with Fan Landscape">
-
-        <!-- Overlay Gradient for Readability -->
-        <div class="video-overlay"></div>
-
-        <!-- Typography / Content -->
-        <div class="welcome-text">
-            <h1>Smart Fan<br><span>Experience</span></h1>
-            <p class="welcome-subtitle">Seamless comfort for your living space</p>
-        </div>
-
-        <!-- Elegant Glass Button -->
-        <div class="start-btn-wrapper" style="flex-direction: column; align-items: center; gap: 0;">
-            <button id="startBtn" class="glass-start-btn">
-                <span>Start Experience</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-            </button>
-
-            <!-- Setup WiFi Button -->
-            <div style="margin-top: 25px; text-align: center; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; width: 100%;">
-                <button id="openTutorialBtn"
-                    style="color: rgba(255,255,255,0.85); background: transparent; border: none; text-decoration: none; font-size: 0.9rem; font-weight: 400; cursor: pointer; padding: 5px; transition: color 0.3s; font-family: 'Outfit', sans-serif;">
-                    Belum konfigurasi WiFi? <span style="text-decoration: underline;">Sambungkan dulu</span>
-                </button>
-            </div>
-        </div>
-
-    </div>
-
     <!-- Main Dashboard -->
-    <div id="appContainer" class="app-container hidden">
+    <div id="appContainer" class="app-container">
         <!-- Wind Animation Overlay -->
         <div class="wind-lines" id="windOverlay">
             <div class="wind-line w1"></div>
@@ -225,20 +188,36 @@
         <section class="dashboard-visuals">
             <header class="visual-header">
                 <div class="header-left">
-                    <button id="backBtn" class="back-btn" aria-label="Go Back">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="m15 18-6-6 6-6" />
-                        </svg>
-                    </button>
+                    <!-- Form Logout -->
+                    <form action="{{ route('logout') }}" method="POST" id="logoutForm" style="display: inline-block; margin-right: 15px;">
+                        @csrf
+                        <button type="submit" class="back-btn" title="Keluar / Logout" aria-label="Logout" style="display: flex; align-items: center; justify-content: center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                                <polyline points="16 17 21 12 16 7" />
+                                <line x1="21" y1="12" x2="9" y2="12" />
+                            </svg>
+                        </button>
+                    </form>
                     <div class="titles">
                         <h1>Smart Fan</h1>
                     </div>
                 </div>
 
-                <div id="cloudStatus" class="cloud-status">
-                    <span class="cloud-dot"></span>
-                    <span>Offline</span>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <!-- Setup WiFi Button -->
+                    <button id="openTutorialBtn" class="cloud-status" style="cursor: pointer; display: flex; align-items: center; gap: 8px;" title="Setup WiFi Perangkat">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M5 12.55a11 11 0 0 1 14.08 0" /><path d="M1.42 9a16 16 0 0 1 21.16 0" /><path d="M8.53 16.11a6 6 0 0 1 6.95 0" /><line x1="12" y1="20" x2="12.01" y2="20" stroke-width="3" />
+                        </svg>
+                        <span>WiFi Setup</span>
+                    </button>
+
+                    <div id="cloudStatus" class="cloud-status">
+                        <span class="cloud-dot"></span>
+                        <span>Offline</span>
+                    </div>
                 </div>
             </header>
 

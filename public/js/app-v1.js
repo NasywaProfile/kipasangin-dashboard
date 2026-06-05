@@ -42,48 +42,54 @@ let lastModeCommandTime = 0; // Kunci untuk debounce auto mode update
 // --- Initialize ---
 function init() {
     updateUI();
+    // Ambil riwayat terbaru dari MySQL saat pertama load dashboard
+    loadInitialHistory();
+    sessionActive = true;
 }
 
 // --- Simple Enter Flow ---
 function enterDashboard() {
-    // Minta izin notifikasi saat tombol ditekan (best practice agar tidak diblokir browser)
     if ("Notification" in window && Notification.permission !== "granted") {
         Notification.requestPermission();
     }
     
-
-
-    welcomeScreen.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    welcomeScreen.style.opacity = '0';
-    welcomeScreen.style.transform = 'scale(1.02)';
+    if (welcomeScreen) {
+        welcomeScreen.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        welcomeScreen.style.opacity = '0';
+        welcomeScreen.style.transform = 'scale(1.02)';
+    }
 
     setTimeout(() => {
-        welcomeScreen.classList.add('hidden');
-        appContainer.classList.remove('hidden');
-        appContainer.style.animation = 'dashboardEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+        if (welcomeScreen) welcomeScreen.classList.add('hidden');
+        if (appContainer) {
+            appContainer.classList.remove('hidden');
+            appContainer.style.animation = 'dashboardEnter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
+        }
         sessionActive = true;
-
-        // Ambil riwayat terbaru dari MySQL saat masuk
         loadInitialHistory();
     }, 600);
 }
 
 if (startBtn) startBtn.addEventListener('click', enterDashboard);
 
-backBtn.addEventListener('click', () => {
-    appContainer.style.animation = 'dashboardExit 0.6s ease forwards';
-    setTimeout(() => {
-        appContainer.classList.add('hidden');
-        welcomeScreen.classList.remove('hidden');
-        welcomeScreen.style.opacity = '1';
-        welcomeScreen.style.transform = 'scale(1)';
-        sessionActive = false;
-    }, 600);
-});
+if (backBtn) {
+    backBtn.addEventListener('click', () => {
+        if (appContainer) appContainer.style.animation = 'dashboardExit 0.6s ease forwards';
+        setTimeout(() => {
+            if (appContainer) appContainer.classList.add('hidden');
+            if (welcomeScreen) {
+                welcomeScreen.classList.remove('hidden');
+                welcomeScreen.style.opacity = '1';
+                welcomeScreen.style.transform = 'scale(1)';
+            }
+            sessionActive = false;
+        }, 600);
+    });
+}
 
 // --- Tutorial Screen Logic ---
 if (openTutorialBtn) openTutorialBtn.addEventListener('click', () => {
-    welcomeScreen.classList.add('hidden');
+    if (welcomeScreen) welcomeScreen.classList.add('hidden');
     tutorialScreen.classList.remove('hidden');
     tutorialScreen.style.animation = 'dashboardEnter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards';
 });
@@ -94,7 +100,9 @@ closeTutorialBtns.forEach(btn => {
         tutorialScreen.style.animation = 'dashboardExit 0.5s ease forwards';
         setTimeout(() => {
             tutorialScreen.classList.add('hidden');
-            welcomeScreen.classList.remove('hidden');
+            if (welcomeScreen) {
+                welcomeScreen.classList.remove('hidden');
+            }
         }, 500);
     });
 });

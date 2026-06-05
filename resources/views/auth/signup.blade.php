@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Fan — Login</title>
+    <title>Smart Fan — Daftar</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -266,15 +266,15 @@
 
         <!-- Glassmorphism Card -->
         <div class="auth-card">
-            <h2 class="auth-title">Masuk <span>Smarfan</span></h2>
-            <p class="auth-subtitle">Kelola kenyamanan hunian Anda secara pintar</p>
+            <h2 class="auth-title">Daftar <span>Smarfan</span></h2>
+            <p class="auth-subtitle">Buat akun untuk mengontrol perangkat Smart Fan Anda</p>
 
-            <form action="{{ url('/login') }}" method="POST">
+            <form action="{{ url('/signup') }}" method="POST">
                 @csrf
 
                 <div class="form-group">
                     <label class="form-label" for="username">Username</label>
-                    <input type="text" name="username" id="username" class="form-input" placeholder="Masukkan username Anda" value="{{ old('username') }}" required autofocus>
+                    <input type="text" name="username" id="username" class="form-input" placeholder="Buat username unik" value="{{ old('username') }}" required autofocus>
                     @error('username')
                         <div class="error-message">{{ $message }}</div>
                     @enderror
@@ -282,16 +282,16 @@
 
                 <div class="form-group">
                     <label class="form-label" for="password">Password</label>
-                    <input type="password" name="password" id="password" class="form-input" placeholder="Masukkan password Anda" required>
+                    <input type="password" name="password" id="password" class="form-input" placeholder="Buat password minimal 4 karakter" required>
                     @error('password')
                         <div class="error-message">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <button type="submit" class="auth-btn">Masuk Sekarang</button>
+                <button type="submit" class="auth-btn">Daftar Sekarang</button>
             </form>
 
-            <a href="{{ url('/signup') }}" class="auth-link">Belum punya akun? Daftar gratis</a>
+            <a href="{{ url('/login') }}" class="auth-link">Sudah punya akun? Masuk di sini</a>
             <br/>
             <!-- Setup WiFi Trigger -->
             <button id="openTutorialBtn" style="background: transparent; border: none; outline: none; margin-top: 10px; font-size: 12px; opacity: 0.8; color: rgba(255,255,255,0.7); text-decoration: underline; cursor: pointer; font-family: 'Outfit', sans-serif;">
