@@ -294,7 +294,7 @@
         console.log("Debug: API_BASE is", window.API_BASE);
     </script>
     <script src="https://unpkg.com/mqtt@4.3.7/dist/mqtt.min.js"></script>
-    <script type="module" src="{{ asset('js/app-v1.js') }}"></script>
+    <script type="module" src="{{ asset('js/app-v1.js') }}?v={{ time() }}"></script>
 </body>
 
 </html>
