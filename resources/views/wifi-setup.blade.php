@@ -12,25 +12,25 @@
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <style>
         body {
-            background-color: #F8FAFC;
+            background-color: #F1F5F9;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 24px;
             box-sizing: border-box;
             font-family: 'Outfit', sans-serif;
+            overflow: hidden;
         }
 
         .split-tutorial {
             display: flex;
             width: 100%;
-            max-width: 1000px;
-            min-height: 550px;
+            height: 100%;
             background: #FFFFFF;
             border-radius: 40px;
-            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.08);
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.06);
             overflow: hidden;
             border: 1.5px solid #E2E8F0;
             position: relative;
@@ -216,8 +216,15 @@
         }
 
         @media screen and (max-width: 900px) {
-            body { padding: 10px; }
-            .split-tutorial { flex-direction: column; min-height: auto; border-radius: 24px; }
+            body { padding: 16px; overflow-y: auto; min-height: 100dvh; height: auto; }
+            .split-tutorial { 
+                flex-direction: column; 
+                height: auto; 
+                border-radius: 32px; 
+                width: 100%;
+                max-width: 600px;
+                margin: auto;
+            }
             .tutorial-left { padding: 35px 25px; border-right: none; border-bottom: 1px solid #E2E8F0; }
             .tutorial-left h2 { font-size: 1.8rem; }
             .tutorial-left p { margin-bottom: 20px; font-size: 0.95rem; }
