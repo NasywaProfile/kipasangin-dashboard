@@ -218,12 +218,17 @@
         @media screen and (max-width: 900px) {
             body { padding: 10px; }
             .split-tutorial { flex-direction: column; min-height: auto; border-radius: 24px; }
-            .tutorial-left { padding: 40px 30px; border-right: none; border-bottom: 1px solid #E2E8F0; }
-            .tutorial-right { padding: 45px 30px; }
-            .tutorial-right h4 { font-size: 1.3rem; margin-bottom: 30px; }
+            .tutorial-left { padding: 35px 25px; border-right: none; border-bottom: 1px solid #E2E8F0; }
+            .tutorial-left h2 { font-size: 1.8rem; }
+            .tutorial-left p { margin-bottom: 20px; font-size: 0.95rem; }
+            .tutorial-right { padding: 40px 25px; }
+            .tutorial-right h4 { font-size: 1.25rem; margin-bottom: 30px; }
             .tutorial-right ol { margin-bottom: 30px; }
-            .tutorial-right ol li { font-size: 1rem; }
-            .close-btn { top: 15px; right: 15px; }
+            .tutorial-right ol li { font-size: 0.95rem; margin-bottom: 15px; gap: 12px; }
+            .tutorial-right ol li::before { width: 30px; height: 30px; border-radius: 8px; font-size: 0.8rem; }
+            .close-btn { top: 15px; right: 15px; width: 36px; height: 36px; font-size: 14px; }
+            .setup-btn { padding: 15px; font-size: 1rem; border-radius: 14px; }
+            .footer-note { padding-top: 20px; }
         }
     </style>
 </head>

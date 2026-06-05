@@ -127,6 +127,20 @@
             margin-top: 6px;
             padding-left: 4px;
         }
+
+        @media screen and (max-width: 480px) {
+            .auth-card {
+                padding: 30px 20px;
+                border-radius: 24px;
+            }
+            .auth-title {
+                font-size: 26px;
+            }
+            .form-input {
+                padding: 14px 16px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
