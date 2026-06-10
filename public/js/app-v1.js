@@ -375,7 +375,28 @@ mqttClient.on('message', (topic, message) => {
     const data = message.toString().trim();
     console.log('📩 MQTT Msg Received:', topic, '->', data);
 
-    // 🌟 LOGIKA HEARTBEAT/REAL-TIME 🌟
+    // --- LWT (Last Will and Testament) & Online/Offline Real-time Status ---
+    if (topic === MQTT_TOPIC_PREFIX + '/data/status') {
+        if (data === 'ONLINE') {
+            if (cloudStatusText.textContent !== 'Online') {
+                cloudStatus.classList.add('online');
+                cloudStatusText.textContent = 'Online';
+                addHistory('Kipas Terhubung', 'on', currentTemp);
+                syncDeviceStatus('Online');
+            }
+        } else if (data === 'OFFLINE') {
+            if (cloudStatusText.textContent !== 'Offline') {
+                cloudStatus.classList.remove('online');
+                cloudStatusText.textContent = 'Offline';
+                statusLabel.textContent = 'Standby';
+                syncDeviceStatus('Offline');
+                logSystemError('Koneksi Terputus / Mati Lampu');
+            }
+        }
+        return; // Skip standard message processing for status topic
+    }
+
+    // 🌟 LOGIKA HEARTBEAT/REAL-TIME FALLBACK 🌟
     // Karena ESP32 mengirim suhu setiap 2 detik, artinya selama kita
     // menerima pesan apapun, KIPAS 100% ONLINE SECARA FISIK!
     if (cloudStatusText.textContent !== 'Online') {

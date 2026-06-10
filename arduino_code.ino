@@ -203,12 +203,18 @@ void connectAll() {
   net.setInsecure(); // Mengabaikan validasi rantai sertifikat (aman dari masa kedaluwarsa sertifikat broker publik)
   mqttClient.begin(mqtt_host, mqtt_port, net);
   mqttClient.onMessage(messageReceived);
-  mqttClient.setKeepAlive(60);
+  mqttClient.setKeepAlive(10); // Diubah menjadi 10 detik agar deteksi LWT (offline) lebih cepat
+
+  String statusTopic = String(mqtt_topic_prefix) + "/data/status";
+  mqttClient.setWill(statusTopic.c_str(), "OFFLINE", true, 1);
 
   String clientId = "esp32_fan_" + String(WiFi.macAddress());
   Serial.print("MQTT");
   while (!mqttClient.connect(clientId.c_str(), mqtt_user, mqtt_pass)) { Serial.print("."); delay(500); }
   Serial.println(" OK!");
+
+  // Publikasi status ONLINE segera setelah tersambung
+  mqttClient.publish(statusTopic.c_str(), "ONLINE", true, 1);
 
   String cmdTopic = String(mqtt_topic_prefix) + "/cmd/#";
   mqttClient.subscribe(cmdTopic.c_str(), 1); // QoS 1 = pasti diterima
