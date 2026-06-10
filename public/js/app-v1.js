@@ -307,7 +307,7 @@ async function loadInitialHistory() {
             if (secB !== secA) {
                 return secB - secA;
             }
-            return (a.id || 0) - (b.id || 0);
+            return (b.id || 0) - (a.id || 0);
         });
  
         if (combined.length > 0) {
@@ -646,12 +646,19 @@ window.sendThreshold = async function (val) {
     if (isThresholdChanged) {
         await logToLocal('threshold_change', val);
         lastLoggedThreshold = val;
+    }
 
-        // Kasih jeda 100ms agar urutan di DB tidak tertukar
+    // 2. Tambahkan ke Recent Activity (agar status Kipas yang dipanggil setelah ini ter-prepend di atasnya)
+    if (isThresholdChanged) {
+        addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'threshold');
+    }
+
+    // Kasih jeda 100ms agar urutan di DB tidak tertukar
+    if (isThresholdChanged) {
         await new Promise(resolve => setTimeout(resolve, 100));
     }
 
-    // 2. Kemudian baru cek kondisi suhu vs Slider baru hanya jika MODE AUTO AKTIF
+    // 3. Kemudian baru cek kondisi suhu vs Slider baru hanya jika MODE AUTO AKTIF
     if (isAutoMode) {
         isManualOverride = false;
         const shouldBeOn = currentTemp >= val;
@@ -659,11 +666,6 @@ window.sendThreshold = async function (val) {
             isPowerOn = shouldBeOn;
             await updatePowerUI('auto');
         }
-    }
-
-    // 3. Tambahkan ke Recent Activity (dipanggil paling akhir agar prepended di atas status Kipas)
-    if (isThresholdChanged) {
-        addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'threshold');
     }
 }
 
