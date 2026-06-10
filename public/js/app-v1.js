@@ -633,10 +633,11 @@ window.sendThreshold = async function (val) {
 
     activeThresholdTemp = val; // Set active threshold immediately on submit
 
-    // 1. Catat perubahan threshold DULU
-    if (val !== lastLoggedThreshold) {
+    const isThresholdChanged = (val !== lastLoggedThreshold);
+
+    // 1. Catat perubahan threshold ke DB DULU
+    if (isThresholdChanged) {
         await logToLocal('threshold_change', val);
-        addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'threshold');
         lastLoggedThreshold = val;
 
         // Kasih jeda 100ms agar urutan di DB tidak tertukar
@@ -651,6 +652,11 @@ window.sendThreshold = async function (val) {
             isPowerOn = shouldBeOn;
             await updatePowerUI('auto');
         }
+    }
+
+    // 3. Tambahkan ke Recent Activity (dipanggil paling akhir agar prepended di atas status Kipas)
+    if (isThresholdChanged) {
+        addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'threshold');
     }
 }
 
