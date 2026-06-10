@@ -290,6 +290,7 @@
     <script>
         // Gunakan URL Laravel asli untuk API Base
         window.API_BASE = "{{ url('api') }}";
+        window.IMAGE_BASE = "{{ asset('images') }}";
         window.CSRF_TOKEN = "{{ csrf_token() }}";
         window.DEVICE_TOKEN = "{{ env('DEVICE_TOKEN', 'KipasAnginSecureToken123') }}";
         window.MQTT_USER = "{{ env('MQTT_USER', '') }}";

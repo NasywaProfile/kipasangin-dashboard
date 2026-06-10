@@ -231,33 +231,18 @@ function addHistory(title, type, temp = null, timestamp = null) {
 
     const tempToShow = temp !== null ? temp : currentTemp;
 
-    let iconSvg = '';
-    let typeClass = '';
-
-    if (type === 'on') {
-        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>`;
-        typeClass = 'act-on';
-    } else if (type === 'off') {
-        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12V3"/><path d="M16 7.37A6 6 0 1 1 12.63 3"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`;
-        typeClass = 'act-off';
-    } else if (type === 'auto_on') {
-        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c-2.7 0-5.3 1.1-7.1 3" /><path d="M12 12c0-2.7 1.1-5.3 3-7.1" /><path d="M12 12c2.7 0 5.3-1.1 7.1-3" /><path d="M12 12c0 2.7-1.1 5.3-3 7.1" /><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>`;
-        typeClass = 'act-auto';
-    } else if (type === 'auto_off') {
-        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2" /><path d="M9.6 4.6A2 2 0 1 1 11 8H2" /><path d="M12.6 19.4A2 2 0 1 0 14 16H2" /></svg>`;
-        typeClass = 'act-auto-off';
-    } else if (type === 'threshold') {
-        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z" /><line x1="17" y1="7" x2="19" y2="7" /><line x1="17" y1="10" x2="19" y2="10" /><line x1="17" y1="13" x2="19" y2="13" /></svg>`;
-        typeClass = 'act-threshold';
-    } else {
-        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`;
-        typeClass = 'act-settings';
-    }
+    const base = window.IMAGE_BASE || '/images';
+    let iconSrc = `${base}/icon_threshold.png`;
+    if (type === 'on') iconSrc = `${base}/icon_manual_on.png`;
+    else if (type === 'off') iconSrc = `${base}/icon_manual_off.png`;
+    else if (type === 'auto_on') iconSrc = `${base}/icon_auto_on.jpg`;
+    else if (type === 'auto_off') iconSrc = `${base}/icon_auto_off.png`;
+    else if (type === 'threshold') iconSrc = `${base}/icon_threshold.png`;
 
     const item = document.createElement('div');
     item.className = 'activity-card';
     item.innerHTML = `
-        <div class="act-icon ${typeClass}">${iconSvg}</div>
+        <img src="${iconSrc}" width="44" height="44" style="border-radius: 12px; flex-shrink: 0;" alt="${type}">
         <div class="act-info">
             <h5>${title}</h5>
             <p>${tempToShow.toFixed(1)}°C</p>
@@ -719,10 +704,24 @@ async function loadActivityLog() {
         activityLogList.innerHTML = '';
         data.forEach(row => {
             const meta = getActivityMeta(row.action_type);
+            const base = window.IMAGE_BASE || '/images';
+            let iconHtml = '';
+            
+            if (['on', 'off', 'auto_on', 'auto_off', 'threshold'].includes(meta.icon)) {
+                let iconSrc = `${base}/icon_threshold.png`;
+                if (meta.icon === 'on') iconSrc = `${base}/icon_manual_on.png`;
+                else if (meta.icon === 'off') iconSrc = `${base}/icon_manual_off.png`;
+                else if (meta.icon === 'auto_on') iconSrc = `${base}/icon_auto_on.jpg`;
+                else if (meta.icon === 'auto_off') iconSrc = `${base}/icon_auto_off.png`;
+                iconHtml = `<img src="${iconSrc}" width="44" height="44" style="border-radius: 14px; flex-shrink: 0;" alt="${meta.icon}">`;
+            } else {
+                iconHtml = `<div class="db-row-icon type-${meta.icon}">${iconSvgFor(meta.icon)}</div>`;
+            }
+
             const div = document.createElement('div');
             div.className = 'db-row';
             div.innerHTML = `
-                <div class="db-row-icon type-${meta.icon}">${iconSvgFor(meta.icon)}</div>
+                ${iconHtml}
                 <div class="db-row-info">
                     <h5>${meta.label}</h5>
                     <p>${row.temperature != null ? row.temperature + '°C' : '—'} · Device #${row.device_id ?? 1}</p>
