@@ -229,23 +229,32 @@ function addHistory(title, type, temp = null, timestamp = null) {
         timeZone: 'Asia/Jakarta'
     }).replace(/\./g, ':'); // Ganti "." khas id-ID menjadi ":" untuk format jam modern
 
-    const tempToShow = temp !== null ? temp : currentTemp;
+    let tempText = temp !== null ? `${temp.toFixed(1)}°C` : `${currentTemp.toFixed(1)}°C`;
+    if (type === 'error') {
+        tempText = temp !== null ? `${temp.toFixed(1)}°C` : '—';
+    }
 
     const base = window.IMAGE_BASE || '/images';
-    let iconSrc = `${base}/icon_threshold.png`;
-    if (type === 'on') iconSrc = `${base}/icon_manual_on.png`;
-    else if (type === 'off') iconSrc = `${base}/icon_manual_off.png`;
-    else if (type === 'auto_on') iconSrc = `${base}/icon_auto_on.jpg`;
-    else if (type === 'auto_off') iconSrc = `${base}/icon_auto_off.png`;
-    else if (type === 'threshold') iconSrc = `${base}/icon_threshold.png`;
+    let iconHtml = '';
+    if (type === 'error') {
+        iconHtml = `<div class="act-icon act-off" style="width: 44px; height: 44px; border-radius: 12px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>`;
+    } else {
+        let iconSrc = `${base}/icon_threshold.png`;
+        if (type === 'on') iconSrc = `${base}/icon_manual_on.png`;
+        else if (type === 'off') iconSrc = `${base}/icon_manual_off.png`;
+        else if (type === 'auto_on') iconSrc = `${base}/icon_auto_on.jpg`;
+        else if (type === 'auto_off') iconSrc = `${base}/icon_auto_off.png`;
+        else if (type === 'threshold') iconSrc = `${base}/icon_threshold.png`;
+        iconHtml = `<img src="${iconSrc}" width="44" height="44" style="border-radius: 12px; flex-shrink: 0;" alt="${type}">`;
+    }
 
     const item = document.createElement('div');
     item.className = 'activity-card';
     item.innerHTML = `
-        <img src="${iconSrc}" width="44" height="44" style="border-radius: 12px; flex-shrink: 0;" alt="${type}">
+        ${iconHtml}
         <div class="act-info">
             <h5>${title}</h5>
-            <p>${tempToShow.toFixed(1)}°C</p>
+            <p>${tempText}</p>
         </div>
         <div class="act-time">${timeStr}</div>
     `;
@@ -260,31 +269,59 @@ function addHistory(title, type, temp = null, timestamp = null) {
     if (historyCountLabel) historyCountLabel.textContent = historyList.children.length;
 }
 
-// Fetch 5 riwayat terbaru dari MySQL untuk Dashboard Utama
 async function loadInitialHistory() {
     try {
         const apiBase = window.API_BASE || '/api';
-        console.log("Debug: Fetching initial history from", `${apiBase}/activity-log`);
+        console.log("Debug: Fetching initial history & error log in parallel...");
         
-        const response = await fetch(`${apiBase}/activity-log`);
-        if (!response.ok) throw new Error(`HTTP Error ${response.status}`);
+        // Fetch both activity log and error log in parallel
+        const [activityRes, errorRes] = await Promise.all([
+            fetch(`${apiBase}/activity-log`),
+            fetch(`${apiBase}/error-log`)
+        ]);
         
-        const data = await response.json();
-        console.log("Debug: Received history data:", data);
-
-        if (data && data.length > 0) {
+        if (!activityRes.ok) throw new Error(`Activity HTTP Error ${activityRes.status}`);
+        if (!errorRes.ok) throw new Error(`Error Log HTTP Error ${errorRes.status}`);
+        
+        const activities = await activityRes.json();
+        const errors = await errorRes.json();
+        
+        // Add flags and parse timestamps
+        const processedActivities = (activities || []).map(item => ({
+            ...item,
+            isError: false,
+            timestamp: new Date(item.created_at).getTime()
+        }));
+        
+        const processedErrors = (errors || []).map(item => ({
+            ...item,
+            isError: true,
+            timestamp: new Date(item.created_at).getTime()
+        }));
+        
+        // Merge and sort by timestamp descending (newest first)
+        const combined = [...processedActivities, ...processedErrors];
+        combined.sort((a, b) => b.timestamp - a.timestamp);
+ 
+        if (combined.length > 0) {
             historyList.innerHTML = ''; // Bersihkan loader
-            const latest = data.slice(0, 3); // Ambil 3 teratas saja
+            const latest = combined.slice(0, 3); // Ambil 3 teratas saja
             // Reverse agar yang paling baru ada di atas (karena addHistory pakai prepend)
             latest.reverse().forEach(row => {
-                const meta = getActivityMeta(row.action_type);
-                addHistory(meta.label, meta.icon, parseFloat(row.temperature), row.created_at);
+                if (row.isError) {
+                    addHistory(row.error_msg || 'Error tidak diketahui', 'error', null, row.created_at);
+                } else {
+                    const meta = getActivityMeta(row.action_type);
+                    addHistory(meta.label, meta.icon, parseFloat(row.temperature), row.created_at);
+                }
             });
         } else {
-            console.log("Debug: History data is empty");
+            console.log("Debug: Combined history data is empty");
+            historyList.innerHTML = `<div class="history-empty"><p>Belum ada riwayat.</p></div>`;
         }
     } catch (e) {
         console.error("Critical: loadInitialHistory Failed:", e);
+        historyList.innerHTML = `<div class="history-empty"><p>Gagal memuat riwayat.</p></div>`;
     }
 }
 
@@ -416,6 +453,7 @@ mqttClient.on('message', (topic, message) => {
             // Sync ke Database - Set Offline (PAKSA)
             await syncDeviceStatus('Offline');
             await logSystemError('Koneksi Terputus / Mati Lampu');
+            addHistory('Koneksi Terputus / Mati Lampu', 'error');
         }
     }, 15000);
 
