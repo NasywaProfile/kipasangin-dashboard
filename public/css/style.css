@@ -382,6 +382,7 @@ body {
 .act-off { background: #FEF2F2; color: #EF4444; }
 .act-auto { background: #EFF6FF; color: #3B82F6; }
 .act-auto-off { background: #F1F5F9; color: #64748B; }
+.act-threshold { background: #FFF7ED; color: #F97316; }
 .act-settings { background: #F1F5F9; color: var(--secondary); }
 
 .act-info h5 { font-size: 15px; font-weight: 700; color: var(--secondary); margin: 0; }

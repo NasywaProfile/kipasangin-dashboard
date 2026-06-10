@@ -246,6 +246,9 @@ function addHistory(title, type, temp = null, timestamp = null) {
     } else if (type === 'auto_off') {
         iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2" /><path d="M9.6 4.6A2 2 0 1 1 11 8H2" /><path d="M12.6 19.4A2 2 0 1 0 14 16H2" /></svg>`;
         typeClass = 'act-auto-off';
+    } else if (type === 'threshold') {
+        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z" /><line x1="17" y1="7" x2="19" y2="7" /><line x1="17" y1="10" x2="19" y2="10" /><line x1="17" y1="13" x2="19" y2="13" /></svg>`;
+        typeClass = 'act-threshold';
     } else {
         iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`;
         typeClass = 'act-settings';
@@ -608,7 +611,7 @@ window.sendThreshold = async function (val) {
     // 1. Catat perubahan threshold DULU
     if (val !== lastLoggedThreshold) {
         await logToLocal('threshold_change', val);
-        addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'settings');
+        addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'threshold');
         lastLoggedThreshold = val;
 
         // Kasih jeda 100ms agar urutan di DB tidak tertukar
@@ -687,7 +690,7 @@ function iconSvgFor(type) {
     if (type === 'off') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12V3"/><path d="M16 7.37A6 6 0 1 1 12.63 3"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`;
     if (type === 'auto_on') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c-2.7 0-5.3 1.1-7.1 3" /><path d="M12 12c0-2.7 1.1-5.3 3-7.1" /><path d="M12 12c2.7 0 5.3-1.1 7.1-3" /><path d="M12 12c0 2.7-1.1 5.3-3 7.1" /><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>`;
     if (type === 'auto_off') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2" /><path d="M9.6 4.6A2 2 0 1 1 11 8H2" /><path d="M12.6 19.4A2 2 0 1 0 14 16H2" /></svg>`;
-    if (type === 'threshold') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>`;
+    if (type === 'threshold') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z" /><line x1="17" y1="7" x2="19" y2="7" /><line x1="17" y1="10" x2="19" y2="10" /><line x1="17" y1="13" x2="19" y2="13" /></svg>`;
     if (type === 'error') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
     return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`;
 }
