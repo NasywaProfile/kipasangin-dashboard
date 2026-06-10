@@ -380,6 +380,7 @@ body {
 .act-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; justify-content: center; align-items: center; }
 .act-on { background: #ECFDF5; color: #10B981; }
 .act-off { background: #FEF2F2; color: #EF4444; }
+.act-auto { background: #EFF6FF; color: #3B82F6; }
 .act-settings { background: #F1F5F9; color: var(--secondary); }
 
 .act-info h5 { font-size: 15px; font-weight: 700; color: var(--secondary); margin: 0; }
@@ -493,7 +494,7 @@ body {
 }
 .db-row-icon.type-on { background: #ECFDF5; color: #10B981; }
 .db-row-icon.type-off { background: #FEF2F2; color: #EF4444; }
-.db-row-icon.type-auto { background: #EFF6FF; color: #3B82F6; }
+.db-row-icon.type-auto, .db-row-icon.type-auto_on, .db-row-icon.type-auto_off { background: #EFF6FF; color: #3B82F6; }
 .db-row-icon.type-threshold { background: #FFF7ED; color: #F97316; }
 .db-row-icon.type-error { background: #FFF1F2; color: #E11D48; }
 

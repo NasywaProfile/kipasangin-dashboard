@@ -158,7 +158,7 @@ function updatePowerUI(source = 'manual') {
         fanBlades.classList.add('spinning');
 
         const title = source === 'auto' ? 'Auto-Cooling' : 'Fan Started';
-        addHistory(title, 'on');
+        addHistory(title, source === 'auto' ? 'auto_on' : 'on');
 
         if (source === 'auto') {
             logToLocal('auto_on');
@@ -173,7 +173,7 @@ function updatePowerUI(source = 'manual') {
         fanBlades.classList.remove('spinning');
 
         const title = source === 'auto' ? 'Target Reached' : 'Fan Stopped';
-        addHistory(title, 'off');
+        addHistory(title, source === 'auto' ? 'auto_off' : 'off');
 
         if (source === 'auto') {
             logToLocal('auto_off');
@@ -239,6 +239,12 @@ function addHistory(title, type, temp = null, timestamp = null) {
         typeClass = 'act-on';
     } else if (type === 'off') {
         iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12V3"/><path d="M16 7.37A6 6 0 1 1 12.63 3"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`;
+        typeClass = 'act-off';
+    } else if (type === 'auto_on') {
+        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c-2.7 0-5.3 1.1-7.1 3" /><path d="M12 12c0-2.7 1.1-5.3 3-7.1" /><path d="M12 12c2.7 0 5.3-1.1 7.1-3" /><path d="M12 12c0 2.7-1.1 5.3-3 7.1" /><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>`;
+        typeClass = 'act-auto';
+    } else if (type === 'auto_off') {
+        iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c-2.7 0-5.3 1.1-7.1 3" /><path d="M12 12c0-2.7 1.1-5.3 3-7.1" /><path d="M12 12c2.7 0 5.3-1.1 7.1-3" /><path d="M12 12c0 2.7-1.1 5.3-3 7.1" /><circle cx="12" cy="12" r="2" fill="currentColor"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`;
         typeClass = 'act-off';
     } else {
         iconSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>`;
@@ -663,11 +669,11 @@ function getActivityMeta(type) {
     const map = {
         manual_on:       { label: 'Kipas Dinyalakan (Manual)',   icon: 'on'        },
         manual_off:      { label: 'Kipas Dimatikan (Manual)',    icon: 'off'       },
-        auto_on:         { label: 'Kipas Menyala (Otomatis)',    icon: 'auto'      },
-        auto_off:        { label: 'Kipas Mati (Otomatis)',       icon: 'auto'      },
+        auto_on:         { label: 'Kipas Menyala (Otomatis)',    icon: 'auto_on'   },
+        auto_off:        { label: 'Kipas Mati (Otomatis)',       icon: 'auto_off'  },
         threshold_change:{ label: 'Target Suhu Diubah',         icon: 'threshold' },
     };
-    return map[type] || { label: type, icon: 'auto' };
+    return map[type] || { label: type, icon: 'auto_on' };
 }
 
 function formatTime(ts) {
@@ -679,6 +685,8 @@ function formatTime(ts) {
 function iconSvgFor(type) {
     if (type === 'on')  return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>`;
     if (type === 'off') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12V3"/><path d="M16 7.37A6 6 0 1 1 12.63 3"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`;
+    if (type === 'auto_on') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c-2.7 0-5.3 1.1-7.1 3" /><path d="M12 12c0-2.7 1.1-5.3 3-7.1" /><path d="M12 12c2.7 0 5.3-1.1 7.1-3" /><path d="M12 12c0 2.7-1.1 5.3-3 7.1" /><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>`;
+    if (type === 'auto_off') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12c-2.7 0-5.3 1.1-7.1 3" /><path d="M12 12c0-2.7 1.1-5.3 3-7.1" /><path d="M12 12c2.7 0 5.3-1.1 7.1-3" /><path d="M12 12c0 2.7-1.1 5.3-3 7.1" /><circle cx="12" cy="12" r="2" fill="currentColor"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`;
     if (type === 'threshold') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>`;
     if (type === 'error') return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
     return `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>`;
