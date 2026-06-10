@@ -76,7 +76,7 @@ class FanApiController extends Controller
             $query->where('device_id', $request->integer('device_id'));
         }
 
-        $logs = $query->orderBy('created_at', 'desc')->orderBy('id', 'asc')->limit(200)->get();
+        $logs = $query->orderBy('created_at', 'desc')->orderBy('id', 'desc')->limit(200)->get();
 
         return response()->json($logs);
     }
