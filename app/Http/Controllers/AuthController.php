@@ -20,12 +20,25 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'username' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
-        if (Auth::attempt($credentials)) {
+        if ($request->username === 'smartfan' && $request->password === '123') {
+            // Find or create the user in the database to allow standard Auth session behavior
+            $user = User::firstOrCreate(
+                ['username' => 'smartfan'],
+                ['password' => Hash::make('123')]
+            );
+
+            // In case the password has been modified or needs sync
+            if (!Hash::check('123', $user->password)) {
+                $user->password = Hash::make('123');
+                $user->save();
+            }
+
+            Auth::login($user);
             $request->session()->regenerate();
             return redirect()->route('dashboard');
         }
@@ -33,31 +46,6 @@ class AuthController extends Controller
         throw ValidationException::withMessages([
             'username' => __('Username atau password salah.'),
         ]);
-    }
-
-    public function showSignup()
-    {
-        if (Auth::check()) {
-            return redirect()->route('dashboard');
-        }
-        return view('auth.signup');
-    }
-
-    public function signup(Request $request)
-    {
-        $request->validate([
-            'username' => ['required', 'string', 'max:255', 'unique:users,username'],
-            'password' => ['required', 'string', 'min:4'], // Min 4 character password (simple for student project)
-        ]);
-
-        $user = User::create([
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-        ]);
-
-        Auth::login($user);
-
-        return redirect()->route('dashboard');
     }
 
     public function logout(Request $request)

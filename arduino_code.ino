@@ -10,6 +10,9 @@
 // =====================================================
 
 #include <WiFi.h>
+#include <WiFiClientSecure.h> // <-- Tambahan untuk MQTTS!
+#include <base64.h>           // <-- Tambahan untuk Base64!
+#include "mbedtls/base64.h"   // <-- Digunakan untuk decoding Base64 di ESP32
 #include <WiFiManager.h> // <-- Tambahan Library Baru!
 #include <MQTT.h>
 #include <HTTPClient.h>
@@ -21,11 +24,14 @@
 
 // --- KONFIGURASI MQTT (HiveMQ Public - Gratis, Stabil) ---
 const char mqtt_host[] = "broker.hivemq.com";
-const int  mqtt_port   = 1883; // Plain TCP, TANPA SSL = super cepat!
+const int  mqtt_port   = 8883; // MQTTS (Secure TLS/SSL)
+const char mqtt_user[] = "";    // Isi dengan username private broker Anda jika ada
+const char mqtt_pass[] = "";    // Isi dengan password private broker Anda jika ada
+const char mqtt_topic_prefix[] = "smartfan/device_1"; // Prefix topik unik untuk keamanan
 
 // --- KONFIGURASI LOCAL SERVER (XAMPP) ---
 // Ganti [IP_LAPTOP] dengan IP Laptop Anda (misal: 192.168.1.10)
-const char* local_server_url = "http://[IP_LAPTOP]/kipasangin/public/api/activity-log";
+const char* local_server_url = "https://[IP_LAPTOP]/kipasangin/public/api/activity-log";
 
 // --- KONFIGURASI HARDWARE ---
 #define DHTPIN  33
@@ -44,10 +50,32 @@ float currentTemp  = 24.5;
 float thresholdTemp = 32.0;
 float hysteresis   = 0.2; // Diperkecil supaya bereaksi lebih cepat
 
-WiFiClient  net;
+WiFiClientSecure net;
 MQTTClient  mqttClient(512);
 
 unsigned long lastSensorRead  = 0;
+
+// Helper function to decode Base64 using built-in mbedtls
+String base64Decode(const String &input) {
+  size_t outputLength;
+  size_t inputLength = input.length();
+  size_t bufferSize = (inputLength * 3) / 4 + 2;
+  unsigned char *outputBuffer = (unsigned char *)malloc(bufferSize);
+  if (outputBuffer == NULL) {
+    return "";
+  }
+
+  int result = mbedtls_base64_decode(outputBuffer, bufferSize, &outputLength, (const unsigned char *)input.c_str(), inputLength);
+  if (result != 0) {
+    free(outputBuffer);
+    return "";
+  }
+
+  outputBuffer[outputLength] = '\0';
+  String decoded = String((char *)outputBuffer);
+  free(outputBuffer);
+  return decoded;
+}
 
 // =====================================================
 // SWITCH RELAY — INSTAN, lalu publish status ke MQTT
@@ -60,7 +88,7 @@ void setFan(bool state, String source) {
     RELAY_OFF();
   }
   // Publish balik status biar dashboard sinkron
-  mqttClient.publish("smartfan/data/power", isPowerOn ? "ON" : "OFF", false, 1);
+  mqttClient.publish(String(String(mqtt_topic_prefix) + "/data/power").c_str(), isPowerOn ? "ON" : "OFF", false, 1);
   Serial.println(isPowerOn ? "Fan: ON" : "Fan: OFF");
 
   // Jika triggernya dari sensor suhu (otomatis), log ke database.
@@ -76,38 +104,42 @@ void setFan(bool state, String source) {
 void messageReceived(String &topic, String &payload) {
   Serial.println("MSG: " + topic + " -> " + payload);
 
-  if (topic == "smartfan/cmd/power") {
+  // Decode Base64 Payload
+  String decodedPayload = base64Decode(payload);
+  Serial.println("Decoded: " + decodedPayload);
+
+  if (topic == String(mqtt_topic_prefix) + "/cmd/power") {
     manualOverride = true;
     // Sinkronkan mode manual ke dashboard secara real-time
-    mqttClient.publish("smartfan/data/mode", "MANUAL", false, 1);
-    bool newState = (payload == "ON");
+    mqttClient.publish(String(String(mqtt_topic_prefix) + "/data/mode").c_str(), "MANUAL", false, 1);
+    bool newState = (decodedPayload == "ON");
     if (newState != isPowerOn) {
       setFan(newState, "manual"); // ⚡ RELAY NYALA/MATI INSTAN DI SINI
     }
   }
-  else if (topic == "smartfan/cmd/threshold") {
-    float val = payload.toFloat();
+  else if (topic == String(mqtt_topic_prefix) + "/cmd/threshold") {
+    float val = decodedPayload.toFloat();
     if (val > 0) {
       thresholdTemp = val;
       Serial.println("Threshold: " + String(thresholdTemp, 1));
     }
   }
-  else if (topic == "smartfan/cmd/mode") {
-    if (payload == "AUTO") {
+  else if (topic == String(mqtt_topic_prefix) + "/cmd/mode") {
+    if (decodedPayload == "AUTO") {
       manualOverride = false;
       Serial.println("Mode: AUTO");
     } else {
       manualOverride = true;
       Serial.println("Mode: MANUAL");
     }
-    mqttClient.publish("smartfan/data/mode", manualOverride ? "MANUAL" : "AUTO", false, 1);
+    mqttClient.publish(String(String(mqtt_topic_prefix) + "/data/mode").c_str(), manualOverride ? "MANUAL" : "AUTO", false, 1);
   }
-  else if (topic == "smartfan/cmd/status") {
+  else if (topic == String(mqtt_topic_prefix) + "/cmd/status") {
     // Dashboard request status saat pertama connect
-    mqttClient.publish("smartfan/data/power", isPowerOn ? "ON" : "OFF");
-    mqttClient.publish("smartfan/data/temp",  String(currentTemp, 1));
-    mqttClient.publish("smartfan/data/threshold", String(thresholdTemp, 1)); // FIX: Gunakan thresholdTemp asli
-    mqttClient.publish("smartfan/data/mode", manualOverride ? "MANUAL" : "AUTO");
+    mqttClient.publish(String(String(mqtt_topic_prefix) + "/data/power").c_str(), isPowerOn ? "ON" : "OFF");
+    mqttClient.publish(String(String(mqtt_topic_prefix) + "/data/temp").c_str(),  String(currentTemp, 1).c_str());
+    mqttClient.publish(String(String(mqtt_topic_prefix) + "/data/threshold").c_str(), String(thresholdTemp, 1).c_str());
+    mqttClient.publish(String(String(mqtt_topic_prefix) + "/data/mode").c_str(), manualOverride ? "MANUAL" : "AUTO");
   }
 }
 
@@ -123,13 +155,16 @@ void logToLocal(String type, float temp) {
     return;
   }
 
+  WiFiClientSecure secureClient;
+  secureClient.setInsecure(); // Mengabaikan validasi SSL (aman untuk localhost/self-signed sertifikat)
+
   HTTPClient http;
   
-  http.begin(local_server_url); // Gunakan internal client agar tidak menabrak socket MQTT net!
+  http.begin(secureClient, local_server_url); // Gunakan client secure untuk koneksi HTTPS!
   http.setTimeout(1500); // Set timeout 1.5 detik
   http.addHeader("Content-Type", "application/json");
 
-  String payload = "{\"device_id\": 1, \"action_type\": \"" + type + "\", \"temperature\": " + String(temp, 1) + "}";
+  String payload = "{\"device_id\": 1, \"action_type\": \"" + type + "\", \"temperature\": " + String(temp, 1) + ", \"token\": \"KipasAnginSecureToken123\"}";
   int httpResponseCode = http.POST(payload);
   
   if (httpResponseCode > 0) {
@@ -165,21 +200,23 @@ void connectAll() {
   }
 
   // MQTT
+  net.setInsecure(); // Mengabaikan validasi rantai sertifikat (aman dari masa kedaluwarsa sertifikat broker publik)
   mqttClient.begin(mqtt_host, mqtt_port, net);
   mqttClient.onMessage(messageReceived);
   mqttClient.setKeepAlive(60);
 
   String clientId = "esp32_fan_" + String(WiFi.macAddress());
   Serial.print("MQTT");
-  while (!mqttClient.connect(clientId.c_str())) { Serial.print("."); delay(500); }
+  while (!mqttClient.connect(clientId.c_str(), mqtt_user, mqtt_pass)) { Serial.print("."); delay(500); }
   Serial.println(" OK!");
 
-  mqttClient.subscribe("smartfan/cmd/#", 1); // QoS 1 = pasti diterima
+  String cmdTopic = String(mqtt_topic_prefix) + "/cmd/#";
+  mqttClient.subscribe(cmdTopic.c_str(), 1); // QoS 1 = pasti diterima
 
   // Umumkan status awal ke dashboard
-  mqttClient.publish("smartfan/data/power", isPowerOn ? "ON" : "OFF", false, 1);
-  mqttClient.publish("smartfan/data/threshold", String(thresholdTemp, 1), false, 1);
-  mqttClient.publish("smartfan/data/mode", manualOverride ? "MANUAL" : "AUTO", false, 1);
+  mqttClient.publish(String(String(mqtt_topic_prefix) + "/data/power").c_str(), isPowerOn ? "ON" : "OFF", false, 1);
+  mqttClient.publish(String(String(mqtt_topic_prefix) + "/data/threshold").c_str(), String(thresholdTemp, 1).c_str(), false, 1);
+  mqttClient.publish(String(String(mqtt_topic_prefix) + "/data/mode").c_str(), manualOverride ? "MANUAL" : "AUTO", false, 1);
 }
 
 // =====================================================
@@ -221,7 +258,7 @@ void loop() {
       currentTemp = temp;
 
       // Publish suhu via MQTT (real-time ke dashboard)
-      mqttClient.publish("smartfan/data/temp", String(currentTemp, 1), false, 0);
+      mqttClient.publish(String(String(mqtt_topic_prefix) + "/data/temp").c_str(), String(currentTemp, 1).c_str(), false, 0);
     } else {
       Serial.println("⚠️ Error: Sensor DHT11 tidak terbaca (NaN)! Periksa kabel jumper Anda.");
     }

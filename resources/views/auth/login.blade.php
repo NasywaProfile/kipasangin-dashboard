@@ -182,8 +182,6 @@
 
                 <button type="submit" class="auth-btn">Masuk Sekarang</button>
             </form>
-
-            <a href="{{ url('/signup') }}" class="auth-link">Belum punya akun? Daftar gratis</a>
         </div>
     </div>
 </body>

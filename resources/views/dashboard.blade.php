@@ -291,6 +291,10 @@
         // Gunakan URL Laravel asli untuk API Base
         window.API_BASE = "{{ url('api') }}";
         window.CSRF_TOKEN = "{{ csrf_token() }}";
+        window.DEVICE_TOKEN = "{{ env('DEVICE_TOKEN', 'KipasAnginSecureToken123') }}";
+        window.MQTT_USER = "{{ env('MQTT_USER', '') }}";
+        window.MQTT_PASS = "{{ env('MQTT_PASS', '') }}";
+        window.MQTT_DEVICE_PREFIX = "{{ env('MQTT_DEVICE_PREFIX', 'smartfan/device_1') }}";
         console.log("Debug: API_BASE is", window.API_BASE);
     </script>
     <script src="https://unpkg.com/mqtt@4.3.7/dist/mqtt.min.js"></script>

@@ -329,8 +329,12 @@ const MQTT_CLIENT_ID = 'SF_' + Math.random().toString(10).slice(2, 6); // ID leb
 const cloudStatus = document.getElementById('cloudStatus');
 const cloudStatusText = cloudStatus.querySelector('span:nth-child(2)');
 
+const MQTT_TOPIC_PREFIX = window.MQTT_DEVICE_PREFIX || 'smartfan/device_1';
+
 const mqttClient = mqtt.connect(MQTT_BROKER, {
     clientId: MQTT_CLIENT_ID,
+    username: window.MQTT_USER || undefined,
+    password: window.MQTT_PASS || undefined,
     clean: true,
     reconnectPeriod: 1000,
     keepalive: 60,
@@ -349,11 +353,11 @@ mqttClient.on('connect', () => {
     console.log('Dashboard Terhubung ke Server. Menunggu data dari Kipas...');
 
     // Subscribe ke data dari Arduino
-    mqttClient.subscribe('smartfan/data/#');
+    mqttClient.subscribe(MQTT_TOPIC_PREFIX + '/data/#');
 
     // Minta status awal dari Arduino
     // (Jika Kipas online, dia akan menangkap pesan ini dan membalas)
-    mqttClient.publish('smartfan/cmd/status', 'request');
+    mqttClient.publish(MQTT_TOPIC_PREFIX + '/cmd/status', btoa('request'));
 });
 
 mqttClient.on('offline', () => {
@@ -400,10 +404,10 @@ mqttClient.on('message', (topic, message) => {
         }
     }, 15000);
 
-    if (topic === 'smartfan/data/temp') {
+    if (topic === MQTT_TOPIC_PREFIX + '/data/temp') {
         handleTempUpdate(parseFloat(data));
 
-    } else if (topic === 'smartfan/data/power') {
+    } else if (topic === MQTT_TOPIC_PREFIX + '/data/power') {
         // Jika baru saja ditekan manual, abaikan data balik selama 5 detik biar nggak dobel log
         if (Date.now() - lastPowerCommandTime < 5000) return;
 
@@ -414,7 +418,7 @@ mqttClient.on('message', (topic, message) => {
             updatePowerUI(isManualOverride ? 'manual' : 'auto');
         }
 
-    } else if (topic === 'smartfan/data/threshold') {
+    } else if (topic === MQTT_TOPIC_PREFIX + '/data/threshold') {
         const t = parseFloat(data);
         if (!isNaN(t)) {
             thresholdTemp = t;
@@ -422,7 +426,7 @@ mqttClient.on('message', (topic, message) => {
             if (thresholdInput) thresholdInput.value = t.toFixed(1);
             if (thresholdSlider) thresholdSlider.value = t;
         }
-    } else if (topic === 'smartfan/data/mode') {
+    } else if (topic === MQTT_TOPIC_PREFIX + '/data/mode') {
         if (Date.now() - lastModeCommandTime < 5000) return; // Abaikan pesan lama jika baru saja diubah manual
         isAutoMode = (data === 'AUTO');
         updateAutoModeUI();
@@ -452,7 +456,8 @@ async function logToLocal(action, val = null) {
             body: JSON.stringify({
                 device_id: 1,
                 action_type: action,
-                temperature: recordTemp
+                temperature: recordTemp,
+                token: window.DEVICE_TOKEN || ''
             })
         });
 
@@ -489,7 +494,8 @@ async function logSystemError(msg) {
             body: JSON.stringify({
                 device_id: 1, // Sesuai ID di database
                 error_msg: msg,
-                severity: 'CRITICAL'
+                severity: 'CRITICAL',
+                token: window.DEVICE_TOKEN || ''
             })
         });
 
@@ -523,13 +529,13 @@ window.handlePowerToggle = () => {
     isAutoMode = false;
     if (autoModeSwitch) autoModeSwitch.checked = false;
     updateAutoModeUI();
-    mqttClient.publish('smartfan/cmd/mode', 'MANUAL');
+    mqttClient.publish(MQTT_TOPIC_PREFIX + '/cmd/mode', btoa('MANUAL'));
 
     isPowerOn = !isPowerOn; // Toggle status secara langsung untuk stabilitas di HP/Mobile
     updatePowerUI('manual');
 
     const cmd = isPowerOn ? 'ON' : 'OFF';
-    mqttClient.publish('smartfan/cmd/power', cmd);
+    mqttClient.publish(MQTT_TOPIC_PREFIX + '/cmd/power', btoa(cmd));
 
     // Log ke Local tanpa mengganggu tampilan
     logToLocal(isPowerOn ? 'manual_on' : 'manual_off');
@@ -546,7 +552,7 @@ window.handleAutoModeToggle = () => {
     updateAutoModeUI();
     
     const cmd = isAutoMode ? 'AUTO' : 'MANUAL';
-    mqttClient.publish('smartfan/cmd/mode', cmd);
+    mqttClient.publish(MQTT_TOPIC_PREFIX + '/cmd/mode', btoa(cmd));
     
     if (isAutoMode) {
         isManualOverride = false; // Reset manual override since auto is now active
@@ -568,7 +574,7 @@ window.sendThreshold = async function (val) {
     if (!mqttClient.connected) {
         mqttClient.reconnect();
     }
-    mqttClient.publish('smartfan/cmd/threshold', val.toFixed(1));
+    mqttClient.publish(MQTT_TOPIC_PREFIX + '/cmd/threshold', btoa(val.toFixed(1)));
 
     activeThresholdTemp = val; // Set active threshold immediately on submit
 

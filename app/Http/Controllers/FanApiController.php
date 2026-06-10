@@ -87,6 +87,13 @@ class FanApiController extends Controller
     // ──────────────────────────────────────────────────────────
     public function storeActivity(Request $request): JsonResponse
     {
+        $deviceToken = env('DEVICE_TOKEN', 'KipasAnginSecureToken123');
+        if ($request->input('token') !== $deviceToken) {
+            if (!auth()->check()) {
+                return response()->json(['status' => 'error', 'message' => 'Unauthorized token'], 401);
+            }
+        }
+
         $data = $request->validate([
             'device_id'   => 'required', // Bisa integer ID atau string device_id (FAN-001)
             'action_type' => 'required|string|max:50',
@@ -151,6 +158,13 @@ class FanApiController extends Controller
     // ──────────────────────────────────────────────────────────
     public function storeError(Request $request): JsonResponse
     {
+        $deviceToken = env('DEVICE_TOKEN', 'KipasAnginSecureToken123');
+        if ($request->input('token') !== $deviceToken) {
+            if (!auth()->check()) {
+                return response()->json(['status' => 'error', 'message' => 'Unauthorized token'], 401);
+            }
+        }
+
         Log::info('POST /api/error-log triggered (merged to activity)', $request->all());
 
         $data = $request->validate([
