@@ -157,7 +157,7 @@ function updatePowerUI(source = 'manual') {
         statusLabel.style.color = '#10B981';
         fanBlades.classList.add('spinning');
 
-        const title = source === 'auto' ? 'Auto-Cooling' : 'Fan Started';
+        const title = source === 'auto' ? 'Kipas Menyala (Otomatis)' : 'Kipas Dinyalakan (Manual)';
         addHistory(title, source === 'auto' ? 'auto_on' : 'on');
 
         if (source === 'auto') {
@@ -172,7 +172,7 @@ function updatePowerUI(source = 'manual') {
         statusLabel.style.color = '#64748B';
         fanBlades.classList.remove('spinning');
 
-        const title = source === 'auto' ? 'Target Reached' : 'Fan Stopped';
+        const title = source === 'auto' ? 'Kipas Mati (Otomatis)' : 'Kipas Dimatikan (Manual)';
         addHistory(title, source === 'auto' ? 'auto_off' : 'off');
 
         if (source === 'auto') {
@@ -312,7 +312,11 @@ async function loadInitialHistory() {
                     addHistory(row.error_msg || 'Error tidak diketahui', 'error', null, row.created_at);
                 } else {
                     const meta = getActivityMeta(row.action_type);
-                    addHistory(meta.label, meta.icon, parseFloat(row.temperature), row.created_at);
+                    let title = meta.label;
+                    if (row.action_type === 'threshold_change') {
+                        title = `Target Suhu: ${parseFloat(row.temperature).toFixed(1)}°C`;
+                    }
+                    addHistory(title, meta.icon, parseFloat(row.temperature), row.created_at);
                 }
             });
         } else {
@@ -609,12 +613,10 @@ window.handleAutoModeToggle = () => {
     
     if (isAutoMode) {
         isManualOverride = false; // Reset manual override since auto is now active
-        addHistory('Mode Otomatis Aktif', 'settings');
         // Trigger evaluasi suhu segera
         handleTempUpdate(currentTemp);
     } else {
         isManualOverride = true; // Manual override is active when Auto is turned off
-        addHistory('Mode Manual Aktif', 'settings');
     }
 };
 
@@ -758,10 +760,13 @@ async function loadActivityLog() {
 
             const div = document.createElement('div');
             div.className = 'db-row';
+            const title = row.action_type === 'threshold_change' 
+                ? `Target Suhu: ${parseFloat(row.temperature).toFixed(1)}°C` 
+                : meta.label;
             div.innerHTML = `
                 ${iconHtml}
                 <div class="db-row-info">
-                    <h5>${meta.label}</h5>
+                    <h5>${title}</h5>
                     <p>${row.temperature != null ? row.temperature + '°C' : '—'} · Device #${row.device_id ?? 1}</p>
                 </div>
                 <div class="db-row-time">${formatTime(row.created_at)}</div>`;
