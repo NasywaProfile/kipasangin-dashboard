@@ -301,7 +301,14 @@ async function loadInitialHistory() {
         
         // Merge and sort by timestamp descending (newest first)
         const combined = [...processedActivities, ...processedErrors];
-        combined.sort((a, b) => b.timestamp - a.timestamp);
+        combined.sort((a, b) => {
+            const secA = Math.floor(a.timestamp / 1000);
+            const secB = Math.floor(b.timestamp / 1000);
+            if (secB !== secA) {
+                return secB - secA;
+            }
+            return (a.id || 0) - (b.id || 0);
+        });
  
         if (combined.length > 0) {
             historyList.innerHTML = ''; // Bersihkan loader
