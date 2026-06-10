@@ -92,6 +92,9 @@ if (thresholdSlider) {
         thresholdTemp = parseFloat(thresholdSlider.value);
         if (thresholdInput) thresholdInput.value = thresholdTemp;
     });
+    thresholdSlider.addEventListener('change', () => {
+        sendThreshold(thresholdTemp);
+    });
 }
 
 if (thresholdInput) {
@@ -489,6 +492,12 @@ mqttClient.on('message', (topic, message) => {
             activeThresholdTemp = t;
             if (thresholdInput) thresholdInput.value = t.toFixed(1);
             if (thresholdSlider) thresholdSlider.value = t;
+
+            // Sync Recent Activity across all dashboards in real-time
+            if (t !== lastLoggedThreshold) {
+                addHistory(`Target Suhu: ${t.toFixed(1)}°C`, 'threshold');
+                lastLoggedThreshold = t;
+            }
         }
     } else if (topic === MQTT_TOPIC_PREFIX + '/data/mode') {
         if (Date.now() - lastModeCommandTime < 5000) return; // Abaikan pesan lama jika baru saja diubah manual
@@ -648,24 +657,9 @@ window.sendThreshold = async function (val) {
         lastLoggedThreshold = val;
     }
 
-    // 2. Tambahkan ke Recent Activity (agar status Kipas yang dipanggil setelah ini ter-prepend di atasnya)
+    // 2. Tambahkan ke Recent Activity (prepended first)
     if (isThresholdChanged) {
         addHistory(`Target Suhu: ${val.toFixed(1)}°C`, 'threshold');
-    }
-
-    // Kasih jeda 100ms agar urutan di DB tidak tertukar
-    if (isThresholdChanged) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-    }
-
-    // 3. Kemudian baru cek kondisi suhu vs Slider baru hanya jika MODE AUTO AKTIF
-    if (isAutoMode) {
-        isManualOverride = false;
-        const shouldBeOn = currentTemp >= val;
-        if (shouldBeOn !== isPowerOn) {
-            isPowerOn = shouldBeOn;
-            await updatePowerUI('auto');
-        }
     }
 }
 

@@ -122,6 +122,7 @@ void messageReceived(String &topic, String &payload) {
     if (val > 0) {
       thresholdTemp = val;
       Serial.println("Threshold: " + String(thresholdTemp, 1));
+      mqttClient.publish(String(String(mqtt_topic_prefix) + "/data/threshold").c_str(), String(thresholdTemp, 1).c_str(), false, 1);
     }
   }
   else if (topic == String(mqtt_topic_prefix) + "/cmd/mode") {
